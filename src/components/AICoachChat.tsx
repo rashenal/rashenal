@@ -1,165 +1,268 @@
 // components/AICoachChat.tsx
-// AI-powered coaching chat with mock responses for StackBlitz demo
+// AI-powered coaching chat with Claude integration and accessibility focus
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader, RefreshCcw, MessageCircle } from 'lucide-react';
+import { Send, Bot, User, Loader, RefreshCcw, MessageCircle, AlertCircle, CheckCircle } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { useUser } from '../contexts/userContext';
 
 interface ChatMessage {
   id: string;
   type: 'user' | 'ai';
   message: string;
   timestamp: Date;
+  status?: 'sending' | 'sent' | 'error';
 }
 
 interface UserContext {
   name: string;
-  habits: {
-    name: string;
-    progress: number;
-    streak: number;
-    target: number;
-    unit: string;
-  }[];
-  weeklyStats: {
-    goalsCompleted: string;
-    streakDays: number;
-    aiSessions: number;
-    improvement: string;
-  };
+  habits: any[];
+  goals: any[];
+  weeklyStats: any;
+  recentCompletions: any[];
+  preferences?: any;
 }
 
 interface AICoachChatProps {
-  userContext?: UserContext;
   className?: string;
 }
 
-export default function AICoachChat({ userContext, className = "" }: AICoachChatProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      type: 'ai',
-      message: "Good morning! I noticed you've been consistent with meditation. How are you feeling today?",
-      timestamp: new Date(Date.now() - 1000 * 60 * 30) // 30 mins ago
-    }
-  ]);
+export default function AICoachChat({ className = "" }: AICoachChatProps) {
+  const { user } = useUser();
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
+  const [userContext, setUserContext] = useState<UserContext | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Default user context for demo
-  const defaultContext: UserContext = {
-    name: "there",
-    habits: [
-      { name: 'Daily Meditation', progress: 85, streak: 12, target: 15, unit: 'min' },
-      { name: 'Morning Exercise', progress: 72, streak: 8, target: 30, unit: 'min' },
-      { name: 'Read 30 Minutes', progress: 94, streak: 15, target: 30, unit: 'min' },
-      { name: 'Drink 8 Glasses Water', progress: 60, streak: 5, target: 8, unit: 'glasses' }
-    ],
-    weeklyStats: {
-      goalsCompleted: "18/21",
-      streakDays: 12,
-      aiSessions: 8,
-      improvement: "+23%"
+  // Load initial data when user is available
+  useEffect(() => {
+    if (user) {
+      initializeChat();
     }
-  };
-
-  const context = userContext || defaultContext;
+  }, [user]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Mock AI responses based on user input
-  const generateMockResponse = (userMessage: string): string => {
-    const message = userMessage.toLowerCase();
-    const completedHabits = context.habits.filter(h => h.progress >= 100);
-    const strugglingHabits = context.habits.filter(h => h.progress < 50);
-    const topStreak = Math.max(...context.habits.map(h => h.streak));
+  // Focus input after loading
+  useEffect(() => {
+    if (!isLoading && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isLoading]);
 
-    // Contextual responses based on user habits
-    if (message.includes('motivated') || message.includes('motivation')) {
-      return `I see you've maintained a ${topStreak}-day streak - that's incredible! When motivation dips, remember that ${completedHabits.length > 0 ? completedHabits[0].name : 'your habits'} are already on autopilot. What's one small thing you can do right now to feel accomplished?`;
-    }
-    
-    if (message.includes('struggling') || message.includes('difficult') || message.includes('hard')) {
-      const focusHabit = strugglingHabits.length > 0 ? strugglingHabits[0].name : 'your routines';
-      return `I understand ${focusHabit} feels challenging right now. Your ${context.weeklyStats.streakDays}-day streak shows you have the resilience! Let's break it down - what's the smallest possible step you could take with ${focusHabit} today?`;
-    }
-    
-    if (message.includes('focus') || message.includes('today') || message.includes('priority')) {
-      const needsAttention = strugglingHabits.length > 0 ? strugglingHabits[0] : null;
-      if (needsAttention) {
-        return `Looking at your progress, I'd suggest focusing on ${needsAttention.name} today. You're at ${needsAttention.progress}% - just a little push could make a big difference! What's preventing you from hitting your ${needsAttention.target} ${needsAttention.unit} target?`;
+  const initializeChat = async () => {
+    try {
+      await loadUserContext();
+      await loadChatHistory();
+      
+      // Add welcome message if no chat history
+      if (messages.length === 0) {
+        const welcomeMessage: ChatMessage = {
+          id: 'welcome-1',
+          type: 'ai',
+          message: "Hi! I'm your AI transformation coach. I can see your progress and I'm here to help you replace self-doubt with self-belief. How are you feeling about your journey today?",
+          timestamp: new Date()
+        };
+        setMessages([welcomeMessage]);
       }
-      return `You're doing amazingly well! Your consistency with ${completedHabits[0]?.name || 'your habits'} is inspiring. Today, maybe celebrate your progress and plan how to maintain this momentum through the weekend?`;
+    } catch (error) {
+      console.error('Error initializing chat:', error);
+      setError('Unable to load your coaching data. Please try again.');
     }
-    
-    if (message.includes('celebrate') || message.includes('progress') || message.includes('good') || message.includes('great')) {
-      return `Yes! Let's celebrate! 🎉 Your ${context.weeklyStats.improvement} improvement this week is fantastic. You've completed ${context.weeklyStats.goalsCompleted} goals - that's the kind of consistency that creates lasting transformation. What victory feels biggest to you right now?`;
-    }
+  };
 
-    if (message.includes('water') || message.includes('hydration')) {
-      const waterHabit = context.habits.find(h => h.name.toLowerCase().includes('water'));
-      if (waterHabit) {
-        return `I notice you're at ${waterHabit.progress}% with water intake. Hydration affects everything - energy, focus, even mood! Try setting phone reminders every 2 hours. What's your biggest barrier to drinking more water?`;
+  const loadUserContext = async () => {
+    if (!user) return;
+
+    try {
+      // Load user profile
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .single();
+
+      // Load user's active habits
+      const { data: habits } = await supabase
+        .from('habits')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_active', true);
+
+      // Load user's active goals
+      const { data: goals } = await supabase
+        .from('goals')
+        .select('*')
+        .eq('user_id', user.id)
+        .neq('status', 'completed');
+
+      // Get recent completions for context
+      const { data: completions } = await supabase
+        .from('habit_completions')
+        .select(`
+          *,
+          habits!inner(name, target_value, target_unit)
+        `)
+        .eq('user_id', user.id)
+        .gte('completed_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+        .order('completed_at', { ascending: false });
+
+      // Get user preferences
+      const { data: preferences } = await supabase
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      // Calculate basic stats
+      const context: UserContext = {
+        name: profile?.full_name || user.email?.split('@')[0] || 'there',
+        habits: habits || [],
+        goals: goals || [],
+        recentCompletions: completions || [],
+        preferences: preferences || { ai_coaching_style: 'encouraging' },
+        weeklyStats: {
+          totalHabits: habits?.length || 0,
+          completedGoals: goals?.filter(g => g.progress >= 100).length || 0,
+          totalGoals: goals?.length || 0,
+          recentActivity: completions?.length || 0
+        }
+      };
+
+      setUserContext(context);
+    } catch (error) {
+      console.error('Error loading user context:', error);
+      throw error;
+    }
+  };
+
+  const loadChatHistory = async () => {
+    if (!user) return;
+
+    try {
+      const { data: chatHistory } = await supabase
+        .from('ai_chat_messages')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: true })
+        .limit(20); // Last 20 messages
+
+      if (chatHistory && chatHistory.length > 0) {
+        const formattedMessages: ChatMessage[] = chatHistory.map(msg => ({
+          id: msg.id,
+          type: msg.sender,
+          message: msg.message,
+          timestamp: new Date(msg.created_at),
+          status: 'sent'
+        }));
+        
+        setMessages(formattedMessages);
       }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+      // Don't throw - chat can work without history
     }
-
-    if (message.includes('meditation') || message.includes('mindfulness')) {
-      const meditationHabit = context.habits.find(h => h.name.toLowerCase().includes('meditation'));
-      if (meditationHabit) {
-        return `Your ${meditationHabit.streak}-day meditation streak is impressive! Mindfulness is the foundation of transformation. How has your mental clarity changed since starting? Consider adding 2-3 minutes to feel the deepening benefits.`;
-      }
-    }
-
-    if (message.includes('exercise') || message.includes('workout') || message.includes('fitness')) {
-      const exerciseHabit = context.habits.find(h => h.name.toLowerCase().includes('exercise'));
-      if (exerciseHabit) {
-        return `Movement is medicine! Your ${exerciseHabit.progress}% completion rate shows commitment. ${exerciseHabit.streak > 5 ? "That streak is building serious momentum!" : "Every workout is an investment in your future self."} What type of movement feels most energizing for you?`;
-      }
-    }
-
-    // Generic encouraging responses
-    const genericResponses = [
-      `Your ${topStreak}-day streak proves you're capable of amazing consistency! What habit feels like it's becoming effortless now?`,
-      `I love seeing your ${context.weeklyStats.improvement} improvement! You're proving that small daily actions create massive results. What's feeling different in your life?`,
-      `You're ${context.weeklyStats.goalsCompleted} goals completed this week - that's transformation in action! Which habit is surprising you most with how natural it's becoming?`,
-      `The data shows you're building real momentum. Your future self will thank you for today's consistency. What would you like to explore or improve next?`
-    ];
-
-    return genericResponses[Math.floor(Math.random() * genericResponses.length)];
   };
 
   const sendMessage = async () => {
-    if (!currentMessage.trim() || isLoading) return;
+    if (!currentMessage.trim() || isLoading || !user) return;
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       type: 'user',
       message: currentMessage.trim(),
-      timestamp: new Date()
+      timestamp: new Date(),
+      status: 'sending'
     };
 
     setMessages(prev => [...prev, userMessage]);
     setCurrentMessage('');
     setIsLoading(true);
+    setError(null);
 
-    // Simulate API delay for realism
-    setTimeout(() => {
-      const aiResponse = generateMockResponse(userMessage.message);
+    try {
+      // Get the current session
+      const { data: { session } } = await supabase.auth.getSession();
       
+      if (!session) {
+        throw new Error('No active session');
+      }
+
+      // Update message status to sent
+      setMessages(prev => prev.map(msg => 
+        msg.id === userMessage.id ? { ...msg, status: 'sent' } : msg
+      ));
+
+      // Call Supabase Edge Function
+      const { data, error } = await supabase.functions.invoke('ai-chat', {
+        body: {
+          message: userMessage.message,
+          userContext: userContext
+        },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        message: aiResponse,
-        timestamp: new Date()
+        message: data.message,
+        timestamp: new Date(),
+        status: 'sent'
       };
 
       setMessages(prev => [...prev, aiMessage]);
+
+      // Update user context if returned
+      if (data.context) {
+        setUserContext(data.context);
+      }
+
+      setIsOnline(true);
+
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setError('Connection issue. Your coach is temporarily unavailable.');
+      setIsOnline(false);
+      
+      // Update message status to error
+      setMessages(prev => prev.map(msg => 
+        msg.id === userMessage.id ? { ...msg, status: 'error' } : msg
+      ));
+
+      // Provide helpful fallback response
+      const fallbackMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'ai',
+        message: "I'm having trouble connecting right now, but I'm still here to support you! While I reconnect, remember that consistency beats perfection. What habit would you like to focus on today?",
+        timestamp: new Date(),
+        status: 'sent'
+      };
+
+      setMessages(prev => [...prev, fallbackMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1000 + Math.random() * 2000); // 1-3 second delay
+    }
+  };
+
+  const retryMessage = async (messageId: string) => {
+    const messageToRetry = messages.find(msg => msg.id === messageId);
+    if (!messageToRetry) return;
+
+    setCurrentMessage(messageToRetry.message);
+    setMessages(prev => prev.filter(msg => msg.id !== messageId));
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -169,82 +272,180 @@ export default function AICoachChat({ userContext, className = "" }: AICoachChat
     }
   };
 
-  const clearChat = () => {
+  const clearChat = async () => {
+    if (!user) return;
+
+    try {
+      await supabase
+        .from('ai_chat_messages')
+        .delete()
+        .eq('user_id', user.id);
+    } catch (error) {
+      console.error('Error clearing chat history:', error);
+    }
+
     setMessages([
       {
-        id: '1',
+        id: 'new-start',
         type: 'ai',
-        message: "Hi! I'm your AI transformation coach. I can see your habit data and I'm here to help you build habits and replace self-doubt with self-belief. How can I support you today?",
-        timestamp: new Date()
+        message: "Fresh start! I'm here to support your transformation journey. What would you like to focus on today?",
+        timestamp: new Date(),
+        status: 'sent'
       }
     ]);
+    setError(null);
   };
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  // Accessibility-focused quick prompts for neurodiverse users
+  const quickPrompts = [
+    { text: "How can I stay motivated?", category: "motivation" },
+    { text: "I'm struggling with consistency", category: "challenge" },
+    { text: "What should I focus on today?", category: "planning" },
+    { text: "Celebrate my progress!", category: "celebration" }
+  ];
+
+  // Show login prompt if not authenticated
+  if (!user) {
+    return (
+      <div className={`bg-white rounded-2xl shadow-lg p-6 text-center ${className}`}>
+        <Bot className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">AI Transformation Coach</h3>
+        <p className="text-gray-600 mb-4">
+          Your personal coach that understands your habits and goals. 
+          Sign in to start your coaching conversation.
+        </p>
+        <button 
+          className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+          aria-label="Sign in to start AI coaching"
+        >
+          Sign In to Start Coaching
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className={`bg-white rounded-2xl shadow-lg overflow-hidden ${className}`}>
       <div className="p-6">
-        {/* Header */}
+        {/* Header with clear status indicators */}
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-2">
-            <MessageCircle className="h-6 w-6 text-green-600" />
-            <h2 className="text-xl font-bold text-gray-900">AI Coach</h2>
-            <span className="bg-purple-100 text-purple-600 px-2 py-1 rounded-full text-xs font-semibold">DEMO</span>
-          </div>
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
-              <span className={`text-sm ${isOnline ? 'text-green-600' : 'text-red-600'}`}>
+              <MessageCircle className="h-6 w-6 text-green-600" />
+              <h2 className="text-xl font-bold text-gray-900">AI Transformation Coach</h2>
+            </div>
+            {userContext && (
+              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1">
+                <CheckCircle className="h-3 w-3" />
+                <span>Connected to Your Data</span>
+              </span>
+            )}
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            {/* Connection status with clear visual feedback */}
+            <div className="flex items-center space-x-2" aria-live="polite">
+              <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              <span className={`text-sm font-medium ${isOnline ? 'text-green-600' : 'text-red-600'}`}>
                 {isOnline ? 'Online' : 'Reconnecting...'}
               </span>
             </div>
+            
             <button
               onClick={clearChat}
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Clear chat"
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus:ring-2 focus:ring-gray-300"
+              title="Clear chat history"
+              aria-label="Clear chat history"
             >
               <RefreshCcw className="h-4 w-4" />
             </button>
           </div>
         </div>
 
-        {/* User Context Summary */}
-        <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-          <div className="text-xs text-blue-600 font-medium mb-1">AI Coach has access to your data:</div>
-          <div className="text-xs text-blue-700">
-            {context.habits.length} habits tracked, {context.weeklyStats.streakDays} day streak, {context.weeklyStats.improvement} improvement
+        {/* Error banner with clear messaging */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-2" role="alert">
+            <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-red-700 font-medium">Connection Issue</p>
+              <p className="text-xs text-red-600">{error}</p>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Messages Container */}
-        <div className="space-y-4 mb-6 h-80 overflow-y-auto border border-gray-100 rounded-lg p-4 bg-gray-50">
+        {/* User Context Summary - Clear data transparency */}
+        {userContext && (
+          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="text-sm text-blue-800 font-medium mb-2">
+              🤖 Your coach can see:
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs text-blue-700">
+              <div>📊 {userContext.habits.length} habits tracked</div>
+              <div>🎯 {userContext.goals.length} active goals</div>
+              <div>✅ {userContext.recentCompletions.length} recent completions</div>
+              <div>🔥 Personal coaching style: {userContext.preferences?.ai_coaching_style || 'encouraging'}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Messages Container with improved accessibility */}
+        <div 
+          className="space-y-4 mb-6 h-80 overflow-y-auto border border-gray-100 rounded-lg p-4 bg-gray-50 focus-within:ring-2 focus-within:ring-purple-500"
+          role="log"
+          aria-label="Chat conversation"
+          aria-live="polite"
+        >
           {messages.map((msg) => (
             <div
               key={msg.id}
               className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div className={`flex items-start space-x-3 max-w-xs lg:max-w-md ${msg.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
+              <div className={`flex items-start space-x-3 max-w-sm lg:max-w-md ${msg.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                {/* Avatar with clear visual identity */}
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                   msg.type === 'ai' ? 'bg-blue-100' : 'bg-purple-100'
                 }`}>
                   {msg.type === 'ai' ? (
-                    <Bot className="h-4 w-4 text-blue-600" />
+                    <Bot className="h-4 w-4 text-blue-600" aria-hidden="true" />
                   ) : (
-                    <User className="h-4 w-4 text-purple-600" />
+                    <User className="h-4 w-4 text-purple-600" aria-hidden="true" />
                   )}
                 </div>
+                
                 <div className="flex-1">
+                  {/* Message bubble with status indicators */}
                   <div className={`p-4 rounded-lg ${
                     msg.type === 'ai' 
-                      ? 'bg-blue-50 text-blue-900' 
-                      : 'bg-purple-50 text-purple-900'
+                      ? 'bg-blue-50 text-blue-900 border border-blue-100' 
+                      : 'bg-purple-50 text-purple-900 border border-purple-100'
                   }`}>
-                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.message}</p>
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed font-medium">
+                      {msg.message}
+                    </p>
+                    
+                    {/* Message status indicators */}
+                    {msg.status === 'error' && (
+                      <div className="mt-2 flex items-center space-x-2">
+                        <AlertCircle className="h-3 w-3 text-red-500" />
+                        <button
+                          onClick={() => retryMessage(msg.id)}
+                          className="text-xs text-red-600 hover:text-red-800 underline"
+                        >
+                          Retry message
+                        </button>
+                      </div>
+                    )}
                   </div>
+                  
+                  {/* Timestamp */}
                   <p className="text-xs text-gray-500 mt-1 px-1">
+                    <span className="sr-only">
+                      Message from {msg.type === 'ai' ? 'AI coach' : 'you'} at{' '}
+                    </span>
                     {formatTime(msg.timestamp)}
                   </p>
                 </div>
@@ -252,17 +453,19 @@ export default function AICoachChat({ userContext, className = "" }: AICoachChat
             </div>
           ))}
           
-          {/* Loading indicator */}
+          {/* Loading indicator with clear messaging */}
           {isLoading && (
-            <div className="flex justify-start">
+            <div className="flex justify-start" aria-live="assertive">
               <div className="flex items-start space-x-3 max-w-xs">
                 <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
                   <Bot className="h-4 w-4 text-blue-600" />
                 </div>
-                <div className="bg-blue-50 p-4 rounded-lg">
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
                   <div className="flex items-center space-x-2">
-                    <Loader className="h-4 w-4 text-blue-600 animate-spin" />
-                    <span className="text-sm text-blue-900">Analyzing your progress...</span>
+                    <Loader className="h-4 w-4 text-blue-600 animate-spin" aria-hidden="true" />
+                    <span className="text-sm text-blue-900 font-medium">
+                      Your coach is analyzing your progress...
+                    </span>
                   </div>
                 </div>
               </div>
@@ -272,49 +475,69 @@ export default function AICoachChat({ userContext, className = "" }: AICoachChat
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Section */}
+        {/* Input Section with enhanced accessibility */}
         <div className="space-y-4">
           {/* Input Bar */}
           <div className="flex space-x-3">
-            <input
-              type="text"
-              value={currentMessage}
-              onChange={(e) => setCurrentMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask your AI coach..."
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              disabled={isLoading}
-            />
+            <div className="flex-1 relative">
+              <label htmlFor="coach-message" className="sr-only">
+                Type your message to the AI coach
+              </label>
+              <input
+                id="coach-message"
+                ref={inputRef}
+                type="text"
+                value={currentMessage}
+                onChange={(e) => setCurrentMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask your AI coach anything..."
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                disabled={isLoading}
+                aria-describedby="message-help"
+                maxLength={500}
+              />
+              <div id="message-help" className="sr-only">
+                Type your message and press Enter to send, or use the quick prompts below
+              </div>
+            </div>
+            
             <button
               onClick={sendMessage}
               disabled={isLoading || !currentMessage.trim()}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+              aria-label={isLoading ? "Sending message" : "Send message"}
             >
               {isLoading ? (
-                <Loader className="h-4 w-4 animate-spin" />
+                <Loader className="h-4 w-4 animate-spin" aria-hidden="true" />
               ) : (
-                <Send className="h-4 w-4" />
+                <Send className="h-4 w-4" aria-hidden="true" />
               )}
+              <span className="hidden sm:inline">{isLoading ? 'Sending...' : 'Send'}</span>
             </button>
           </div>
 
-          {/* Quick coaching prompts */}
-          <div className="flex flex-wrap gap-2">
-            {[
-              "How can I stay motivated?",
-              "I'm struggling with consistency",
-              "What should I focus on today?",
-              "Celebrate my progress!"
-            ].map((prompt, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentMessage(prompt)}
-                className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-                disabled={isLoading}
-              >
-                {prompt}
-              </button>
-            ))}
+          {/* Quick coaching prompts with clear categorization */}
+          <div className="space-y-2">
+            <p className="text-xs text-gray-600 font-medium">Quick coaching topics:</p>
+            <div className="grid grid-cols-2 gap-2">
+              {quickPrompts.map((prompt, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentMessage(prompt.text)}
+                  className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-left focus:ring-2 focus:ring-purple-500 focus:ring-offset-1"
+                  disabled={isLoading}
+                  aria-label={`Quick prompt: ${prompt.text}`}
+                >
+                  <span className="block font-medium">{prompt.text}</span>
+                  <span className="text-xs text-gray-500 capitalize">{prompt.category}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Character count for accessibility */}
+          <div className="text-xs text-gray-500 text-right">
+            {currentMessage.length}/500 characters
           </div>
         </div>
       </div>
