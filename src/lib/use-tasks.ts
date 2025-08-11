@@ -1,6 +1,6 @@
 // lib/use-tasks.ts
 import { useState, useEffect } from 'react';
-import { supabase } from '../supabase/supabaseClient';
+import { supabase } from '../lib/supabase';
 import { useUser } from '../contexts/userContext';
 
 export function useTasks() {

@@ -1,3 +1,156 @@
+/* Import accessibility and micro-interaction styles first */
+@import './styles/accessibility.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Dark mode theme variables with WCAG AAA contrast ratios */
+@layer base {
+  :root {
+    /* Light mode colors */
+    --color-bg-primary: 255 255 255; /* white */
+    --color-bg-secondary: 249 250 251; /* gray-50 */
+    --color-bg-tertiary: 243 244 246; /* gray-100 */
+    
+    --color-text-primary: 17 24 39; /* gray-900 */
+    --color-text-secondary: 55 65 81; /* gray-700 */
+    --color-text-tertiary: 107 114 128; /* gray-500 */
+    
+    --color-border-primary: 229 231 235; /* gray-200 */
+    --color-border-secondary: 209 213 219; /* gray-300 */
+    
+    /* Accent colors */
+    --color-purple-bg: 237 233 254; /* purple-100 */
+    --color-purple-text: 91 33 182; /* purple-700 */
+    --color-purple-border: 196 181 253; /* purple-300 */
+    
+    --color-blue-bg: 219 234 254; /* blue-100 */
+    --color-blue-text: 29 78 216; /* blue-700 */
+    --color-blue-border: 147 197 253; /* blue-300 */
+    
+    --color-green-bg: 220 252 231; /* green-100 */
+    --color-green-text: 21 128 61; /* green-700 */
+    --color-green-border: 134 239 172; /* green-300 */
+  }
+  
+  .dark {
+    /* Dark mode colors with WCAG AAA compliance */
+    --color-bg-primary: 17 24 39; /* gray-900 */
+    --color-bg-secondary: 31 41 55; /* gray-800 */
+    --color-bg-tertiary: 55 65 81; /* gray-700 */
+    
+    --color-text-primary: 249 250 251; /* gray-50 */
+    --color-text-secondary: 229 231 235; /* gray-200 */
+    --color-text-tertiary: 156 163 175; /* gray-400 */
+    
+    --color-border-primary: 55 65 81; /* gray-700 */
+    --color-border-secondary: 75 85 99; /* gray-600 */
+    
+    /* Accent colors adjusted for dark mode contrast */
+    --color-purple-bg: 91 33 182; /* purple-700 */
+    --color-purple-text: 237 233 254; /* purple-100 */
+    --color-purple-border: 124 58 237; /* purple-600 */
+    
+    --color-blue-bg: 29 78 216; /* blue-700 */
+    --color-blue-text: 219 234 254; /* blue-100 */
+    --color-blue-border: 59 130 246; /* blue-500 */
+    
+    --color-green-bg: 21 128 61; /* green-700 */
+    --color-green-text: 220 252 231; /* green-100 */
+    --color-green-border: 34 197 94; /* green-500 */
+  }
+}
+
+/* Custom utility classes for theme colors */
+@layer utilities {
+  .bg-primary { background-color: rgb(var(--color-bg-primary)); }
+  .bg-secondary { background-color: rgb(var(--color-bg-secondary)); }
+  .bg-tertiary { background-color: rgb(var(--color-bg-tertiary)); }
+  
+  .text-primary { color: rgb(var(--color-text-primary)); }
+  .text-secondary { color: rgb(var(--color-text-secondary)); }
+  .text-tertiary { color: rgb(var(--color-text-tertiary)); }
+  
+  .border-primary { border-color: rgb(var(--color-border-primary)); }
+  .border-secondary { border-color: rgb(var(--color-border-secondary)); }
+  
+  /* Smooth transitions for theme changes */
+  .theme-transition {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+  }
+
+  /* High Contrast Mode */
+  .high-contrast {
+    filter: contrast(1.2);
+  }
+
+  .high-contrast * {
+    border-radius: 0.25rem !important;
+  }
+
+  .high-contrast button:focus,
+  .high-contrast a:focus,
+  .high-contrast input:focus,
+  .high-contrast select:focus,
+  .high-contrast textarea:focus,
+  .high-contrast [tabindex]:focus {
+    outline: 3px solid #000 !important;
+    outline-offset: 2px !important;
+  }
+
+  /* Accessibility: Focus indicators */
+  *:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+  }
+
+  /* Skip to content link */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .sr-only:focus {
+    position: absolute;
+    width: auto;
+    height: auto;
+    padding: 0.5rem 1rem;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  /* Ensure minimum touch targets */
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Color blind mode filters */
+  .colorblind-protanopia {
+    filter: url('#protanopia-filter');
+  }
+
+  .colorblind-deuteranopia {
+    filter: url('#deuteranopia-filter');
+  }
+
+  .colorblind-tritanopia {
+    filter: url('#tritanopia-filter');
+  }
+}

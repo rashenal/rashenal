@@ -1,7 +1,7 @@
 // components/MyRashenalDashboard.tsx
 // Final version with calendar tab, default dashboard view, and enhanced AI Coach Chat
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   BarChart3, 
   CheckCircle, 
@@ -14,7 +14,8 @@ import {
   Users,
   Zap,
   Bot,
-  MessageCircle
+  MessageCircle,
+  Settings
 } from 'lucide-react';
 import { useUser } from '../contexts/userContext';
 import TaskBoardKanban from './TaskBoardKanban';
@@ -22,7 +23,9 @@ import TaskBoardManager from './TaskBoardManager';
 import CalendarView from './CalendarView';
 import AICoachChat from './AICoachChat'; // Import our new AI Coach Chat
 import { useTasks } from '../lib/use-tasks';
-import { supabase } from '../supabase/supabaseClient';
+import { supabase } from '../lib/supabase';
+import DashboardSettings, { DashboardSettings as DashboardSettingsType, defaultDashboardSettings } from './settings/DashboardSettings';
+import { getLocalSettings } from './shared/SettingsModal';
 
 // Dashboard Overview Component
 function DashboardOverview() {
@@ -91,8 +94,8 @@ function DashboardOverview() {
     return colors[color as keyof typeof colors] || colors.purple;
   };
 
-  // Create user context for AI Coach
-  const userContext = {
+  // Create user context for AI Coach - memoized to prevent re-renders
+  const userContext = useMemo(() => ({
     name: user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there',
     habits: habits.map(h => ({
       name: h.name,
@@ -107,7 +110,7 @@ function DashboardOverview() {
       aiSessions: 8,
       improvement: "+23%"
     }
-  };
+  }), [user, habits, completedHabits]);
 
   return (
     <div className="bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 min-h-screen p-6">
@@ -559,6 +562,10 @@ export default function MyRashenalDashboard() {
   const { user } = useUser();
   // ✅ KEPT: Default to 'dashboard' as in current version
   const [currentView, setCurrentView] = useState('dashboard');
+  const [showDashboardSettings, setShowDashboardSettings] = useState(false);
+  const [dashboardSettings, setDashboardSettings] = useState<DashboardSettingsType>(
+    () => getLocalSettings('dashboard', defaultDashboardSettings)
+  );
 
   // ✅ KEPT: Auto-select dashboard when user logs in
   useEffect(() => {
@@ -584,7 +591,8 @@ export default function MyRashenalDashboard() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Dashboard Navigation */}
-      <div className="flex space-x-4 mb-8 border-b border-gray-200">
+      <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
+        <div className="flex space-x-4">
         <button 
           onClick={() => setCurrentView('dashboard')}
           className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
@@ -656,6 +664,16 @@ export default function MyRashenalDashboard() {
             <span>Habits</span>
           </div>
         </button>
+        </div>
+        
+        {/* Settings Button */}
+        <button
+          onClick={() => setShowDashboardSettings(true)}
+          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          title="Dashboard Settings"
+        >
+          <Settings className="h-5 w-5" />
+        </button>
       </div>
 
       {/* Dashboard Content */}
@@ -674,6 +692,16 @@ export default function MyRashenalDashboard() {
           </div>
         )}
       </div>
+      
+      {/* Dashboard Settings Modal */}
+      <DashboardSettings
+        isOpen={showDashboardSettings}
+        onClose={() => setShowDashboardSettings(false)}
+        onSettingsChange={(newSettings) => {
+          setDashboardSettings(newSettings);
+          localStorage.setItem('settings_dashboard', JSON.stringify(newSettings));
+        }}
+      />
     </div>
   );
 }

@@ -1,0 +1,35 @@
+id,title,description,parentId,blockedBy
+rsh-1,Security & Data Model Baseline,"Foundation for trust: RLS, encryption, audit logs, privacy controls.",,
+rsh-1.1,Lock RLS on every table,Verify Row-Level Security across all new/existing tables; add policies where missing.,rsh-1,
+rsh-1.2,Add client-side encryption framework,Per-user keys; dev override for rharveybis@hotmail.com; plan for key rotation & migrations.,rsh-1,
+rsh-1.3,Implement audit logging,Capture CRUD events with who/when/what; store immutable audit trail.,rsh-1,
+rsh-1.4,Add GDPR/privacy controls,User data export & delete endpoints; document data retention.,rsh-1,
+rsh-2,Data Layer (Life Management Spine),"Wire real persistence for tasks, habits, goals.",,"rsh-1.1,rsh-1.2"
+rsh-2.1,Tasks CRUD with persistence,Fix save/reload bugs; filters by project/tag/status.,rsh-2,"rsh-1.1,rsh-1.2"
+rsh-2.2,Habits CRUD and streak calculation,Simple streak logic; daily/weekly cadence fields.,rsh-2,"rsh-1.1,rsh-1.2"
+rsh-2.3,Habit progress analytics (basic),"Counts, streaks, completion % (charts later).",rsh-2,rsh-2.2
+rsh-2.4,Goals CRUD and link to tasks/habits,Goal ↔ Task/Habit relationships; status rollups.,rsh-2,"rsh-1.1,rsh-1.2"
+rsh-3,Jobs Module Foundation,"Store jobs, score them, and explode to tasks.",,"rsh-1.1,rsh-1.2"
+rsh-3.1,Create Jobs table schema,"All fields for scoring, tagging, and metadata.",rsh-3,"rsh-1.1,rsh-1.2"
+rsh-3.2,Manual job entry + edit,Form to add/edit jobs; validation & persistence.,rsh-3,rsh-3.1
+rsh-3.3,Score calculation + manual override,Base scoring function with user override field.,rsh-3,rsh-3.1
+rsh-3.4,Link jobs to tasks (auto-subtasks),"On job add: create subtasks, attach doc ids.",rsh-3,"rsh-3.1,rsh-2.1"
+rsh-4,Unified Weekly View,Single source of truth for week plan.,,"rsh-2.1,rsh-2.2,rsh-2.4"
+rsh-4.1,Calendar aggregates Tasks/Habits/Goals,Internal aggregation first; external sync later.,rsh-4,"rsh-2.1,rsh-2.2,rsh-2.4"
+rsh-4.2,Calendar filtering & colour-coding,Filter by type/status; quick legend.,rsh-4,rsh-4.1
+rsh-4.3,Deadlines & streak markers,Show task deadlines and habit streak badges.,rsh-4,rsh-4.1
+rsh-5,Error Handling & Test Harness,Stability and basic quality gates.,,rsh-2.1
+rsh-5.1,Global error boundary,Catch UI crashes; friendly fallback.,rsh-5,rsh-2.1
+rsh-5.2,API error handling & messages,Surface API errors with actionable copy.,rsh-5,rsh-2.1
+rsh-5.3,Minimal unit tests,"Focus on Tasks, Habits, Jobs core paths.",rsh-5,rsh-5.2
+rsh-5.4,Basic a11y & E2E smoke test,Keyboard nav + one happy-path flow.,rsh-5,rsh-5.2
+rsh-6,Quick-Win Engagement Features,Stickiness boosters that don’t block MVP.,,
+rsh-6.1,Next Best Action widget,Reads Tasks/Habits; suggests the next action.,rsh-6,rsh-2.1
+rsh-6.2,Daily accountability check-in,Simple text capture & reminder hook.,rsh-6,rsh-2.2
+rsh-6.3,CV/cover letter generator per job,Generate docs from profile + job data.,rsh-6,rsh-3.1
+rsh-7,Post-MVP / Nice-to-Have Integrations,Do not start before MVP spine is stable.,,rsh-2.1
+rsh-7.1,External calendar sync (Google),"OAuth, 2-way sync, conflict handling.",rsh-7,"rsh-1.1,rsh-2.1"
+rsh-7.2,External calendar sync (Outlook),Graph API; similar to 7.1.,rsh-7,"rsh-1.1,rsh-2.1"
+rsh-7.3,Email SMTP/IMAP integration,"Alerts, follow-ups, job inbox rules.",rsh-7,"rsh-1.1,rsh-2.1"
+rsh-7.4,External job API import,Indeed/LinkedIn adapters; rate limiters.,rsh-7,"rsh-1.1,rsh-2.1,rsh-3.1"
+rsh-7.5,Plugin architecture core (RashPlugs),"Registry, loader, sandbox; versioning.",rsh-7,rsh-2.1

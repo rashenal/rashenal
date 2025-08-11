@@ -1,0 +1,81 @@
+claude -p "Implement comprehensive API support and Google integrations for Rashenal:
+
+1. **Rashenal API Endpoints & Documentation**:
+   - Create RESTful API endpoints for all major Rashenal features
+   - Endpoints needed: /api/tasks, /api/habits, /api/goals, /api/profiles, /api/chat, /api/jobs
+   - Include proper authentication, rate limiting, and error handling
+   - Generate OpenAPI/Swagger documentation with examples
+   - Create reference implementations in Python, JavaScript, and cURL
+   - Add API key management for users in settings
+   - Include webhook support for real-time integrations
+
+2. **Google OAuth Integration**:
+   - Add 'Sign in with Google' button to authentication forms
+   - Implement Google OAuth 2.0 flow with proper scopes
+   - Request scopes: email, profile, gmail.readonly, calendar.readonly
+   - Handle OAuth callbacks and token management
+   - Store Google tokens securely in user profiles
+   - Add Google account linking for existing users
+
+3. **Gmail Integration via Settings**:
+   - Create Gmail connection toggle in user settings
+   - OAuth flow: Connect → Authorize → Store tokens
+   - Features to implement:
+     * Read emails and extract actionable items
+     * Auto-create tasks from important emails
+     * Smart email categorization (urgent, tasks, calendar items)
+     * Email-to-task conversion with AI analysis
+   - Include disconnect/revoke access functionality
+
+4. **Google Calendar Integration**:
+   - Calendar connection toggle in settings  
+   - OAuth flow for calendar access
+   - Features to implement:
+     * Import calendar events as time-blocked tasks
+     * Sync task deadlines with calendar
+     * Create calendar events from Rashenal tasks
+     * Available time analysis for task scheduling
+   - Bi-directional sync with conflict resolution
+
+5. **Enhanced Settings Dashboard**:
+   - Create comprehensive settings page with sections:
+     * Account Settings (profile, password, email)
+     * Integrations (Google, API keys, webhooks)
+     * Privacy & Data (export, delete, permissions)
+     * Notifications (email, push, in-app)
+     * Preferences (theme, coaching style, defaults)
+   - Clean UI with toggle switches and connection status indicators
+   - Integration health monitoring and reconnection options
+
+6. **Enhanced Profile Management**:
+   - Add profile picture upload functionality
+   - Support formats: JPG, PNG, WebP (max 5MB)
+   - Image processing: resize, crop, optimize
+   - Store images in Supabase Storage with CDN
+   - Default avatar generation with user initials
+   - Profile completion tracking and suggestions
+   - Account verification status and badges
+
+7. **Security & Privacy Implementation**:
+   - OAuth token encryption and secure storage
+   - Granular permission management
+   - Data access audit logs
+   - Token refresh handling
+   - Connection health monitoring
+   - Privacy controls for data sharing
+
+8. **Database Schema Extensions**:
+   - Add user_integrations table for OAuth connections
+   - Add api_keys table for user API key management
+   - Add integration_logs table for audit trails
+   - Extend users table with profile_image_url field
+   - Add oauth_tokens table with encryption
+
+9. **API Reference Documentation**:
+   - Create comprehensive API docs with examples
+   - Authentication guide with code samples
+   - Rate limiting and error handling documentation
+   - Webhook setup and payload examples
+   - SDK examples in multiple languages
+
+This implementation should provide enterprise-grade API access and seamless Google Workspace integration while maintaining Rashenal's privacy-first approach."

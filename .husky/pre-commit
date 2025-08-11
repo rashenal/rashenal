@@ -1,0 +1,38 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# Type checking
+echo "📝 Type checking..."
+npm run typecheck
+if [ $? -ne 0 ]; then
+  echo "❌ TypeScript errors found. Commit aborted."
+  exit 1
+fi
+
+# Linting
+echo "🔧 Linting..."
+npm run lint
+if [ $? -ne 0 ]; then
+  echo "❌ ESLint errors found. Run 'npm run lint:fix' to auto-fix. Commit aborted."
+  exit 1
+fi
+
+# Build test
+echo "🏗️ Build test..."
+npm run build
+if [ $? -ne 0 ]; then
+  echo "❌ Build failed. Commit aborted."
+  exit 1
+fi
+
+# Unit tests
+echo "🧪 Running unit tests..."
+npm run test:unit
+if [ $? -ne 0 ]; then
+  echo "❌ Unit tests failed. Commit aborted."
+  exit 1
+fi
+
+echo "✅ All pre-commit checks passed!"

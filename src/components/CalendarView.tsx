@@ -12,8 +12,9 @@ import {
   Settings,
   Play,
   BarChart3,
+  X,
 } from 'lucide-react';
-import { supabase } from '../supabase/supabaseClient';
+import { supabase } from '../lib/supabase';
 import { useUser } from '../contexts/userContext';
 import type { TaskUI } from '../lib/database-types';
 

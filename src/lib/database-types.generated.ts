@@ -1,0 +1,491 @@
+// Generated TypeScript types for Supabase database schema
+// This file is auto-generated - do not edit manually
+// Last updated: 2025-08-04
+
+export interface Database {
+  public: {
+    Tables: {
+      // Enhanced job search tables
+      enhanced_job_searches: {
+        Row: {
+          id: string;
+          user_id: string;
+          profile_id?: string | null;
+          name: string;
+          job_title?: string | null;
+          location?: string | null;
+          remote_type?: 'onsite' | 'hybrid' | 'remote' | 'flexible' | null;
+          employment_type?: string[] | null;
+          experience_level?: 'entry' | 'junior' | 'mid' | 'senior' | 'principal' | 'executive' | null;
+          salary_min?: number | null;
+          salary_max?: number | null;
+          salary_currency?: string | null;
+          company_size?: string[] | null;
+          industry_sectors?: string[] | null;
+          required_skills?: string[] | null;
+          preferred_skills?: string[] | null;
+          work_authorization?: string | null;
+          visa_sponsorship?: boolean | null;
+          selected_job_boards?: string[] | null;
+          search_frequency?: 'manual' | 'daily' | 'weekly' | 'bi_weekly' | null;
+          scheduled_time?: string | null;
+          timezone?: string | null;
+          max_results_per_board?: number | null;
+          ai_matching_enabled?: boolean | null;
+          minimum_match_score?: number | null;
+          is_active?: boolean;
+          last_executed_at?: string | null;
+          next_execution_at?: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          profile_id?: string | null;
+          name: string;
+          job_title?: string | null;
+          location?: string | null;
+          remote_type?: 'onsite' | 'hybrid' | 'remote' | 'flexible' | null;
+          employment_type?: string[] | null;
+          experience_level?: 'entry' | 'junior' | 'mid' | 'senior' | 'principal' | 'executive' | null;
+          salary_min?: number | null;
+          salary_max?: number | null;
+          salary_currency?: string | null;
+          company_size?: string[] | null;
+          industry_sectors?: string[] | null;
+          required_skills?: string[] | null;
+          preferred_skills?: string[] | null;
+          work_authorization?: string | null;
+          visa_sponsorship?: boolean | null;
+          selected_job_boards?: string[] | null;
+          search_frequency?: 'manual' | 'daily' | 'weekly' | 'bi_weekly' | null;
+          scheduled_time?: string | null;
+          timezone?: string | null;
+          max_results_per_board?: number | null;
+          ai_matching_enabled?: boolean | null;
+          minimum_match_score?: number | null;
+          is_active?: boolean;
+          last_executed_at?: string | null;
+          next_execution_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          profile_id?: string | null;
+          search_name?: string;
+          job_title?: string | null;
+          location?: string | null;
+          remote_type?: 'onsite' | 'hybrid' | 'remote' | 'flexible' | null;
+          employment_type?: string[] | null;
+          experience_level?: 'entry' | 'junior' | 'mid' | 'senior' | 'principal' | 'executive' | null;
+          salary_min?: number | null;
+          salary_max?: number | null;
+          salary_currency?: string | null;
+          company_size?: string[] | null;
+          industry_sectors?: string[] | null;
+          required_skills?: string[] | null;
+          preferred_skills?: string[] | null;
+          work_authorization?: string | null;
+          visa_sponsorship?: boolean | null;
+          selected_job_boards?: string[] | null;
+          search_frequency?: 'manual' | 'daily' | 'weekly' | 'bi_weekly' | null;
+          scheduled_time?: string | null;
+          timezone?: string | null;
+          max_results_per_board?: number | null;
+          ai_matching_enabled?: boolean | null;
+          minimum_match_score?: number | null;
+          is_active?: boolean;
+          last_executed_at?: string | null;
+          next_execution_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      job_board_sources: {
+        Row: {
+          id: string;
+          name: string;
+          display_name: string;
+          website_url: string;
+          api_available: boolean;
+          is_active: boolean;
+          rate_limit_per_hour?: number | null;
+          supports_remote_filter: boolean;
+          supports_salary_filter: boolean;
+          supports_experience_filter: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          display_name: string;
+          website_url: string;
+          api_available?: boolean;
+          is_active?: boolean;
+          rate_limit_per_hour?: number | null;
+          supports_remote_filter?: boolean;
+          supports_salary_filter?: boolean;
+          supports_experience_filter?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          display_name?: string;
+          website_url?: string;
+          api_available?: boolean;
+          is_active?: boolean;
+          rate_limit_per_hour?: number | null;
+          supports_remote_filter?: boolean;
+          supports_salary_filter?: boolean;
+          supports_experience_filter?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      job_search_results: {
+        Row: {
+          id: string;
+          search_id: string;
+          job_board_source_id: string;
+          job_title: string;
+          company_name: string;
+          job_description?: string | null;
+          location?: string | null;
+          remote_type?: string | null;
+          employment_type?: string | null;
+          experience_level?: string | null;
+          salary_min?: number | null;
+          salary_max?: number | null;
+          salary_currency?: string | null;
+          original_job_id?: string | null;
+          job_url: string;
+          posted_date?: string | null;
+          application_deadline?: string | null;
+          ai_match_score?: number | null;
+          ai_analysis?: any | null;
+          skill_matches?: string[] | null;
+          missing_skills?: string[] | null;
+          is_bookmarked: boolean;
+          is_dismissed: boolean;
+          viewed_at?: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          search_id: string;
+          job_board_source_id: string;
+          job_title: string;
+          company_name: string;
+          job_description?: string | null;
+          location?: string | null;
+          remote_type?: string | null;
+          employment_type?: string | null;
+          experience_level?: string | null;
+          salary_min?: number | null;
+          salary_max?: number | null;
+          salary_currency?: string | null;
+          original_job_id?: string | null;
+          job_url: string;
+          posted_date?: string | null;
+          application_deadline?: string | null;
+          ai_match_score?: number | null;
+          ai_analysis?: any | null;
+          skill_matches?: string[] | null;
+          missing_skills?: string[] | null;
+          is_bookmarked?: boolean;
+          is_dismissed?: boolean;
+          viewed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          search_id?: string;
+          job_board_source_id?: string;
+          job_title?: string;
+          company_name?: string;
+          job_description?: string | null;
+          location?: string | null;
+          remote_type?: string | null;
+          employment_type?: string | null;
+          experience_level?: string | null;
+          salary_min?: number | null;
+          salary_max?: number | null;
+          salary_currency?: string | null;
+          original_job_id?: string | null;
+          job_url?: string;
+          posted_date?: string | null;
+          application_deadline?: string | null;
+          ai_match_score?: number | null;
+          ai_analysis?: any | null;
+          skill_matches?: string[] | null;
+          missing_skills?: string[] | null;
+          is_bookmarked?: boolean;
+          is_dismissed?: boolean;
+          viewed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      search_execution_log: {
+        Row: {
+          id: string;
+          search_id: string;
+          execution_type: 'manual' | 'scheduled' | 'test';
+          started_at: string;
+          completed_at?: string | null;
+          status: 'running' | 'completed' | 'failed' | 'cancelled';
+          total_results_found: number;
+          results_by_board?: any | null;
+          error_message?: string | null;
+          error_details?: any | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          search_id: string;
+          execution_type: 'manual' | 'scheduled' | 'test';
+          started_at?: string;
+          completed_at?: string | null;
+          status?: 'running' | 'completed' | 'failed' | 'cancelled';
+          total_results_found?: number;
+          results_by_board?: any | null;
+          error_message?: string | null;
+          error_details?: any | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          search_id?: string;
+          execution_type?: 'manual' | 'scheduled' | 'test';
+          started_at?: string;
+          completed_at?: string | null;
+          status?: 'running' | 'completed' | 'failed' | 'cancelled';
+          total_results_found?: number;
+          results_by_board?: any | null;
+          error_message?: string | null;
+          error_details?: any | null;
+          created_at?: string;
+        };
+      };
+      scraping_preferences: {
+        Row: {
+          id: string;
+          user_id: string;
+          linkedin_enabled: boolean;
+          linkedin_use_login?: boolean | null;
+          linkedin_email?: string | null;
+          linkedin_rate_limit_ms?: number | null;
+          linkedin_max_results_per_search?: number | null;
+          linkedin_user_agent_rotation?: boolean | null;
+          respect_rate_limits: boolean;
+          enable_anti_bot_measures: boolean;
+          max_concurrent_requests: number;
+          default_delay_ms: number;
+          max_retries: number;
+          store_raw_html: boolean;
+          anonymize_searches: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          linkedin_enabled?: boolean;
+          linkedin_use_login?: boolean | null;
+          linkedin_email?: string | null;
+          linkedin_rate_limit_ms?: number | null;
+          linkedin_max_results_per_search?: number | null;
+          linkedin_user_agent_rotation?: boolean | null;
+          respect_rate_limits?: boolean;
+          enable_anti_bot_measures?: boolean;
+          max_concurrent_requests?: number;
+          default_delay_ms?: number;
+          max_retries?: number;
+          store_raw_html?: boolean;
+          anonymize_searches?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          linkedin_enabled?: boolean;
+          linkedin_use_login?: boolean | null;
+          linkedin_email?: string | null;
+          linkedin_rate_limit_ms?: number | null;
+          linkedin_max_results_per_search?: number | null;
+          linkedin_user_agent_rotation?: boolean | null;
+          respect_rate_limits?: boolean;
+          enable_anti_bot_measures?: boolean;
+          max_concurrent_requests?: number;
+          default_delay_ms?: number;
+          max_retries?: number;
+          store_raw_html?: boolean;
+          anonymize_searches?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      scraping_request_log: {
+        Row: {
+          id: string;
+          user_id: string;
+          job_board: string;
+          status: 'success' | 'failed' | 'rate_limited' | 'blocked';
+          url?: string | null;
+          results_count?: number | null;
+          error_message?: string | null;
+          response_time_ms?: number | null;
+          user_agent?: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          job_board: string;
+          status: 'success' | 'failed' | 'rate_limited' | 'blocked';
+          url?: string | null;
+          results_count?: number | null;
+          error_message?: string | null;
+          response_time_ms?: number | null;
+          user_agent?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          job_board?: string;
+          status?: 'success' | 'failed' | 'rate_limited' | 'blocked';
+          url?: string | null;
+          results_count?: number | null;
+          error_message?: string | null;
+          response_time_ms?: number | null;
+          user_agent?: string | null;
+          created_at?: string;
+        };
+      };
+      // Existing job profiles table with missing columns added
+      job_profiles: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string; // Added in migration
+          title: string;
+          bio?: string | null; // Added in migration
+          summary?: string | null; // Added in migration
+          location?: string | null; // Added in migration
+          experience_level?: 'intern' | 'junior' | 'mid' | 'senior' | 'lead' | 'executive' | null;
+          employment_types?: string[] | null;
+          desired_salary_min?: number | null;
+          desired_salary_max?: number | null;
+          salary_currency?: string | null;
+          locations?: string[] | null;
+          remote_preference?: 'onsite' | 'hybrid' | 'remote' | 'flexible' | null;
+          skills?: string[] | null;
+          industries?: string[] | null;
+          company_sizes?: string[] | null;
+          values?: string[] | null;
+          deal_breakers?: string[] | null;
+          resume_url?: string | null;
+          linkedin_url?: string | null;
+          portfolio_url?: string | null;
+          cover_letter_template?: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          title: string;
+          bio?: string | null;
+          summary?: string | null;
+          location?: string | null;
+          experience_level?: 'intern' | 'junior' | 'mid' | 'senior' | 'lead' | 'executive' | null;
+          employment_types?: string[] | null;
+          desired_salary_min?: number | null;
+          desired_salary_max?: number | null;
+          salary_currency?: string | null;
+          locations?: string[] | null;
+          remote_preference?: 'onsite' | 'hybrid' | 'remote' | 'flexible' | null;
+          skills?: string[] | null;
+          industries?: string[] | null;
+          company_sizes?: string[] | null;
+          values?: string[] | null;
+          deal_breakers?: string[] | null;
+          resume_url?: string | null;
+          linkedin_url?: string | null;
+          portfolio_url?: string | null;
+          cover_letter_template?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          title?: string;
+          bio?: string | null;
+          summary?: string | null;
+          location?: string | null;
+          experience_level?: 'intern' | 'junior' | 'mid' | 'senior' | 'lead' | 'executive' | null;
+          employment_types?: string[] | null;
+          desired_salary_min?: number | null;
+          desired_salary_max?: number | null;
+          salary_currency?: string | null;
+          locations?: string[] | null;
+          remote_preference?: 'onsite' | 'hybrid' | 'remote' | 'flexible' | null;
+          skills?: string[] | null;
+          industries?: string[] | null;
+          company_sizes?: string[] | null;
+          values?: string[] | null;
+          deal_breakers?: string[] | null;
+          resume_url?: string | null;
+          linkedin_url?: string | null;
+          portfolio_url?: string | null;
+          cover_letter_template?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+    };
+  };
+}
+
+// Type aliases for compatibility with existing code
+export type EnhancedJobSearch = Database['public']['Tables']['enhanced_job_searches']['Row'];
+export type JobBoardSource = Database['public']['Tables']['job_board_sources']['Row'];
+export type JobSearchResult = Database['public']['Tables']['job_search_results']['Row'];
+export type SearchExecutionLog = Database['public']['Tables']['search_execution_log']['Row'];
+export type JobProfile = Database['public']['Tables']['job_profiles']['Row'];
+export type ScrapingPreferences = Database['public']['Tables']['scraping_preferences']['Row'];
+export type ScrapingRequestLog = Database['public']['Tables']['scraping_request_log']['Row'];
+
+// Insert types
+export type EnhancedJobSearchInsert = Database['public']['Tables']['enhanced_job_searches']['Insert'];
+export type JobBoardSourceInsert = Database['public']['Tables']['job_board_sources']['Insert'];
+export type JobSearchResultInsert = Database['public']['Tables']['job_search_results']['Insert'];
+export type SearchExecutionLogInsert = Database['public']['Tables']['search_execution_log']['Insert'];
+export type JobProfileInsert = Database['public']['Tables']['job_profiles']['Insert'];
+export type ScrapingPreferencesInsert = Database['public']['Tables']['scraping_preferences']['Insert'];
+export type ScrapingRequestLogInsert = Database['public']['Tables']['scraping_request_log']['Insert'];
+
+// Update types
+export type EnhancedJobSearchUpdate = Database['public']['Tables']['enhanced_job_searches']['Update'];
+export type JobBoardSourceUpdate = Database['public']['Tables']['job_board_sources']['Update'];
+export type JobSearchResultUpdate = Database['public']['Tables']['job_search_results']['Update'];
+export type SearchExecutionLogUpdate = Database['public']['Tables']['search_execution_log']['Update'];
+export type JobProfileUpdate = Database['public']['Tables']['job_profiles']['Update'];
+export type ScrapingPreferencesUpdate = Database['public']['Tables']['scraping_preferences']['Update'];
+export type ScrapingRequestLogUpdate = Database['public']['Tables']['scraping_request_log']['Update'];

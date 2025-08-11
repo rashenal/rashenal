@@ -1,0 +1,53 @@
+JOHN SMITH
+Learning & Development Specialist
+
+Email: john.smith@email.com
+Phone: +1 (555) 123-4567
+Location: New York, NY
+LinkedIn: linkedin.com/in/johnsmith
+
+PROFESSIONAL SUMMARY
+Experienced Learning & Development professional with 6+ years creating and delivering training programs for corporate environments. Proven expertise in instructional design, e-learning development, and performance improvement initiatives.
+
+WORK EXPERIENCE
+
+Senior L&D Specialist | TechCorp Solutions | 2021 - Present
+• Designed and implemented comprehensive onboarding program reducing time-to-productivity by 40%
+• Developed 15+ e-learning modules using Articulate Storyline and Adobe Captivate
+• Facilitated leadership development workshops for 200+ managers annually
+• Created performance support tools that increased employee satisfaction scores by 25%
+
+Training Coordinator | Global Industries | 2019 - 2021
+• Coordinated training programs for 500+ employees across multiple departments
+• Managed LMS administration and content library with 100+ courses
+• Conducted training needs assessments and gap analysis
+• Collaborated with subject matter experts to develop technical training materials
+
+Instructional Designer | EduTech Company | 2018 - 2019
+• Designed interactive online courses using ADDIE methodology
+• Created assessment tools and evaluation frameworks
+• Developed mobile-friendly learning content for remote workforce
+• Analyzed learner data to optimize course effectiveness
+
+SKILLS
+Technical: Articulate Storyline, Adobe Captivate, LMS Administration, SCORM, xAPI
+Instructional Design: ADDIE, SAM, Kirkpatrick Model, Adult Learning Principles
+Leadership: Team Development, Change Management, Performance Coaching
+Business: Project Management, Data Analysis, Stakeholder Management
+
+EDUCATION
+
+Master of Education in Instructional Technology | Columbia University | 2018
+Concentration: Digital Learning Design
+GPA: 3.8/4.0 | Relevant Coursework: Learning Analytics, UX Design, Educational Psychology
+
+Bachelor of Arts in Psychology | New York University | 2016
+Minor: Business Administration
+GPA: 3.6/4.0 | Dean's List
+
+CERTIFICATIONS
+
+Certified Professional in Learning and Performance (CPLP) | ATD | 2022
+Project Management Professional (PMP) | PMI | 2021
+Adobe Certified Expert - Captivate | Adobe | 2020
+Articulate Storyline Certified Professional | Articulate | 2019

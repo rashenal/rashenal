@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, X, Kanban, Trash2, RotateCcw, Palette, Archive } from 'lucide-react';
-import { supabase } from '../supabase/supabaseClient';
+import { supabase } from '../lib/supabase';
 import { useUser } from '../contexts/userContext';
 
 interface Taskboard {

@@ -17,12 +17,19 @@ import {
   Clock,
   Zap
 } from 'lucide-react';
+import { DarkModeToggleCompact } from './DarkModeToggle';
+import GoalsSettings, { GoalsSettings as GoalSettingsType, defaultGoalsSettings } from './settings/GoalsSettings';
+import { getLocalSettings } from './shared/SettingsModal';
 
 export default function AICoachingDashboard() {
   const [activeChat, setActiveChat] = useState(false);
   const [currentGoal, setCurrentGoal] = useState('meditation');
   const [timerActive, setTimerActive] = useState(false);
   const [timerMinutes, setTimerMinutes] = useState(15);
+  const [showGoalsSettings, setShowGoalsSettings] = useState(false);
+  const [goalsSettings, setGoalsSettings] = useState<GoalSettingsType>(
+    () => getLocalSettings('goals', defaultGoalsSettings)
+  );
 
   const goals = [
     { id: 'meditation', name: 'Daily Meditation', progress: 85, streak: 12, target: 15 },
@@ -45,55 +52,78 @@ export default function AICoachingDashboard() {
   ];
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-indigo-900/20 p-4 theme-transition">
       <div className="max-w-7xl mx-auto">
+        {/* Dark mode toggle in header */}
+        <div className="flex justify-end mb-4">
+          <DarkModeToggleCompact />
+        </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Left Column - Goals & Timer */}
           <div className="lg:col-span-2 space-y-6">
             {/* Today's Goals */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="bg-primary rounded-2xl shadow-lg p-6 theme-transition">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900 flex items-center">
-                  <Target className="h-6 w-6 text-purple-600 mr-2" />
+                <h2 className="text-xl font-bold text-primary flex items-center">
+                  <Target className="h-6 w-6 text-purple-600 dark:text-purple-400 mr-2" />
                   Today's Goals
                 </h2>
-                <span className="text-sm text-gray-500">3 of 4 completed</span>
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm text-tertiary">3 of 4 completed</span>
+                  <button
+                    onClick={() => setShowGoalsSettings(true)}
+                    className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    title="Goals Settings"
+                  >
+                    <Settings className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
               
               <div className="grid md:grid-cols-2 gap-4">
                 {goals.map((goal) => (
                   <div 
                     key={goal.id}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all theme-transition ${
                       currentGoal === goal.id 
-                        ? 'border-purple-500 bg-purple-50' 
-                        : 'border-gray-200 hover:border-purple-300'
+                        ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/30' 
+                        : 'border-primary hover:border-purple-300 dark:hover:border-purple-600'
                     }`}
                     onClick={() => setCurrentGoal(goal.id)}
                   >
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold text-gray-900">{goal.name}</h3>
-                      <span className="text-sm text-purple-600 font-semibold">{goal.streak} day streak</span>
+                      <h3 className="font-semibold text-primary">{goal.name}</h3>
+                      {goalsSettings.showStreaks && (
+                        <span className="text-sm text-purple-600 dark:text-purple-400 font-semibold">{goal.streak} day streak</span>
+                      )}
                     </div>
-                    <div className="mb-3">
-                      <div className="flex justify-between text-sm text-gray-600 mb-1">
-                        <span>Progress</span>
-                        <span>{goal.progress}%</span>
+                    {goalsSettings.showProgress && (
+                      <div className="mb-3">
+                        <div className="flex justify-between text-sm text-secondary mb-1">
+                          <span>Progress</span>
+                          {goalsSettings.showPercentages && <span>{goal.progress}%</span>}
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div 
+                            className={`bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full ${
+                              goalsSettings.animateProgress ? 'transition-all duration-500' : ''
+                            }`}
+                            style={{width: `${goal.progress}%`}}
+                          ></div>
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-500" 
-                          style={{width: `${goal.progress}%`}}
-                        ></div>
-                      </div>
-                    </div>
+                    )}
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Target: {goal.target} min</span>
-                      {goal.progress >= 100 ? (
-                        <CheckCircle className="h-5 w-5 text-green-500" />
-                      ) : (
-                        <Clock className="h-5 w-5 text-gray-400" />
+                      {goalsSettings.showTargets && (
+                        <span className="text-sm text-secondary">Target: {goal.target} min</span>
+                      )}
+                      {goalsSettings.showCompletionStatus && (
+                        goal.progress >= 100 ? (
+                          <CheckCircle className="h-5 w-5 text-green-500 dark:text-green-400" />
+                        ) : (
+                          <Clock className="h-5 w-5 text-tertiary" />
+                        )
                       )}
                     </div>
                   </div>
@@ -102,17 +132,17 @@ export default function AICoachingDashboard() {
             </div>
 
             {/* AI Timer */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-                <Clock className="h-6 w-6 text-blue-600 mr-2" />
+            <div className="bg-primary rounded-2xl shadow-lg p-6 theme-transition">
+              <h2 className="text-xl font-bold text-primary mb-6 flex items-center">
+                <Clock className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-2" />
                 AI-Guided Session Timer
               </h2>
               
               <div className="text-center">
                 <div className="w-48 h-48 mx-auto mb-6 relative">
                   <div className="w-full h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
-                    <div className="w-40 h-40 bg-white rounded-full flex items-center justify-center">
-                      <span className="text-4xl font-bold text-gray-900">{timerMinutes}:00</span>
+                    <div className="w-40 h-40 bg-primary rounded-full flex items-center justify-center theme-transition">
+                      <span className="text-4xl font-bold text-primary">{timerMinutes}:00</span>
                     </div>
                   </div>
                   {timerActive && (
@@ -147,7 +177,7 @@ export default function AICoachingDashboard() {
                       className={`px-3 py-1 rounded-lg text-sm transition-all ${
                         timerMinutes === minutes
                           ? 'bg-purple-500 text-white'
-                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          : 'bg-tertiary text-secondary hover:bg-gray-300 dark:hover:bg-gray-600'
                       }`}
                     >
                       {minutes}m
@@ -161,15 +191,15 @@ export default function AICoachingDashboard() {
           {/* Right Column - AI Chat & Stats */}
           <div className="space-y-6">
             {/* AI Chat */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="bg-primary rounded-2xl shadow-lg p-6 theme-transition">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900 flex items-center">
-                  <MessageCircle className="h-6 w-6 text-green-600 mr-2" />
+                <h2 className="text-xl font-bold text-primary flex items-center">
+                  <MessageCircle className="h-6 w-6 text-green-600 dark:text-green-400 mr-2" />
                   AI Coach
                 </h2>
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-sm text-green-600">Online</span>
+                  <span className="text-sm text-green-600 dark:text-green-400">Online</span>
                 </div>
               </div>
               
@@ -177,10 +207,10 @@ export default function AICoachingDashboard() {
                 {aiMessages.map((msg, index) => (
                   <div
                     key={index}
-                    className={`p-3 rounded-lg ${
+                    className={`p-3 rounded-lg theme-transition ${
                       msg.type === 'ai' 
-                        ? 'bg-blue-50 text-blue-900' 
-                        : 'bg-purple-50 text-purple-900 ml-8'
+                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100' 
+                        : 'bg-purple-50 dark:bg-purple-900/30 text-purple-900 dark:text-purple-100 ml-8'
                     }`}
                   >
                     <p className="text-sm">{msg.message}</p>
@@ -192,7 +222,7 @@ export default function AICoachingDashboard() {
                 <input
                   type="text"
                   placeholder="Ask your AI coach..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="flex-1 px-3 py-2 border border-secondary bg-primary text-primary rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent theme-transition"
                 />
                 <button className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all">
                   Send
@@ -201,28 +231,28 @@ export default function AICoachingDashboard() {
             </div>
 
             {/* Weekly Stats */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <BarChart3 className="h-6 w-6 text-yellow-600 mr-2" />
+            <div className="bg-primary rounded-2xl shadow-lg p-6 theme-transition">
+              <h2 className="text-xl font-bold text-primary mb-4 flex items-center">
+                <BarChart3 className="h-6 w-6 text-yellow-600 dark:text-yellow-400 mr-2" />
                 This Week
               </h2>
               
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Goals Completed</span>
-                  <span className="font-bold text-green-600">18/21</span>
+                  <span className="text-secondary">Goals Completed</span>
+                  <span className="font-bold text-green-600 dark:text-green-400">18/21</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Streak Days</span>
-                  <span className="font-bold text-purple-600">12</span>
+                  <span className="text-secondary">Streak Days</span>
+                  <span className="font-bold text-purple-600 dark:text-purple-400">12</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">AI Sessions</span>
-                  <span className="font-bold text-blue-600">8</span>
+                  <span className="text-secondary">AI Sessions</span>
+                  <span className="font-bold text-blue-600 dark:text-blue-400">8</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Improvement</span>
-                  <span className="font-bold text-green-600 flex items-center">
+                  <span className="text-secondary">Improvement</span>
+                  <span className="font-bold text-green-600 dark:text-green-400 flex items-center">
                     <TrendingUp className="h-4 w-4 mr-1" />
                     +23%
                   </span>
@@ -231,9 +261,9 @@ export default function AICoachingDashboard() {
             </div>
 
             {/* Achievements */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <Award className="h-6 w-6 text-yellow-600 mr-2" />
+            <div className="bg-primary rounded-2xl shadow-lg p-6 theme-transition">
+              <h2 className="text-xl font-bold text-primary mb-4 flex items-center">
+                <Award className="h-6 w-6 text-yellow-600 dark:text-yellow-400 mr-2" />
                 Achievements
               </h2>
               
@@ -241,24 +271,24 @@ export default function AICoachingDashboard() {
                 {achievements.map((achievement, index) => (
                   <div
                     key={index}
-                    className={`p-3 rounded-lg border-2 ${
+                    className={`p-3 rounded-lg border-2 theme-transition ${
                       achievement.earned 
-                        ? 'border-yellow-300 bg-yellow-50' 
-                        : 'border-gray-200 bg-gray-50'
+                        ? 'border-yellow-300 dark:border-yellow-600 bg-yellow-50 dark:bg-yellow-900/20' 
+                        : 'border-primary bg-secondary'
                     }`}
                   >
                     <div className="flex items-center space-x-3">
                       <span className="text-2xl">{achievement.icon}</span>
                       <div className="flex-1">
-                        <h3 className={`font-semibold ${achievement.earned ? 'text-yellow-800' : 'text-gray-600'}`}>
+                        <h3 className={`font-semibold ${achievement.earned ? 'text-yellow-800 dark:text-yellow-200' : 'text-secondary'}`}>
                           {achievement.title}
                         </h3>
-                        <p className={`text-sm ${achievement.earned ? 'text-yellow-600' : 'text-gray-500'}`}>
+                        <p className={`text-sm ${achievement.earned ? 'text-yellow-600 dark:text-yellow-300' : 'text-tertiary'}`}>
                           {achievement.description}
                         </p>
                       </div>
                       {achievement.earned && (
-                        <CheckCircle className="h-5 w-5 text-yellow-600" />
+                        <CheckCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
                       )}
                     </div>
                   </div>
@@ -268,6 +298,16 @@ export default function AICoachingDashboard() {
           </div>
         </div>
       </div>
+      
+      {/* Goals Settings Modal */}
+      <GoalsSettings
+        isOpen={showGoalsSettings}
+        onClose={() => setShowGoalsSettings(false)}
+        onSettingsChange={(newSettings) => {
+          setGoalsSettings(newSettings);
+          localStorage.setItem('settings_goals', JSON.stringify(newSettings));
+        }}
+      />
     </div>
   );
 }

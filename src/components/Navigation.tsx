@@ -9,7 +9,17 @@ import { useUser } from '../contexts/userContext';
 interface NavigationProps {
   onContactFormOpen?: () => void;
 }
+// components/Navigation.tsx - Add Job Finder tab
+// Import additional icons for the new navigation items
+import { LayoutDashboard, CheckSquare, MessageCircle, Target, Briefcase, User, Settings } from 'lucide-react';
 
+// Updated navigation items array with Job Finder and Settings
+const navigationItems = [
+  { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
+  { name: 'Smart Tasks', icon: CheckSquare, href: '/tasks' },
+  { name: 'Job Finder', icon: Briefcase, href: '/jobs' },
+  { name: 'Settings', icon: Settings, href: '/settings' },
+];
 export default function Navigation({ onContactFormOpen }: NavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -43,7 +53,24 @@ export default function Navigation({ onContactFormOpen }: NavigationProps) {
         <div className="nav-menu">
           {user ? (
             <>
-              {/* ✅ REMOVED: Dashboard link since it's now part of myRashenal */}
+              {/* Navigation items for authenticated users */}
+              {navigationItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`nav-item flex items-center space-x-1 ${
+                      isActive ? 'active' : ''
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span className="hidden sm:inline">{item.name}</span>
+                  </Link>
+                );
+              })}
+              
               <button onClick={handleLogout} className="nav-item">
                 Logout
               </button>

@@ -11,10 +11,12 @@ const corsHeaders = {
 
 interface ChatRequest {
   message: string;
+  context?: string; // 'cv_parsing' | 'coaching' | etc.
   userContext?: {
     name: string;
     habits: any[];
     goals: any[];
+    tasks: any[];
     weeklyStats: any;
     recentCompletions: any[];
     preferences?: any;
@@ -73,10 +75,15 @@ serve(async (req) => {
     }
 
     // Parse the request body
-    const { message, userContext }: ChatRequest = await req.json()
+    const { message, context: requestContext, userContext }: ChatRequest = await req.json()
 
     if (!message?.trim()) {
       throw new Error('Message is required')
+    }
+
+    // Handle CV parsing requests
+    if (requestContext === 'cv_parsing') {
+      return await handleCVParsing(message)
     }
 
     // Get comprehensive user data if not provided
@@ -85,7 +92,7 @@ serve(async (req) => {
       // Fetch user profile
       const { data: profile } = await supabaseClient
         .from('user_profiles')
-        .select('full_name')
+        .select('full_name, email')
         .eq('id', user.id)
         .single()
 
@@ -123,6 +130,15 @@ serve(async (req) => {
         .select('*')
         .eq('user_id', user.id)
         .single()
+
+      // Fetch outstanding tasks for contextual awareness
+      const { data: tasks } = await supabaseClient
+        .from('tasks')
+        .select('*')
+        .eq('user_id', user.id)
+        .in('status', ['todo', 'in_progress'])
+        .order('priority', { ascending: false })
+        .limit(5)
 
       // Calculate habit progress and streaks
       const enrichedHabits = habits?.map((habit: any) => {
@@ -175,10 +191,21 @@ serve(async (req) => {
         ? Math.round(enrichedHabits.reduce((sum, h) => sum + h.progress, 0) / enrichedHabits.length)
         : 0
 
+      // Determine personalized name
+      let userName = 'there'
+      if (user.email === 'rharveybis@hotmail.com') {
+        userName = 'Elizabeth'
+      } else if (profile?.full_name) {
+        userName = profile.full_name
+      } else if (user.email) {
+        userName = user.email.split('@')[0]
+      }
+
       context = {
-        name: profile?.full_name || user.email?.split('@')[0] || 'there',
+        name: userName,
         habits: enrichedHabits,
         goals: goals || [],
+        tasks: tasks || [],
         recentCompletions: completions?.slice(0, 10) || [],
         preferences: preferences || { ai_coaching_style: 'encouraging' },
         weeklyStats: {
@@ -222,6 +249,9 @@ ${strugglingHabits.map((h: any) => `• ${h.name}: ${h.progress}% progress, ${h.
 Active goals:
 ${recentGoals.map((g: any) => `• ${g.title}: ${g.progress}% complete`).join('\n')}
 
+Outstanding tasks (for contextual awareness):
+${context.tasks.slice(0, 3).map((t: any) => `• ${t.title} (${t.priority} priority, ${t.status})`).join('\n')}
+
 Recent activity patterns:
 - Last 3 completions: ${context.recentCompletions.slice(0, 3).map((c: any) => `${c.habits.name} (${c.value_completed} ${c.habits.target_unit})`).join(', ')}
 
@@ -230,13 +260,14 @@ User's message: "${message}"
 Respond as their AI coach with:
 1. Acknowledge their specific progress/efforts from the data
 2. Provide habit-focused, actionable advice (micro-steps when possible)
-3. Reference their actual data when relevant
-4. Be encouraging but realistic
-5. Ask one engaging follow-up question
-6. Keep responses 100-150 words, structured clearly for accessibility
-7. Use simple language and clear formatting for neurodiverse users
+3. Reference their actual data when relevant (habits, goals, and tasks)
+4. When appropriate, mention outstanding tasks to show contextual awareness
+5. Be encouraging but realistic
+6. Ask one engaging follow-up question
+7. Keep responses 100-150 words, structured clearly for accessibility
+8. Use simple language and clear formatting for neurodiverse users
 
-Focus on habit stacking, consistency over perfection, and building self-belief through small wins.`
+Focus on habit stacking, consistency over perfection, and building self-belief through small wins. Show that you understand their full context by occasionally referencing their tasks alongside their habits and goals.`
 
     // Call Claude API
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
@@ -247,7 +278,7 @@ Focus on habit stacking, consistency over perfection, and building self-belief t
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-3-sonnet-20240229',
+        model: 'claude-3-5-sonnet-20241022',
         max_tokens: 400,
         messages: [
           {
@@ -330,6 +361,135 @@ Focus on habit stacking, consistency over perfection, and building self-belief t
     )
   }
 })
+
+// Helper function to handle CV parsing with Claude AI
+async function handleCVParsing(cvText: string) {
+  console.log('🤖 CV Parsing request received')
+  console.log('   - Text length:', cvText.length)
+  console.log('   - Text preview:', cvText.substring(0, 200) + '...')
+  
+  // Check API key availability
+  const apiKey = Deno.env.get('ANTHROPIC_API_KEY')
+  if (!apiKey) {
+    console.error('❌ ANTHROPIC_API_KEY environment variable not found')
+    throw new Error('Claude API key not configured')
+  }
+  console.log('✅ API key found (length:', apiKey.length, ')')
+  
+  try {
+    console.log('📡 Sending request to Claude API...')
+    
+    const requestBody = {
+      model: 'claude-3-5-sonnet-20241022',
+      max_tokens: 2000,
+      messages: [
+        {
+          role: 'user',
+          content: cvText
+        }
+      ]
+    }
+    
+    console.log('📋 Request body prepared:', JSON.stringify(requestBody, null, 2))
+    
+    // Call Claude API specifically for CV parsing
+    const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify(requestBody)
+    })
+
+    console.log('📥 Received response from Claude API')
+    console.log('   - Status:', claudeResponse.status)
+    console.log('   - Status text:', claudeResponse.statusText)
+    console.log('   - Headers:', Object.fromEntries(claudeResponse.headers.entries()))
+
+    if (!claudeResponse.ok) {
+      const errorText = await claudeResponse.text()
+      console.error('❌ Claude API error for CV parsing:')
+      console.error('   - Status:', claudeResponse.status)
+      console.error('   - Error text:', errorText)
+      
+      // Return more specific error information
+      return new Response(
+        JSON.stringify({ 
+          error: `Claude API error: ${claudeResponse.status}`,
+          details: errorText,
+          timestamp: new Date().toISOString(),
+          debug: 'Check Supabase Edge Function logs for more details'
+        }),
+        {
+          status: 500,
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json' 
+          },
+        },
+      )
+    }
+
+    const claudeData = await claudeResponse.json()
+    console.log('✅ Claude API response parsed successfully')
+    console.log('   - Response structure:', Object.keys(claudeData))
+    
+    if (!claudeData.content || !claudeData.content[0] || !claudeData.content[0].text) {
+      console.error('❌ Unexpected Claude API response structure:', claudeData)
+      throw new Error('Invalid response structure from Claude API')
+    }
+    
+    const aiResponse = claudeData.content[0].text
+    console.log('📝 AI response length:', aiResponse.length)
+    console.log('📝 AI response preview:', aiResponse.substring(0, 300) + '...')
+
+    console.log('🎉 Claude AI CV parsing completed successfully')
+    
+    return new Response(
+      JSON.stringify({ 
+        response: aiResponse,
+        timestamp: new Date().toISOString(),
+        parsed_by: 'claude-ai',
+        debug: {
+          model: 'claude-3-5-sonnet-20241022',
+          input_length: cvText.length,
+          output_length: aiResponse.length
+        }
+      }),
+      {
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        },
+      },
+    )
+  } catch (error) {
+    console.error('💥 Error in CV parsing:', error)
+    console.error('   - Error type:', error.constructor.name)
+    console.error('   - Error message:', error.message)
+    console.error('   - Error stack:', error.stack)
+    
+    // Return detailed error information
+    return new Response(
+      JSON.stringify({ 
+        error: error.message,
+        type: error.constructor.name,
+        timestamp: new Date().toISOString(),
+        debug: 'CV parsing failed - check Edge Function logs',
+        fallback_message: 'CV parsing temporarily unavailable. Please fill out the form manually.'
+      }),
+      {
+        status: 500,
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        },
+      },
+    )
+  }
+}
 
 // Helper function to check and award achievements
 async function checkAndAwardAchievements(supabaseClient: any, userId: string, context: any) {

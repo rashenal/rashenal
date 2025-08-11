@@ -8,7 +8,7 @@ import React, {
   ReactNode,
 } from 'react';
 import { Session, User, AuthError } from '@supabase/supabase-js';
-import { supabase } from '../supabase/supabaseClient';
+import { supabase } from '../lib/supabase';
 
 type AuthResponse = {
   data: { user: User | null; session: Session | null };

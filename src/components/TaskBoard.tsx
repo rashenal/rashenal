@@ -1,6 +1,6 @@
 // components/TaskBoard.tsx
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../supabase/supabaseClient';
+import { supabase } from '../lib/supabase';
 import { useUser } from '../contexts/userContext';
 
 interface Task {

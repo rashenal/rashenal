@@ -1,0 +1,312 @@
+[
+  {
+    "id": "rsh-1",
+    "title": "Security & Data Model Baseline",
+    "description": "Foundation for trust: RLS, encryption, audit logs, privacy controls.",
+    "parentId": null,
+    "blockedBy": []
+  },
+  {
+    "id": "rsh-1.1",
+    "title": "Lock RLS on every table",
+    "description": "Verify Row-Level Security across all new/existing tables; add policies where missing.",
+    "parentId": "rsh-1",
+    "blockedBy": []
+  },
+  {
+    "id": "rsh-1.2",
+    "title": "Add client-side encryption framework",
+    "description": "Per-user keys; dev override for rharveybis@hotmail.com; plan for key rotation & migrations.",
+    "parentId": "rsh-1",
+    "blockedBy": []
+  },
+  {
+    "id": "rsh-1.3",
+    "title": "Implement audit logging",
+    "description": "Capture CRUD events with who/when/what; store immutable audit trail.",
+    "parentId": "rsh-1",
+    "blockedBy": []
+  },
+  {
+    "id": "rsh-1.4",
+    "title": "Add GDPR/privacy controls",
+    "description": "User data export & delete endpoints; document data retention.",
+    "parentId": "rsh-1",
+    "blockedBy": []
+  },
+  {
+    "id": "rsh-2",
+    "title": "Data Layer (Life Management Spine)",
+    "description": "Wire real persistence for tasks, habits, goals.",
+    "parentId": null,
+    "blockedBy": [
+      "rsh-1.1",
+      "rsh-1.2"
+    ]
+  },
+  {
+    "id": "rsh-2.1",
+    "title": "Tasks CRUD with persistence",
+    "description": "Fix save/reload bugs; filters by project/tag/status.",
+    "parentId": "rsh-2",
+    "blockedBy": [
+      "rsh-1.1",
+      "rsh-1.2"
+    ]
+  },
+  {
+    "id": "rsh-2.2",
+    "title": "Habits CRUD and streak calculation",
+    "description": "Simple streak logic; daily/weekly cadence fields.",
+    "parentId": "rsh-2",
+    "blockedBy": [
+      "rsh-1.1",
+      "rsh-1.2"
+    ]
+  },
+  {
+    "id": "rsh-2.3",
+    "title": "Habit progress analytics (basic)",
+    "description": "Counts, streaks, completion % (charts later).",
+    "parentId": "rsh-2",
+    "blockedBy": [
+      "rsh-2.2"
+    ]
+  },
+  {
+    "id": "rsh-2.4",
+    "title": "Goals CRUD and link to tasks/habits",
+    "description": "Goal \u2194 Task/Habit relationships; status rollups.",
+    "parentId": "rsh-2",
+    "blockedBy": [
+      "rsh-1.1",
+      "rsh-1.2"
+    ]
+  },
+  {
+    "id": "rsh-3",
+    "title": "Jobs Module Foundation",
+    "description": "Store jobs, score them, and explode to tasks.",
+    "parentId": null,
+    "blockedBy": [
+      "rsh-1.1",
+      "rsh-1.2"
+    ]
+  },
+  {
+    "id": "rsh-3.1",
+    "title": "Create Jobs table schema",
+    "description": "All fields for scoring, tagging, and metadata.",
+    "parentId": "rsh-3",
+    "blockedBy": [
+      "rsh-1.1",
+      "rsh-1.2"
+    ]
+  },
+  {
+    "id": "rsh-3.2",
+    "title": "Manual job entry + edit",
+    "description": "Form to add/edit jobs; validation & persistence.",
+    "parentId": "rsh-3",
+    "blockedBy": [
+      "rsh-3.1"
+    ]
+  },
+  {
+    "id": "rsh-3.3",
+    "title": "Score calculation + manual override",
+    "description": "Base scoring function with user override field.",
+    "parentId": "rsh-3",
+    "blockedBy": [
+      "rsh-3.1"
+    ]
+  },
+  {
+    "id": "rsh-3.4",
+    "title": "Link jobs to tasks (auto-subtasks)",
+    "description": "On job add: create subtasks, attach doc ids.",
+    "parentId": "rsh-3",
+    "blockedBy": [
+      "rsh-3.1",
+      "rsh-2.1"
+    ]
+  },
+  {
+    "id": "rsh-4",
+    "title": "Unified Weekly View",
+    "description": "Single source of truth for week plan.",
+    "parentId": null,
+    "blockedBy": [
+      "rsh-2.1",
+      "rsh-2.2",
+      "rsh-2.4"
+    ]
+  },
+  {
+    "id": "rsh-4.1",
+    "title": "Calendar aggregates Tasks/Habits/Goals",
+    "description": "Internal aggregation first; external sync later.",
+    "parentId": "rsh-4",
+    "blockedBy": [
+      "rsh-2.1",
+      "rsh-2.2",
+      "rsh-2.4"
+    ]
+  },
+  {
+    "id": "rsh-4.2",
+    "title": "Calendar filtering & colour-coding",
+    "description": "Filter by type/status; quick legend.",
+    "parentId": "rsh-4",
+    "blockedBy": [
+      "rsh-4.1"
+    ]
+  },
+  {
+    "id": "rsh-4.3",
+    "title": "Deadlines & streak markers",
+    "description": "Show task deadlines and habit streak badges.",
+    "parentId": "rsh-4",
+    "blockedBy": [
+      "rsh-4.1"
+    ]
+  },
+  {
+    "id": "rsh-5",
+    "title": "Error Handling & Test Harness",
+    "description": "Stability and basic quality gates.",
+    "parentId": null,
+    "blockedBy": [
+      "rsh-2.1"
+    ]
+  },
+  {
+    "id": "rsh-5.1",
+    "title": "Global error boundary",
+    "description": "Catch UI crashes; friendly fallback.",
+    "parentId": "rsh-5",
+    "blockedBy": [
+      "rsh-2.1"
+    ]
+  },
+  {
+    "id": "rsh-5.2",
+    "title": "API error handling & messages",
+    "description": "Surface API errors with actionable copy.",
+    "parentId": "rsh-5",
+    "blockedBy": [
+      "rsh-2.1"
+    ]
+  },
+  {
+    "id": "rsh-5.3",
+    "title": "Minimal unit tests",
+    "description": "Focus on Tasks, Habits, Jobs core paths.",
+    "parentId": "rsh-5",
+    "blockedBy": [
+      "rsh-5.2"
+    ]
+  },
+  {
+    "id": "rsh-5.4",
+    "title": "Basic a11y & E2E smoke test",
+    "description": "Keyboard nav + one happy-path flow.",
+    "parentId": "rsh-5",
+    "blockedBy": [
+      "rsh-5.2"
+    ]
+  },
+  {
+    "id": "rsh-6",
+    "title": "Quick-Win Engagement Features",
+    "description": "Stickiness boosters that don\u2019t block MVP.",
+    "parentId": null,
+    "blockedBy": []
+  },
+  {
+    "id": "rsh-6.1",
+    "title": "Next Best Action widget",
+    "description": "Reads Tasks/Habits; suggests the next action.",
+    "parentId": "rsh-6",
+    "blockedBy": [
+      "rsh-2.1"
+    ]
+  },
+  {
+    "id": "rsh-6.2",
+    "title": "Daily accountability check-in",
+    "description": "Simple text capture & reminder hook.",
+    "parentId": "rsh-6",
+    "blockedBy": [
+      "rsh-2.2"
+    ]
+  },
+  {
+    "id": "rsh-6.3",
+    "title": "CV/cover letter generator per job",
+    "description": "Generate docs from profile + job data.",
+    "parentId": "rsh-6",
+    "blockedBy": [
+      "rsh-3.1"
+    ]
+  },
+  {
+    "id": "rsh-7",
+    "title": "Post-MVP / Nice-to-Have Integrations",
+    "description": "Do not start before MVP spine is stable.",
+    "parentId": null,
+    "blockedBy": [
+      "rsh-2.1"
+    ]
+  },
+  {
+    "id": "rsh-7.1",
+    "title": "External calendar sync (Google)",
+    "description": "OAuth, 2-way sync, conflict handling.",
+    "parentId": "rsh-7",
+    "blockedBy": [
+      "rsh-1.1",
+      "rsh-2.1"
+    ]
+  },
+  {
+    "id": "rsh-7.2",
+    "title": "External calendar sync (Outlook)",
+    "description": "Graph API; similar to 7.1.",
+    "parentId": "rsh-7",
+    "blockedBy": [
+      "rsh-1.1",
+      "rsh-2.1"
+    ]
+  },
+  {
+    "id": "rsh-7.3",
+    "title": "Email SMTP/IMAP integration",
+    "description": "Alerts, follow-ups, job inbox rules.",
+    "parentId": "rsh-7",
+    "blockedBy": [
+      "rsh-1.1",
+      "rsh-2.1"
+    ]
+  },
+  {
+    "id": "rsh-7.4",
+    "title": "External job API import",
+    "description": "Indeed/LinkedIn adapters; rate limiters.",
+    "parentId": "rsh-7",
+    "blockedBy": [
+      "rsh-1.1",
+      "rsh-2.1",
+      "rsh-3.1"
+    ]
+  },
+  {
+    "id": "rsh-7.5",
+    "title": "Plugin architecture core (RashPlugs)",
+    "description": "Registry, loader, sandbox; versioning.",
+    "parentId": "rsh-7",
+    "blockedBy": [
+      "rsh-2.1"
+    ]
+  }
+]

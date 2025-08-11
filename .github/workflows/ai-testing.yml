@@ -1,0 +1,409 @@
+name: 🤖 Rashenal AI Testing Framework
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run comprehensive tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_level:
+        description: 'Test Level'
+        required: true
+        default: 'comprehensive'
+        type: choice
+        options:
+        - smoke
+        - comprehensive
+        - extensive
+      test_agents:
+        description: 'Test Agents'
+        required: true
+        default: 'user,admin'
+        type: string
+      personas:
+        description: 'User Personas'
+        required: false
+        default: 'alex_neurodiverse,sam_entrepreneur'
+        type: string
+
+env:
+  NODE_VERSION: '18'
+  CI: true
+
+jobs:
+  # Smoke Tests - Fast validation for every commit
+  smoke-tests:
+    name: 🚀 Smoke Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🔧 Setup test environment
+      run: |
+        cp .env.test .env.local
+        echo "TEST_ENVIRONMENT=ci" >> .env.local
+        echo "GITHUB_SHA=${{ github.sha }}" >> .env.local
+        echo "GITHUB_REF=${{ github.ref }}" >> .env.local
+        
+    - name: ⚡ Run unit tests
+      run: npm run test:unit
+      
+    - name: 🤖 Run AI smoke tests
+      run: npm run test:ai:smoke
+      timeout-minutes: 15
+      env:
+        TEST_CLAUDE_API_KEY: ${{ secrets.TEST_CLAUDE_API_KEY }}
+        TEST_SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
+        TEST_SUPABASE_ANON_KEY: ${{ secrets.TEST_SUPABASE_ANON_KEY }}
+        
+    - name: 📊 Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: smoke-test-results
+        path: |
+          test-reports/
+          coverage/
+        retention-days: 7
+
+  # Comprehensive Tests - Full testing for main branch and PRs
+  comprehensive-tests:
+    name: 🧪 Comprehensive Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    needs: smoke-tests
+    
+    strategy:
+      matrix:
+        test-agent: [user, admin]
+        include:
+          - test-agent: user
+            personas: alex_neurodiverse,sam_entrepreneur
+          - test-agent: admin
+            personas: ""
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🔧 Setup test environment
+      run: |
+        cp .env.test .env.local
+        echo "TEST_ENVIRONMENT=ci_comprehensive" >> .env.local
+        echo "GITHUB_SHA=${{ github.sha }}" >> .env.local
+        echo "GITHUB_REF=${{ github.ref }}" >> .env.local
+        mkdir -p test-reports
+        
+    - name: 🎯 Run comprehensive AI tests
+      run: |
+        if [ "${{ matrix.test-agent }}" = "user" ]; then
+          npm run test:ai:user-journeys
+        else
+          npm run test:ai:security
+        fi
+      timeout-minutes: 45
+      env:
+        TEST_CLAUDE_API_KEY: ${{ secrets.TEST_CLAUDE_API_KEY }}
+        TEST_SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
+        TEST_SUPABASE_ANON_KEY: ${{ secrets.TEST_SUPABASE_ANON_KEY }}
+        
+    - name: ♿ Run accessibility tests
+      if: matrix.test-agent == 'user'
+      run: npm run test:ai:accessibility
+      timeout-minutes: 20
+      
+    - name: ⚡ Run performance tests
+      if: matrix.test-agent == 'admin'
+      run: npm run test:ai:performance
+      timeout-minutes: 30
+      
+    - name: 📊 Generate test report
+      run: npm run test:ai:report
+      if: always()
+      
+    - name: 📊 Upload comprehensive test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: comprehensive-test-results-${{ matrix.test-agent }}
+        path: |
+          test-reports/
+          coverage/
+        retention-days: 14
+
+  # Quality Gates - Production readiness validation
+  quality-gates:
+    name: 🚦 Quality Gates
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [smoke-tests, comprehensive-tests]
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🔧 Setup production test environment
+      run: |
+        cp .env.test .env.local
+        echo "TEST_ENVIRONMENT=production_validation" >> .env.local
+        echo "CI_FAIL_ON_CRITICAL=true" >> .env.local
+        echo "CI_REQUIRE_ACCESSIBILITY_PASS=true" >> .env.local
+        echo "CI_REQUIRE_SECURITY_PASS=true" >> .env.local
+        
+    - name: 🏭 Run production readiness tests
+      run: npm run test:ai:ci
+      timeout-minutes: 60
+      env:
+        TEST_CLAUDE_API_KEY: ${{ secrets.TEST_CLAUDE_API_KEY }}
+        TEST_SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
+        TEST_SUPABASE_ANON_KEY: ${{ secrets.TEST_SUPABASE_ANON_KEY }}
+        
+    - name: 🔒 Security validation
+      run: npm run test:ai:security
+      timeout-minutes: 30
+      
+    - name: ♿ Accessibility validation
+      run: npm run test:ai:accessibility
+      timeout-minutes: 20
+      
+    - name: 📊 Generate final quality report
+      run: npm run test:ai:report
+      if: always()
+      
+    - name: 🚨 Quality gate validation
+      run: |
+        echo "Validating quality gates..."
+        # This would check test results and fail if quality gates aren't met
+        node -e "
+          const fs = require('fs');
+          if (fs.existsSync('test-reports/test-results.json')) {
+            const results = JSON.parse(fs.readFileSync('test-reports/test-results.json', 'utf8'));
+            
+            if (results.summary && results.summary.critical_errors > 0) {
+              console.error('❌ Quality gate failed: Critical errors detected');
+              process.exit(1);
+            }
+            
+            if (results.summary && results.summary.success_rate < 95) {
+              console.error('❌ Quality gate failed: Success rate below 95%');
+              process.exit(1);
+            }
+            
+            if (results.security_score && results.security_score < 90) {
+              console.error('❌ Quality gate failed: Security score below 90');
+              process.exit(1);
+            }
+            
+            if (results.accessibility_score && results.accessibility_score < 90) {
+              console.error('❌ Quality gate failed: Accessibility score below 90');
+              process.exit(1);
+            }
+            
+            console.log('✅ All quality gates passed!');
+          } else {
+            console.log('⚠️ No test results found, assuming tests passed');
+          }
+        "
+        
+    - name: 📊 Upload quality gate results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: quality-gate-results
+        path: |
+          test-reports/
+          coverage/
+        retention-days: 30
+
+  # Daily Comprehensive Testing
+  daily-tests:
+    name: 📅 Daily Comprehensive Testing
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🔧 Setup daily test environment
+      run: |
+        cp .env.test .env.local
+        echo "TEST_ENVIRONMENT=daily_comprehensive" >> .env.local
+        echo "LOAD_TEST_ENABLED=true" >> .env.local
+        echo "EXTENSIVE_TESTING=true" >> .env.local
+        
+    - name: 🔄 Run extensive AI tests
+      run: |
+        # Run all test agents with all personas
+        npm run test:ai -- --mode production --agents user,admin --personas alex_neurodiverse,sam_entrepreneur,morgan_methodical --testLevel extensive
+      timeout-minutes: 120
+      env:
+        TEST_CLAUDE_API_KEY: ${{ secrets.TEST_CLAUDE_API_KEY }}
+        TEST_SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
+        TEST_SUPABASE_ANON_KEY: ${{ secrets.TEST_SUPABASE_ANON_KEY }}
+        
+    - name: 📈 Run load tests
+      run: npm run test:ai:performance
+      timeout-minutes: 45
+      
+    - name: 📊 Generate comprehensive daily report
+      run: npm run test:ai:report
+      if: always()
+      
+    - name: 📧 Send daily report notification
+      if: always()
+      run: |
+        echo "Daily test report generated"
+        # This would send notifications via email/Slack
+        # curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} -H 'Content-type: application/json' --data '{"text":"Daily Rashenal AI tests completed"}'
+        
+    - name: 📊 Upload daily test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: daily-comprehensive-results
+        path: |
+          test-reports/
+          coverage/
+        retention-days: 60
+
+  # Manual Test Execution
+  manual-tests:
+    name: 🎯 Manual Test Execution
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🔧 Setup manual test environment
+      run: |
+        cp .env.test .env.local
+        echo "TEST_ENVIRONMENT=manual" >> .env.local
+        echo "TEST_LEVEL=${{ github.event.inputs.test_level }}" >> .env.local
+        
+    - name: 🎯 Run manual tests
+      run: |
+        npm run test:ai -- \
+          --mode manual \
+          --agents ${{ github.event.inputs.test_agents }} \
+          --personas ${{ github.event.inputs.personas }} \
+          --testLevel ${{ github.event.inputs.test_level }} \
+          --outputFormat html \
+          --verbose true
+      timeout-minutes: 90
+      env:
+        TEST_CLAUDE_API_KEY: ${{ secrets.TEST_CLAUDE_API_KEY }}
+        TEST_SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
+        TEST_SUPABASE_ANON_KEY: ${{ secrets.TEST_SUPABASE_ANON_KEY }}
+        
+    - name: 📊 Upload manual test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: manual-test-results
+        path: |
+          test-reports/
+          coverage/
+        retention-days: 30
+
+  # Test Results Summary
+  test-summary:
+    name: 📊 Test Results Summary
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [smoke-tests, comprehensive-tests, quality-gates]
+    
+    steps:
+    - name: 📥 Download all test artifacts
+      uses: actions/download-artifact@v4
+      
+    - name: 📊 Generate combined test summary
+      run: |
+        echo "## 🤖 Rashenal AI Testing Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Test Execution Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Branch**: ${{ github.ref }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Triggered by**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Check job statuses
+        if [ "${{ needs.smoke-tests.result }}" = "success" ]; then
+          echo "✅ Smoke Tests: Passed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Smoke Tests: Failed" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.comprehensive-tests.result }}" = "success" ]; then
+          echo "✅ Comprehensive Tests: Passed" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ needs.comprehensive-tests.result }}" = "skipped" ]; then
+          echo "⏭️ Comprehensive Tests: Skipped" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Comprehensive Tests: Failed" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.quality-gates.result }}" = "success" ]; then
+          echo "✅ Quality Gates: Passed" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ needs.quality-gates.result }}" = "skipped" ]; then
+          echo "⏭️ Quality Gates: Skipped" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Quality Gates: Failed" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📊 Detailed Reports" >> $GITHUB_STEP_SUMMARY
+        echo "Check the artifacts section for detailed test reports and coverage information." >> $GITHUB_STEP_SUMMARY

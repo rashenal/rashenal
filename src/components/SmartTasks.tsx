@@ -16,9 +16,20 @@ import {
   Save,
   Kanban,
   Loader,
+  Upload,
+  Download,
+  FileText,
+  Settings
 } from 'lucide-react';
-import { useUser } from '@contexts/userContext';
-import { supabase } from '../lib/supabase'; // Adjust import path as needed
+import { useUser } from '../contexts/userContext';
+import { EnhancedTaskService, type EnhancedTaskUI } from '../lib/enhanced-task-service';
+import { supabase } from '../lib/supabase';
+import TaskImportExport from './TaskImportExport';
+import TaskBoardManager from './TaskBoardManager';
+import TaskboardAssistant from './TaskboardAssistant';
+import TaskAttachments from './TaskAttachments';
+import SmartTasksSettings, { SmartTasksSettings as TaskSettings, defaultSmartTasksSettings } from './settings/SmartTasksSettings';
+import { getLocalSettings } from './shared/SettingsModal';
 
 // Types
 interface WorkItem {
@@ -29,11 +40,13 @@ interface WorkItem {
   priority: 'LOW' | 'MEDIUM' | 'HIGH';
   owner?: string;
   estimatedHours?: number;
-  attachments: string[];
+  attachments: any[];
   comments: Comment[];
   createdAt: Date;
   updatedAt: Date;
   order: number;
+  attachment_count?: number;
+  comment_count?: number;
 }
 
 interface Comment {
@@ -44,19 +57,26 @@ interface Comment {
 }
 
 // Database mapping functions
-const mapDbToWorkItem = (dbTask: any): WorkItem => ({
+const mapDbToWorkItem = (dbTask: EnhancedTaskUI): WorkItem => ({
   id: dbTask.id,
   title: dbTask.title,
   description: dbTask.description || '',
-  status: dbTask.status?.toUpperCase() || 'TODO',
-  priority: dbTask.priority?.toUpperCase() || 'MEDIUM',
-  owner: dbTask.category || '', // Using category field as owner for now
-  estimatedHours: 0, // Not in current DB schema
-  attachments: [], // Not in current DB schema
-  comments: [], // Not in current DB schema
-  createdAt: new Date(dbTask.created_at),
-  updatedAt: new Date(dbTask.updated_at),
+  status: dbTask.status?.toUpperCase() as 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'BLOCKED' | 'DONE' || 'TODO',
+  priority: dbTask.priority?.toUpperCase() as 'LOW' | 'MEDIUM' | 'HIGH' || 'MEDIUM',
+  owner: dbTask.category || '',
+  estimatedHours: dbTask.estimated_time || 0,
+  attachments: dbTask.attachments || [],
+  comments: (dbTask.comments || []).map(comment => ({
+    id: comment.id,
+    text: comment.content,
+    commenter: comment.user_name || 'Unknown user',
+    createdAt: new Date(comment.created_at)
+  })),
+  createdAt: dbTask.createdAt,
+  updatedAt: dbTask.updatedAt,
   order: dbTask.position || 0,
+  attachment_count: dbTask.attachment_count || 0,
+  comment_count: dbTask.comment_count || 0,
 });
 
 const mapWorkItemToDb = (workItem: Partial<WorkItem>, userId: string) => ({
@@ -70,7 +90,7 @@ const mapWorkItemToDb = (workItem: Partial<WorkItem>, userId: string) => ({
 });
 
 export default function SmartTasks() {
-  const { user } = useAuth();
+  const { user } = useUser();
   const [workItems, setWorkItems] = useState<WorkItem[]>([]);
   const [recycledItems, setRecycledItems] = useState<WorkItem[]>([]);
   const [editingItem, setEditingItem] = useState<WorkItem | null>(null);
@@ -79,6 +99,13 @@ export default function SmartTasks() {
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState<Partial<WorkItem>>({});
+  const [showImportExport, setShowImportExport] = useState(false);
+  const [currentTaskboardId, setCurrentTaskboardId] = useState<string | undefined>(undefined);
+  const [showSettings, setShowSettings] = useState(false);
+  const [settings, setSettings] = useState<TaskSettings>(
+    () => getLocalSettings('smart-tasks', defaultSmartTasksSettings)
+  );
+  const [taskAttachments, setTaskAttachments] = useState<any[]>([]);
 
   const columns = [
     { id: 'BACKLOG', title: 'Backlog', color: 'bg-gray-100' },
@@ -93,22 +120,20 @@ export default function SmartTasks() {
     if (user) {
       loadTasks();
     }
-  }, [user]);
+  }, [user, currentTaskboardId]);
 
   const loadTasks = async () => {
     if (!user) return;
 
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('position', { ascending: true });
+      const result = await EnhancedTaskService.getUserTasks(currentTaskboardId);
+      
+      if (result.error) {
+        throw result.error;
+      }
 
-      if (error) throw error;
-
-      const mappedTasks = data?.map(mapDbToWorkItem) || [];
+      const mappedTasks = result.data.map(mapDbToWorkItem);
       setWorkItems(mappedTasks);
     } catch (error) {
       console.error('Error loading tasks:', error);
@@ -133,24 +158,21 @@ export default function SmartTasks() {
     if (!user) return;
 
     try {
-      const newItemData = mapWorkItemToDb(
-        {
-          ...data,
-          status: 'BACKLOG',
-          order: getItemsByStatus('BACKLOG').length,
-        },
-        user.id
-      );
+      const result = await EnhancedTaskService.createTask({
+        title: data.title || '',
+        description: data.description || '',
+        status: 'backlog',
+        priority: data.priority?.toLowerCase() as 'low' | 'medium' | 'high' || 'medium',
+        category: data.owner || null,
+        taskboard_id: currentTaskboardId || undefined,
+        position: getItemsByStatus('BACKLOG').length
+      });
 
-      const { data: dbData, error } = await supabase
-        .from('tasks')
-        .insert([newItemData])
-        .select()
-        .single();
+      if (result.error) {
+        throw result.error;
+      }
 
-      if (error) throw error;
-
-      const newItem = mapDbToWorkItem(dbData);
+      const newItem = mapDbToWorkItem(result.data);
       setWorkItems((prev) => [...prev, newItem]);
       setShowNewItemForm(false);
       setFormData({});
@@ -164,26 +186,26 @@ export default function SmartTasks() {
     if (!user) return;
 
     try {
-      const updateData = mapWorkItemToDb(updates, user.id);
+      const result = await EnhancedTaskService.updateTask(id, {
+        title: updates.title,
+        description: updates.description,
+        status: updates.status?.toLowerCase(),
+        priority: updates.priority?.toLowerCase() as 'low' | 'medium' | 'high',
+        category: updates.owner,
+        position: updates.order,
+        estimated_time: updates.estimatedHours
+      });
 
-      const { data, error } = await supabase
-        .from('tasks')
-        .update({
-          ...updateData,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', id)
-        .eq('user_id', user.id)
-        .select()
-        .single();
-
-      if (error) throw error;
+      if (result.error) {
+        throw result.error;
+      }
 
       setWorkItems((prev) =>
-        prev.map((item) => (item.id === id ? mapDbToWorkItem(data) : item))
+        prev.map((item) => (item.id === id ? mapDbToWorkItem(result.data) : item))
       );
       setEditingItem(null);
       setFormData({});
+      setTaskAttachments([]);
     } catch (error) {
       console.error('Error updating task:', error);
       alert('Failed to update task. Please try again.');
@@ -193,14 +215,16 @@ export default function SmartTasks() {
   const deleteWorkItem = async (id: string) => {
     if (!user) return;
 
-    try {
-      const { error } = await supabase
-        .from('tasks')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
+    if (settings.confirmDelete && !confirm('Are you sure you want to delete this task?')) {
+      return;
+    }
 
-      if (error) throw error;
+    try {
+      const result = await EnhancedTaskService.deleteTask(id);
+
+      if (result.error) {
+        throw result.error;
+      }
 
       const item = workItems.find((w) => w.id === id);
       if (item) {
@@ -217,7 +241,10 @@ export default function SmartTasks() {
     if (!user) return;
 
     try {
-      const restoreData = mapWorkItemToDb(item, user.id);
+      const restoreData = {
+        ...mapWorkItemToDb(item, user.id),
+        ...(currentTaskboardId && { taskboard_id: currentTaskboardId })
+      };
 
       const { data, error } = await supabase
         .from('tasks')
@@ -305,6 +332,7 @@ export default function SmartTasks() {
   const startEdit = (item: WorkItem) => {
     setEditingItem(item);
     setFormData(item);
+    setTaskAttachments(item.attachments || []);
   };
 
   const getPriorityColor = (priority: string) => {
@@ -369,22 +397,21 @@ export default function SmartTasks() {
             </div>
             <div className="flex space-x-3">
               <button
-                onClick={() => setShowRecycleBin(true)}
-                className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all"
+                onClick={() => setShowSettings(true)}
+                className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-all"
+                title="Settings"
               >
-                <Trash2 className="w-4 h-4" />
-                <span>Recycle Bin ({recycledItems.length})</span>
-              </button>
-              <button
-                onClick={() => setShowNewItemForm(true)}
-                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:shadow-lg transition-all"
-              >
-                <Plus className="w-4 h-4" />
-                <span>New Task</span>
+                <Settings className="w-5 h-5" />
               </button>
             </div>
           </div>
         </div>
+
+        {/* TaskBoard Manager */}
+        <TaskBoardManager
+          currentTaskboardId={currentTaskboardId}
+          onTaskboardChange={setCurrentTaskboardId}
+        />
 
         {/* Kanban Board */}
         <div className="grid grid-cols-5 gap-6">
@@ -397,9 +424,21 @@ export default function SmartTasks() {
             >
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-semibold text-gray-800">{column.title}</h2>
-                <span className="bg-white px-2 py-1 rounded-full text-sm text-gray-600">
-                  {getItemsByStatus(column.id).length}
-                </span>
+                <div className="flex items-center space-x-2">
+                  <span className="bg-white px-2 py-1 rounded-full text-sm text-gray-600">
+                    {getItemsByStatus(column.id).length}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setFormData({ status: column.id });
+                      setShowNewItemForm(true);
+                    }}
+                    className="p-1 hover:bg-white/50 rounded transition-all"
+                    title={`Add to ${column.title}`}
+                  >
+                    <Plus className="w-4 h-4 text-gray-600" />
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-3">
@@ -409,20 +448,28 @@ export default function SmartTasks() {
                     draggable
                     onDragStart={(e) => handleDragStart(e, item.id)}
                     onDoubleClick={() => startEdit(item)}
-                    className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 cursor-move hover:shadow-md transition-all"
+                    className={`bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all ${
+                      settings.enableDragDrop ? 'cursor-move' : 'cursor-pointer'
+                    } ${
+                      settings.cardStyle === 'compact' ? 'p-2' : settings.cardStyle === 'minimal' ? 'p-3' : 'p-4'
+                    }`}
                   >
                     <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-medium text-gray-900 text-sm leading-tight">
-                        {item.title}
-                      </h3>
+                      {settings.showTitle && (
+                        <h3 className="font-medium text-gray-900 text-sm leading-tight">
+                          {item.title}
+                        </h3>
+                      )}
                       <div className="flex space-x-1">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(
-                            item.priority
-                          )}`}
-                        >
-                          {item.priority}
-                        </span>
+                        {settings.showPriority && (
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(
+                              item.priority
+                            )}`}
+                          >
+                            {item.priority}
+                          </span>
+                        )}
                         <button
                           onClick={() => deleteWorkItem(item.id)}
                           className="text-gray-400 hover:text-red-500 transition-colors"
@@ -432,50 +479,54 @@ export default function SmartTasks() {
                       </div>
                     </div>
 
-                    <p
-                      className="text-gray-600 text-xs mb-3 overflow-hidden"
-                      style={{
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                      }}
-                    >
-                      {item.description}
-                    </p>
+                    {settings.showDescription && (
+                      <p
+                        className="text-gray-600 text-xs mb-3 overflow-hidden"
+                        style={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: settings.cardStyle === 'compact' ? 1 : 2,
+                          WebkitBoxOrient: 'vertical',
+                        }}
+                      >
+                        {item.description}
+                      </p>
+                    )}
 
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <div className="flex items-center space-x-2">
-                        {item.estimatedHours && (
-                          <span className="flex items-center space-x-1">
-                            <Clock className="w-3 h-3" />
-                            <span>{item.estimatedHours}h</span>
-                          </span>
-                        )}
+                    {(settings.showEstimatedHours || settings.showComments || settings.showAttachments) && (
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <div className="flex items-center space-x-2">
+                          {settings.showEstimatedHours && item.estimatedHours && (
+                            <span className="flex items-center space-x-1">
+                              <Clock className="w-3 h-3" />
+                              <span>{item.estimatedHours}h</span>
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center space-x-1">
+                          {settings.showComments && item.comments.length > 0 && (
+                            <span
+                              className="flex items-center space-x-1"
+                              title="Comments"
+                            >
+                              <MessageSquare className="w-3 h-3" />
+                              <span>{item.comments.length}</span>
+                            </span>
+                          )}
+                          {settings.showAttachments && item.attachments.length > 0 && (
+                            <span
+                              className="flex items-center space-x-1"
+                              title="Attachments"
+                            >
+                              <Paperclip className="w-3 h-3" />
+                              <span>{item.attachments.length}</span>
+                            </span>
+                          )}
+                        </div>
                       </div>
+                    )}
 
-                      <div className="flex items-center space-x-1">
-                        {item.comments.length > 0 && (
-                          <span
-                            className="flex items-center space-x-1"
-                            title="Comments"
-                          >
-                            <MessageSquare className="w-3 h-3" />
-                            <span>{item.comments.length}</span>
-                          </span>
-                        )}
-                        {item.attachments.length > 0 && (
-                          <span
-                            className="flex items-center space-x-1"
-                            title="Attachments"
-                          >
-                            <Paperclip className="w-3 h-3" />
-                            <span>{item.attachments.length}</span>
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {item.owner && (
+                    {settings.showOwner && item.owner && (
                       <div className="mt-2 flex items-center space-x-1">
                         <Users className="w-3 h-3 text-gray-400" />
                         <span className="text-xs text-gray-600">
@@ -503,6 +554,7 @@ export default function SmartTasks() {
                     setShowNewItemForm(false);
                     setEditingItem(null);
                     setFormData({});
+                    setTaskAttachments([]);
                   }}
                   className="text-gray-400 hover:text-gray-600"
                 >
@@ -603,6 +655,21 @@ export default function SmartTasks() {
                   </div>
                 </div>
 
+                {/* Task Attachments */}
+                {editingItem && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Attachments
+                    </label>
+                    <TaskAttachments
+                      taskId={editingItem.id}
+                      attachments={taskAttachments}
+                      onAttachmentsUpdate={setTaskAttachments}
+                      readonly={false}
+                    />
+                  </div>
+                )}
+
                 <div className="flex justify-end space-x-3">
                   <button
                     onClick={() => {
@@ -623,6 +690,18 @@ export default function SmartTasks() {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Import/Export Modal */}
+        {showImportExport && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+              <TaskImportExport 
+                onTasksImported={loadTasks}
+                onClose={() => setShowImportExport(false)}
+              />
             </div>
           </div>
         )}
@@ -674,6 +753,36 @@ export default function SmartTasks() {
             </div>
           </div>
         )}
+
+        {/* Settings Modal */}
+        <SmartTasksSettings
+          isOpen={showSettings}
+          onClose={() => setShowSettings(false)}
+          onSettingsChange={(newSettings) => {
+            setSettings(newSettings);
+            localStorage.setItem('settings_smart-tasks', JSON.stringify(newSettings));
+          }}
+          onImportExport={() => {
+            setShowSettings(false);
+            setShowImportExport(true);
+          }}
+          onRecycleBin={() => {
+            setShowSettings(false);
+            setShowRecycleBin(true);
+          }}
+          recycleCount={recycledItems.length}
+        />
+
+        {/* Taskboard Assistant */}
+        <TaskboardAssistant 
+          tasks={workItems}
+          onTaskAction={(action, taskId) => {
+            // Handle task actions from the assistant
+            if (action === 'refresh') {
+              loadTasks();
+            }
+          }}
+        />
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import SignInPage from "./pages/SignInPage";
 import AuthCallback from "./pages/AuthCallback";
-import { supabase } from "../supabase/supabaseClient";
+import { supabase } from "../lib/supabase";
 import { Session } from "@supabase/supabase-js";
 
 export default function App() {

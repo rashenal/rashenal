@@ -23,3 +23,12 @@ dist-ssr
 *.sln
 *.sw?
 .env
+.env.test
+.env.local
+
+# Test outputs
+test-reports/
+coverage/
+*.test.log
+test-results.json
+test-results.html
