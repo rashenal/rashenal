@@ -31,6 +31,7 @@ import AIssistents from './components/AIssistents';
 import PrivacyDashboard from './components/PrivacyDashboard';
 import UserProfileManager from './components/UserProfileManager';
 import EnhancedTaskBoard from './components/EnhancedTaskBoard';
+import VoiceHub from './pages/voice/VoiceHub';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { UserProvider, useUser } from './contexts/userContext';
 import { GamificationProvider } from './contexts/GamificationContext';
@@ -100,6 +101,10 @@ function AppRoutes() {
             <Route
               path="/aissistents"
               element={session ? <AIssistents /> : <Navigate to="/auth" replace />}
+            />
+            <Route
+              path="/voice"
+              element={session ? <VoiceHub /> : <Navigate to="/auth" replace />}
             />
             <Route
               path="/goals"

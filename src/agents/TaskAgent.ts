@@ -67,6 +67,18 @@ export class TaskAgent {
     }, {});
   }
 
+  async getActiveTasks(): Promise<any[]> {
+    const { data: tasks } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('user_id', this.userId)
+      .in('status', ['todo', 'in_progress'])
+      .order('priority', { ascending: false })
+      .limit(10);
+
+    return tasks || [];
+  }
+
   async scheduleTask(taskId: string): Promise<{
     suggestedTime: string;
     reason: string;
