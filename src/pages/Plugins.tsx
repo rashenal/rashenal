@@ -96,8 +96,11 @@ export function PluginsPage() {
         .update({ downloads: plugin.downloads + 1 })
         .eq('plugin_id', plugin.plugin_id);
 
-      // Refresh the page to load the new plugin
-      window.location.reload();
+      // Emit a custom event to notify the dashboard to refresh plugins
+      console.log('🔧 Dispatching plugin installation event for:', plugin.plugin_id);
+      window.dispatchEvent(new CustomEvent('pluginInstalled', { 
+        detail: { pluginId: plugin.plugin_id } 
+      }));
     } catch (error) {
       console.error('Error installing plugin:', error);
     } finally {

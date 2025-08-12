@@ -7,7 +7,7 @@ import {
   Navigate,
 } from 'react-router-dom';
 
-import EnhancedNavigation from './components/EnhancedNavigation';
+import AisistaNavigation from './components/AisistaNavigation';
 import InclusiveLandingPage from './components/InclusiveLandingPage';
 import TaskBoard from './components/SmartTasks';
 import TaskBoardDemo from './components/DemoPage';
@@ -29,6 +29,8 @@ import OptimizationDashboard from './components/OptimizationDashboard';
 import GoalsManagement from './components/GoalsManagement';
 import AIssistents from './components/AIssistents';
 import PrivacyDashboard from './components/PrivacyDashboard';
+import InnovationLabs from './components/InnovationLabs';
+import StartWithThisPlugin from './plugins/official/StartWithThisPlugin';
 import UserProfileManager from './components/UserProfileManager';
 import EnhancedTaskBoard from './components/EnhancedTaskBoard';
 import VoiceHub from './pages/voice/VoiceHub';
@@ -64,7 +66,7 @@ function AppRoutes() {
   return (
     <div className="App">
       <Router>
-        <EnhancedNavigation />
+        <AisistaNavigation />
         <main className="main-content">
           {/* Breadcrumbs for authenticated pages */}
           {session && (
@@ -155,6 +157,14 @@ function AppRoutes() {
             <Route
               path="/admin"
               element={session ? <AdminDashboard /> : <Navigate to="/auth" replace />}
+            />
+            <Route
+              path="/admin/labs"
+              element={session ? <InnovationLabs /> : <Navigate to="/auth" replace />}
+            />
+            <Route
+              path="/start-with-this"
+              element={session ? <StartWithThisPlugin /> : <Navigate to="/auth" replace />}
             />
             <Route
               path="/optimization"

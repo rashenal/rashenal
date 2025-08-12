@@ -559,9 +559,10 @@ function AICoachSection() {
         {/* Plugin Widgets Area */}
         {pluginWidgets.length > 0 && (
           <div className="mt-8">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">Plugin Enhancements</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-6">Plugin Enhancements ({pluginWidgets.length} active)</h3>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {pluginWidgets.map(widget => {
+                console.log('Rendering plugin widget:', widget.id);
                 const Component = widget.component;
                 return (
                   <Component key={widget.id} {...widget.props} />
@@ -599,7 +600,7 @@ export default function MyRashenalDashboard() {
   // Plugin system initialization
   useEffect(() => {
     const initializePlugins = async () => {
-      if (!user?.id || pluginsInitialized) return;
+      if (!user?.id) return;
       
       try {
         console.log('Initializing plugin system...');
@@ -658,8 +659,45 @@ export default function MyRashenalDashboard() {
       }
     };
     
-    initializePlugins();
+    if (!pluginsInitialized) {
+      initializePlugins();
+    }
   }, [user, supabase, pluginsInitialized]);
+
+  // Listen for plugin installation events
+  useEffect(() => {
+    const handlePluginInstalled = async (event: CustomEvent) => {
+      const { pluginId } = event.detail;
+      console.log('🔧 Dashboard received plugin installation event:', pluginId);
+      
+      // Add widget for the newly installed plugin
+      if (pluginId === 'ai.asista.motivation') {
+        console.log('📱 Adding Motivation widget to dashboard');
+        const newWidget = {
+          id: 'motivation-widget',
+          component: MotivationWidget,
+          props: { pluginId: 'ai.asista.motivation' }
+        };
+        
+        setPluginWidgets(prev => {
+          // Avoid duplicates
+          const exists = prev.some(w => w.id === newWidget.id);
+          if (exists) {
+            console.log('⚠️ Widget already exists, skipping');
+            return prev;
+          }
+          console.log('✅ Adding new widget to dashboard');
+          return [...prev, newWidget];
+        });
+      }
+    };
+
+    window.addEventListener('pluginInstalled', handlePluginInstalled as EventListener);
+    
+    return () => {
+      window.removeEventListener('pluginInstalled', handlePluginInstalled as EventListener);
+    };
+  }, []);
 
   if (!user) {
     return (
