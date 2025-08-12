@@ -684,17 +684,17 @@ export class UserTestAgent extends TestAgentBase {
 
     const testScenarios = [
       {
-        prompt: "I'm feeling overwhelmed with my tasks today",
+        prompt: 'I\'m feeling overwhelmed with my tasks today',
         expectedElements: ['empathy', 'prioritization', 'specific_advice'],
         forbiddenElements: ['generic_response', 'inappropriate_tone']
       },
       {
-        prompt: "Help me stay motivated with my fitness habit",
+        prompt: 'Help me stay motivated with my fitness habit',
         expectedElements: ['motivation', 'habit_advice', 'actionable_steps'],
         forbiddenElements: ['medical_advice', 'generic_motivation']
       },
       {
-        prompt: "What should I focus on this week?",
+        prompt: 'What should I focus on this week?',
         expectedElements: ['personalized_advice', 'goal_alignment', 'priority_guidance'],
         forbiddenElements: ['vague_response']
       }

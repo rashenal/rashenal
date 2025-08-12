@@ -222,15 +222,15 @@ export default function ContextualSettings({
     const lowerCommand = command.toLowerCase();
     
     if (lowerCommand.includes('create') && lowerCommand.includes('task')) {
-      return "I'll help you create a new task. What would you like to call it?";
+      return 'I\'ll help you create a new task. What would you like to call it?';
     } else if (lowerCommand.includes('settings') || lowerCommand.includes('configure')) {
-      return "Opening settings panel for you now.";
+      return 'Opening settings panel for you now.';
     } else if (lowerCommand.includes('help')) {
-      return "I'm here to help! You can use voice commands or type questions. Try saying 'create new task' or 'show settings'.";
+      return 'I\'m here to help! You can use voice commands or type questions. Try saying \'create new task\' or \'show settings\'.';
     } else if (lowerCommand.includes('navigate') || lowerCommand.includes('go to')) {
-      return "I can help you navigate. Where would you like to go?";
+      return 'I can help you navigate. Where would you like to go?';
     } else {
-      return "I understand you're looking for help with that. Let me show you the relevant options.";
+      return 'I understand you\'re looking for help with that. Let me show you the relevant options.';
     }
   };
 
@@ -355,7 +355,7 @@ export default function ContextualSettings({
                 </h3>
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={isSpeaking ? () => speechSynthesis.cancel() : () => speak("Hello! I'm ready to help you navigate and control this page.")}
+                    onClick={isSpeaking ? () => speechSynthesis.cancel() : () => speak('Hello! I\'m ready to help you navigate and control this page.')}
                     className={`p-2 rounded-lg transition-colors ${isSpeaking ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}
                   >
                     {isSpeaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}

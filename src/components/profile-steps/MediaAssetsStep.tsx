@@ -57,7 +57,7 @@ export default function MediaAssetsStep({ profile, updateProfile, onNext, onPrev
     }
     
     if (file.size > MAX_FILE_SIZE) {
-      return `File size must be less than 10MB`;
+      return 'File size must be less than 10MB';
     }
     
     return null;

@@ -223,24 +223,24 @@ export default function AccountabilityPartners() {
               <div className="space-y-6">
                 {[
                   {
-                    title: "Emotional Intelligence",
-                    description: "Recognizes your emotional state and adjusts its approach accordingly."
+                    title: 'Emotional Intelligence',
+                    description: 'Recognizes your emotional state and adjusts its approach accordingly.'
                   },
                   {
-                    title: "Progress Tracking",
-                    description: "Monitors your habits, tasks, and goals to provide relevant support."
+                    title: 'Progress Tracking',
+                    description: 'Monitors your habits, tasks, and goals to provide relevant support.'
                   },
                   {
-                    title: "Motivational Timing",
-                    description: "Learns when you need encouragement most and reaches out proactively."
+                    title: 'Motivational Timing',
+                    description: 'Learns when you need encouragement most and reaches out proactively.'
                   },
                   {
-                    title: "Personalized Strategies",
-                    description: "Suggests specific actions based on your unique situation and goals."
+                    title: 'Personalized Strategies',
+                    description: 'Suggests specific actions based on your unique situation and goals.'
                   },
                   {
-                    title: "Crisis Support",
-                    description: "Provides extra support during challenging times or setbacks."
+                    title: 'Crisis Support',
+                    description: 'Provides extra support during challenging times or setbacks.'
                   }
                 ].map((feature, index) => (
                   <div key={index} className="flex items-start space-x-4">
@@ -287,18 +287,18 @@ export default function AccountabilityPartners() {
           <div className="grid md:grid-cols-2 gap-8">
             {[
               {
-                name: "Michael R.",
-                goal: "Fitness Transformation",
-                image: "https://images.pexels.com/photos/3184340/pexels-photo-3184340.jpeg?auto=compress&cs=tinysrgb&w=400",
-                quote: "My AI partner kept me motivated when I wanted to skip workouts. Having that voice of encouragement in my own voice made it feel like I was coaching myself to success.",
-                result: "Lost 35 pounds in 4 months"
+                name: 'Michael R.',
+                goal: 'Fitness Transformation',
+                image: 'https://images.pexels.com/photos/3184340/pexels-photo-3184340.jpeg?auto=compress&cs=tinysrgb&w=400',
+                quote: 'My AI partner kept me motivated when I wanted to skip workouts. Having that voice of encouragement in my own voice made it feel like I was coaching myself to success.',
+                result: 'Lost 35 pounds in 4 months'
               },
               {
-                name: "Amanda K.",
-                goal: "Career Change",
-                image: "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=400",
-                quote: "The AI partner helped me stay focused on my career transition goals. It celebrated small wins and kept me accountable for daily actions that led to my dream job.",
-                result: "Successfully changed careers"
+                name: 'Amanda K.',
+                goal: 'Career Change',
+                image: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=400',
+                quote: 'The AI partner helped me stay focused on my career transition goals. It celebrated small wins and kept me accountable for daily actions that led to my dream job.',
+                result: 'Successfully changed careers'
               }
             ].map((story, index) => (
               <div key={index} className="bg-white p-8 rounded-2xl shadow-lg">

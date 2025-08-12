@@ -33,6 +33,8 @@ export interface TaskBoard {
   user_id: string;
   name: string;
   description?: string;
+  abbreviation?: string; // 3-letter project code (e.g., "RAI")
+  task_counter?: number; // Counter for generating task numbers
   template_id?: string;
   color_scheme: string;
   is_archived: boolean;
@@ -62,6 +64,7 @@ export interface TaskColumn {
 
 export interface Task {
   id: string;
+  task_number?: string; // New format: PROJECT-123 (e.g., "RAI-1")
   board_id: string;
   column_id: string;
   user_id: string;
@@ -83,6 +86,9 @@ export interface Task {
   tags: string[];
   assignee_id?: string;
   parent_task_id?: string;
+  parent_id?: string; // For dependency tracking (self-reference if independent)
+  has_children?: boolean; // True if this task has dependent tasks
+  dependency_status?: 'independent' | 'blocked' | 'ready' | 'in_progress' | 'completed';
   sub_tasks: SubTask[];
   dependencies: TaskDependency[];
   goal_connections: GoalConnection[];

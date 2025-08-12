@@ -1,1 +1,587 @@
-import React, { useState, useRef, useCallback } from 'react';\nimport { Mic, MicOff, Play, Pause, Upload, Download, Settings, \n         TestTube, Share, Eye, EyeOff, CheckCircle, AlertCircle, \n         Info, Trash2, Copy } from 'lucide-react';\nimport VoiceService, { VoiceAgentConfig } from '../../services/voice/VoiceService';\nimport VoiceAgentParser from '../../services/voice/VoiceAgentParser';\nimport { useAuth } from '../../contexts/userContext';\n\ninterface VoiceAgentBuilderProps {\n  onAgentCreated?: (config: VoiceAgentConfig) => void;\n  initialConfig?: VoiceAgentConfig;\n  mode?: 'create' | 'edit';\n}\n\ninterface ValidationResult {\n  isValid: boolean;\n  errors: string[];\n  warnings: string[];\n}\n\nexport default function VoiceAgentBuilder({ \n  onAgentCreated, \n  initialConfig, \n  mode = 'create' \n}: VoiceAgentBuilderProps) {\n  const { user } = useAuth();\n  const [agentName, setAgentName] = useState(initialConfig?.name || '');\n  const [markdownConfig, setMarkdownConfig] = useState(\n    initialConfig ? '' : VoiceAgentParser.generateTemplate()\n  );\n  const [voiceFile, setVoiceFile] = useState<File | null>(null);\n  const [isListening, setIsListening] = useState(false);\n  const [isTesting, setIsTesting] = useState(false);\n  const [voiceService, setVoiceService] = useState<VoiceService | null>(null);\n  const [validation, setValidation] = useState<ValidationResult>({ isValid: true, errors: [], warnings: [] });\n  const [showPreview, setShowPreview] = useState(false);\n  const [deploymentStatus, setDeploymentStatus] = useState<'idle' | 'deploying' | 'deployed' | 'error'>('idle');\n  \n  const fileInputRef = useRef<HTMLInputElement>(null);\n  const markdownRef = useRef<HTMLTextAreaElement>(null);\n\n  // Real-time validation\n  const validateConfig = useCallback(() => {\n    if (!markdownConfig.trim()) {\n      setValidation({ isValid: false, errors: ['Configuration cannot be empty'], warnings: [] });\n      return;\n    }\n    \n    const result = VoiceAgentParser.validateConfig(markdownConfig);\n    setValidation(result);\n  }, [markdownConfig]);\n\n  React.useEffect(() => {\n    validateConfig();\n  }, [validateConfig]);\n\n  const handleVoiceUpload = (event: React.ChangeEvent<HTMLInputElement>) => {\n    const file = event.target.files?.[0];\n    if (file) {\n      // Validate file type and size\n      if (!file.type.startsWith('audio/')) {\n        alert('Please upload an audio file');\n        return;\n      }\n      \n      if (file.size > 10 * 1024 * 1024) { // 10MB limit\n        alert('File too large. Please upload a file smaller than 10MB');\n        return;\n      }\n      \n      setVoiceFile(file);\n    }\n  };\n\n  const handleTestVoice = async () => {\n    if (!validation.isValid) {\n      alert('Please fix configuration errors before testing');\n      return;\n    }\n\n    try {\n      setIsTesting(true);\n      \n      const config = VoiceAgentParser.parseMarkdown(markdownConfig);\n      const service = new VoiceService(config, user?.id || 'test-user');\n      setVoiceService(service);\n      \n      // Test voice synthesis\n      await service.testVoice('Hello! This is a test of your voice agent configuration.');\n      \n      // Start listening for voice commands\n      if (service.getStatus().isSupported) {\n        await service.startListening();\n        setIsListening(true);\n      }\n      \n    } catch (error) {\n      console.error('Test failed:', error);\n      alert('Voice test failed. Please check your configuration.');\n    } finally {\n      setIsTesting(false);\n    }\n  };\n\n  const stopTesting = () => {\n    if (voiceService) {\n      voiceService.stopListening();\n      setIsListening(false);\n    }\n  };\n\n  const handleDeploy = async () => {\n    if (!validation.isValid) {\n      alert('Please fix all errors before deploying');\n      return;\n    }\n\n    try {\n      setDeploymentStatus('deploying');\n      \n      const config = VoiceAgentParser.parseMarkdown(markdownConfig);\n      config.name = agentName || config.name;\n      \n      // In a real implementation, this would save to Supabase\n      console.log('Deploying agent config:', config);\n      \n      // Simulate deployment\n      await new Promise(resolve => setTimeout(resolve, 2000));\n      \n      setDeploymentStatus('deployed');\n      \n      if (onAgentCreated) {\n        onAgentCreated(config);\n      }\n      \n    } catch (error) {\n      console.error('Deployment failed:', error);\n      setDeploymentStatus('error');\n    }\n  };\n\n  const handleExport = () => {\n    const config = VoiceAgentParser.parseMarkdown(markdownConfig);\n    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });\n    const url = URL.createObjectURL(blob);\n    const a = document.createElement('a');\n    a.href = url;\n    a.download = `${agentName || 'voice-agent'}.json`;\n    a.click();\n    URL.revokeObjectURL(url);\n  };\n\n  const handleImportTemplate = (templateName: string) => {\n    let template = '';\n    \n    switch (templateName) {\n      case 'motivational-coach':\n        template = VoiceAgentParser.generateTemplate('Motivational Coach');\n        template = template.replace('encouraging', 'encouraging')\n                         .replace('moderate', 'high')\n                         .replace('- Encouraging and supportive', '- High-energy and motivational\\n- Uses positive affirmations\\n- Celebrates small wins');\n        break;\n        \n      case 'productivity-assistant':\n        template = VoiceAgentParser.generateTemplate('Productivity Assistant');\n        template = template.replace('encouraging', 'direct')\n                         .replace('moderate', 'moderate')\n                         .replace('- Encouraging and supportive', '- Direct and efficient\\n- Task-focused\\n- Time-conscious');\n        break;\n        \n      case 'mindful-guide':\n        template = VoiceAgentParser.generateTemplate('Mindful Guide');\n        template = template.replace('encouraging', 'socratic')\n                         .replace('medium', 'slow')\n                         .replace('- Encouraging and supportive', '- Calm and reflective\\n- Asks thoughtful questions\\n- Promotes self-awareness');\n        break;\n        \n      default:\n        template = VoiceAgentParser.generateTemplate();\n    }\n    \n    setMarkdownConfig(template);\n  };\n\n  const insertAtCursor = (text: string) => {\n    const textarea = markdownRef.current;\n    if (!textarea) return;\n    \n    const start = textarea.selectionStart;\n    const end = textarea.selectionEnd;\n    const value = markdownConfig;\n    \n    const newValue = value.substring(0, start) + text + value.substring(end);\n    setMarkdownConfig(newValue);\n    \n    // Restore cursor position\n    setTimeout(() => {\n      textarea.focus();\n      textarea.setSelectionRange(start + text.length, start + text.length);\n    }, 0);\n  };\n\n  return (\n    <div className=\"max-w-6xl mx-auto p-6 space-y-6\">\n      {/* Header */}\n      <div className=\"bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6\">\n        <div className=\"flex items-center justify-between mb-4\">\n          <div>\n            <h1 className=\"text-3xl font-bold text-gray-900 dark:text-white\">\n              🎤 {mode === 'create' ? 'Create' : 'Edit'} Voice Agent\n            </h1>\n            <p className=\"text-gray-600 dark:text-gray-300 mt-2\">\n              Build your AI voice coach with zero code required\n            </p>\n          </div>\n          \n          <div className=\"flex items-center space-x-3\">\n            {/* Validation Status */}\n            <div className=\"flex items-center space-x-2\">\n              {validation.isValid ? (\n                <CheckCircle className=\"w-5 h-5 text-green-500\" />\n              ) : (\n                <AlertCircle className=\"w-5 h-5 text-red-500\" />\n              )}\n              <span className={`text-sm font-medium ${\n                validation.isValid ? 'text-green-600' : 'text-red-600'\n              }`}>\n                {validation.isValid ? 'Valid Configuration' : `${validation.errors.length} Error(s)`}\n              </span>\n            </div>\n          </div>\n        </div>\n        \n        {/* Agent Name */}\n        <div className=\"mb-4\">\n          <label className=\"block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2\">\n            Agent Name\n          </label>\n          <input\n            type=\"text\"\n            value={agentName}\n            onChange={(e) => setAgentName(e.target.value)}\n            placeholder=\"My Personal Coach\"\n            className=\"w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md \n                     bg-white dark:bg-gray-700 text-gray-900 dark:text-white\n                     focus:ring-2 focus:ring-blue-500 focus:border-transparent\"\n          />\n        </div>\n      </div>\n\n      <div className=\"grid grid-cols-1 lg:grid-cols-2 gap-6\">\n        {/* Configuration Panel */}\n        <div className=\"space-y-6\">\n          {/* Template Gallery */}\n          <div className=\"bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6\">\n            <h2 className=\"text-xl font-semibold text-gray-900 dark:text-white mb-4\">\n              🎨 Quick Start Templates\n            </h2>\n            \n            <div className=\"grid grid-cols-1 sm:grid-cols-2 gap-3\">\n              <button\n                onClick={() => handleImportTemplate('motivational-coach')}\n                className=\"p-3 border border-gray-200 dark:border-gray-600 rounded-lg \n                         hover:bg-gray-50 dark:hover:bg-gray-700 text-left\"\n              >\n                <div className=\"text-sm font-medium text-gray-900 dark:text-white\">\n                  💪 Motivational Coach\n                </div>\n                <div className=\"text-xs text-gray-500 dark:text-gray-400\">\n                  High-energy, celebrates wins\n                </div>\n              </button>\n              \n              <button\n                onClick={() => handleImportTemplate('productivity-assistant')}\n                className=\"p-3 border border-gray-200 dark:border-gray-600 rounded-lg \n                         hover:bg-gray-50 dark:hover:bg-gray-700 text-left\"\n              >\n                <div className=\"text-sm font-medium text-gray-900 dark:text-white\">\n                  🎯 Productivity Assistant\n                </div>\n                <div className=\"text-xs text-gray-500 dark:text-gray-400\">\n                  Direct, task-focused\n                </div>\n              </button>\n              \n              <button\n                onClick={() => handleImportTemplate('mindful-guide')}\n                className=\"p-3 border border-gray-200 dark:border-gray-600 rounded-lg \n                         hover:bg-gray-50 dark:hover:bg-gray-700 text-left\"\n              >\n                <div className=\"text-sm font-medium text-gray-900 dark:text-white\">\n                  🧘 Mindful Guide\n                </div>\n                <div className=\"text-xs text-gray-500 dark:text-gray-400\">\n                  Calm, reflective, thoughtful\n                </div>\n              </button>\n              \n              <button\n                onClick={() => setMarkdownConfig(VoiceAgentParser.generateTemplate())}\n                className=\"p-3 border border-gray-200 dark:border-gray-600 rounded-lg \n                         hover:bg-gray-50 dark:hover:bg-gray-700 text-left\"\n              >\n                <div className=\"text-sm font-medium text-gray-900 dark:text-white\">\n                  📝 Blank Template\n                </div>\n                <div className=\"text-xs text-gray-500 dark:text-gray-400\">\n                  Start from scratch\n                </div>\n              </button>\n            </div>\n          </div>\n\n          {/* Voice Upload */}\n          <div className=\"bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6\">\n            <h2 className=\"text-xl font-semibold text-gray-900 dark:text-white mb-4\">\n              🎙️ Custom Voice (Optional)\n            </h2>\n            \n            <div className=\"border-2 border-dashed border-gray-300 dark:border-gray-600 \n                          rounded-lg p-6 text-center hover:border-blue-400 transition-colors\">\n              <input\n                ref={fileInputRef}\n                type=\"file\"\n                accept=\"audio/*\"\n                onChange={handleVoiceUpload}\n                className=\"hidden\"\n              />\n              \n              {voiceFile ? (\n                <div className=\"space-y-3\">\n                  <div className=\"text-green-600 dark:text-green-400\">\n                    ✅ {voiceFile.name}\n                  </div>\n                  <div className=\"text-sm text-gray-500\">\n                    {(voiceFile.size / 1024 / 1024).toFixed(1)}MB\n                  </div>\n                  <button\n                    onClick={() => setVoiceFile(null)}\n                    className=\"text-red-600 hover:text-red-700 text-sm\"\n                  >\n                    Remove\n                  </button>\n                </div>\n              ) : (\n                <div className=\"space-y-3\">\n                  <Upload className=\"w-12 h-12 text-gray-400 mx-auto\" />\n                  <div>\n                    <button\n                      onClick={() => fileInputRef.current?.click()}\n                      className=\"text-blue-600 hover:text-blue-700 font-medium\"\n                    >\n                      Upload voice sample\n                    </button>\n                    <div className=\"text-sm text-gray-500 mt-1\">\n                      30 seconds of clear speech (MP3, WAV, M4A)\n                    </div>\n                  </div>\n                </div>\n              )}\n            </div>\n          </div>\n\n          {/* Quick Actions */}\n          <div className=\"bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6\">\n            <h2 className=\"text-xl font-semibold text-gray-900 dark:text-white mb-4\">\n              ⚡ Quick Actions\n            </h2>\n            \n            <div className=\"grid grid-cols-2 gap-3\">\n              <button\n                onClick={() => insertAtCursor('\\n- new wake word\\n')}\n                className=\"p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 \n                         rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-300\"\n              >\n                <Mic className=\"w-4 h-4 mx-auto mb-1\" />\n                <div className=\"text-xs\">Add Wake Word</div>\n              </button>\n              \n              <button\n                onClick={() => insertAtCursor('\\n- trigger → response\\n')}\n                className=\"p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 \n                         rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-700 dark:text-green-300\"\n              >\n                <Settings className=\"w-4 h-4 mx-auto mb-1\" />\n                <div className=\"text-xs\">Add Pattern</div>\n              </button>\n              \n              <button\n                onClick={() => insertAtCursor('\\n- personality trait\\n')}\n                className=\"p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 \n                         rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 text-purple-700 dark:text-purple-300\"\n              >\n                <Copy className=\"w-4 h-4 mx-auto mb-1\" />\n                <div className=\"text-xs\">Add Trait</div>\n              </button>\n              \n              <button\n                onClick={() => setShowPreview(!showPreview)}\n                className=\"p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 \n                         rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300\"\n              >\n                {showPreview ? <EyeOff className=\"w-4 h-4 mx-auto mb-1\" /> : <Eye className=\"w-4 h-4 mx-auto mb-1\" />}\n                <div className=\"text-xs\">{showPreview ? 'Hide' : 'Preview'}</div>\n              </button>\n            </div>\n          </div>\n        </div>\n\n        {/* Configuration Editor */}\n        <div className=\"space-y-6\">\n          <div className=\"bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6\">\n            <div className=\"flex items-center justify-between mb-4\">\n              <h2 className=\"text-xl font-semibold text-gray-900 dark:text-white\">\n                📝 Configuration\n              </h2>\n              \n              <div className=\"flex items-center space-x-2\">\n                <button\n                  onClick={handleExport}\n                  className=\"p-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200\"\n                  title=\"Export Configuration\"\n                >\n                  <Download className=\"w-4 h-4\" />\n                </button>\n              </div>\n            </div>\n            \n            <div className=\"space-y-4\">\n              <textarea\n                ref={markdownRef}\n                value={markdownConfig}\n                onChange={(e) => setMarkdownConfig(e.target.value)}\n                className=\"w-full h-96 px-3 py-2 border border-gray-300 dark:border-gray-600 \n                         rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white \n                         font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent\"\n                placeholder=\"Paste your agent configuration here...\"\n              />\n              \n              {/* Validation Messages */}\n              {(validation.errors.length > 0 || validation.warnings.length > 0) && (\n                <div className=\"space-y-2\">\n                  {validation.errors.map((error, index) => (\n                    <div key={index} className=\"flex items-center space-x-2 text-red-600 dark:text-red-400\">\n                      <AlertCircle className=\"w-4 h-4\" />\n                      <span className=\"text-sm\">{error}</span>\n                    </div>\n                  ))}\n                  \n                  {validation.warnings.map((warning, index) => (\n                    <div key={index} className=\"flex items-center space-x-2 text-yellow-600 dark:text-yellow-400\">\n                      <Info className=\"w-4 h-4\" />\n                      <span className=\"text-sm\">{warning}</span>\n                    </div>\n                  ))}\n                </div>\n              )}\n            </div>\n          </div>\n\n          {/* Test & Deploy */}\n          <div className=\"bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6\">\n            <h2 className=\"text-xl font-semibold text-gray-900 dark:text-white mb-4\">\n              🧪 Test & Deploy\n            </h2>\n            \n            <div className=\"space-y-4\">\n              {/* Test Voice */}\n              <div className=\"flex items-center space-x-3\">\n                <button\n                  onClick={isListening ? stopTesting : handleTestVoice}\n                  disabled={isTesting || !validation.isValid}\n                  className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-lg \n                    font-medium transition-colors ${\n                    isListening\n                      ? 'bg-red-600 hover:bg-red-700 text-white'\n                      : isTesting\n                      ? 'bg-gray-400 text-white cursor-not-allowed'\n                      : validation.isValid\n                      ? 'bg-blue-600 hover:bg-blue-700 text-white'\n                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'\n                  }`}\n                >\n                  {isTesting ? (\n                    <>\n                      <TestTube className=\"w-4 h-4 animate-pulse\" />\n                      <span>Testing...</span>\n                    </>\n                  ) : isListening ? (\n                    <>\n                      <MicOff className=\"w-4 h-4\" />\n                      <span>Stop Listening</span>\n                    </>\n                  ) : (\n                    <>\n                      <Play className=\"w-4 h-4\" />\n                      <span>Test Voice</span>\n                    </>\n                  )}\n                </button>\n              </div>\n              \n              {isListening && (\n                <div className=\"bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 \n                              rounded-lg p-4 text-center\">\n                  <div className=\"flex items-center justify-center space-x-2 text-blue-700 dark:text-blue-300\">\n                    <Mic className=\"w-5 h-5 animate-pulse\" />\n                    <span>Listening for voice commands... Try saying a wake word!</span>\n                  </div>\n                </div>\n              )}\n              \n              {/* Deploy Button */}\n              <button\n                onClick={handleDeploy}\n                disabled={!validation.isValid || deploymentStatus === 'deploying'}\n                className={`w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-lg \n                  font-medium transition-colors ${\n                  deploymentStatus === 'deployed'\n                    ? 'bg-green-600 text-white'\n                    : deploymentStatus === 'deploying'\n                    ? 'bg-gray-400 text-white cursor-not-allowed'\n                    : validation.isValid\n                    ? 'bg-indigo-600 hover:bg-indigo-700 text-white'\n                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'\n                }`}\n              >\n                {deploymentStatus === 'deploying' ? (\n                  <>\n                    <div className=\"w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin\" />\n                    <span>Deploying...</span>\n                  </>\n                ) : deploymentStatus === 'deployed' ? (\n                  <>\n                    <CheckCircle className=\"w-4 h-4\" />\n                    <span>Deployed Successfully!</span>\n                  </>\n                ) : (\n                  <>\n                    <Share className=\"w-4 h-4\" />\n                    <span>Deploy Agent</span>\n                  </>\n                )}\n              </button>\n              \n              {deploymentStatus === 'deployed' && (\n                <div className=\"bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 \n                              rounded-lg p-4\">\n                  <div className=\"text-green-800 dark:text-green-200 text-sm\">\n                    <strong>🎉 Agent deployed successfully!</strong>\n                    <div className=\"mt-2 space-y-1\">\n                      <div>• WhatsApp: Available on your connected number</div>\n                      <div>• Web Interface: Ready in your dashboard</div>\n                      <div>• Apple Watch: Coming soon</div>\n                    </div>\n                  </div>\n                </div>\n              )}\n            </div>\n          </div>\n        </div>\n      </div>\n      \n      {/* Preview Panel */}\n      {showPreview && (\n        <div className=\"bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6\">\n          <h2 className=\"text-xl font-semibold text-gray-900 dark:text-white mb-4\">\n            👁️ Configuration Preview\n          </h2>\n          \n          {validation.isValid ? (\n            <div className=\"bg-gray-50 dark:bg-gray-700 rounded-lg p-4\">\n              <pre className=\"text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap\">\n                {JSON.stringify(VoiceAgentParser.parseMarkdown(markdownConfig), null, 2)}\n              </pre>\n            </div>\n          ) : (\n            <div className=\"text-red-600 dark:text-red-400 text-center py-8\">\n              Fix configuration errors to see preview\n            </div>\n          )}\n        </div>\n      )}\n    </div>\n  );\n}
+import React, { useState, useRef, useCallback } from 'react';
+import { Mic, MicOff, Play, Pause, Upload, Download, Settings, 
+         TestTube, Share, Eye, EyeOff, CheckCircle, AlertCircle, 
+         Info, Trash2, Copy } from 'lucide-react';
+import VoiceService, { VoiceAgentConfig } from '../../services/voice/VoiceService';
+import VoiceAgentParser from '../../services/voice/VoiceAgentParser';
+import { useAuth } from '../../contexts/userContext';
+
+interface VoiceAgentBuilderProps {
+  onAgentCreated?: (config: VoiceAgentConfig) => void;
+  initialConfig?: VoiceAgentConfig;
+  mode?: 'create' | 'edit';
+}
+
+interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+}
+
+export default function VoiceAgentBuilder({ 
+  onAgentCreated, 
+  initialConfig, 
+  mode = 'create' 
+}: VoiceAgentBuilderProps) {
+  const { user } = useAuth();
+  const [agentName, setAgentName] = useState(initialConfig?.name || '');
+  const [markdownConfig, setMarkdownConfig] = useState(
+    initialConfig ? '' : VoiceAgentParser.generateTemplate()
+  );
+  const [voiceFile, setVoiceFile] = useState<File | null>(null);
+  const [isListening, setIsListening] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
+  const [voiceService, setVoiceService] = useState<VoiceService | null>(null);
+  const [validation, setValidation] = useState<ValidationResult>({ isValid: true, errors: [], warnings: [] });
+  const [showPreview, setShowPreview] = useState(false);
+  const [deploymentStatus, setDeploymentStatus] = useState<'idle' | 'deploying' | 'deployed' | 'error'>('idle');
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const markdownRef = useRef<HTMLTextAreaElement>(null);
+
+  // Real-time validation
+  const validateConfig = useCallback(() => {
+    if (!markdownConfig.trim()) {
+      setValidation({ isValid: false, errors: ['Configuration cannot be empty'], warnings: [] });
+      return;
+    }
+    
+    const result = VoiceAgentParser.validateConfig(markdownConfig);
+    setValidation(result);
+  }, [markdownConfig]);
+
+  React.useEffect(() => {
+    validateConfig();
+  }, [validateConfig]);
+
+  const handleVoiceUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type and size
+      if (!file.type.startsWith('audio/')) {
+        alert('Please upload an audio file');
+        return;
+      }
+      
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        alert('File too large. Please upload a file smaller than 10MB');
+        return;
+      }
+      
+      setVoiceFile(file);
+    }
+  };
+
+  const handleTestVoice = async () => {
+    if (!validation.isValid) {
+      alert('Please fix configuration errors before testing');
+      return;
+    }
+
+    try {
+      setIsTesting(true);
+      
+      const config = VoiceAgentParser.parseMarkdown(markdownConfig);
+      const service = new VoiceService(config, user?.id || 'test-user');
+      setVoiceService(service);
+      
+      // Test voice synthesis
+      await service.testVoice('Hello! This is a test of your voice agent configuration.');
+      
+      // Start listening for voice commands
+      if (service.getStatus().isSupported) {
+        await service.startListening();
+        setIsListening(true);
+      }
+      
+    } catch (error) {
+      console.error('Test failed:', error);
+      alert('Voice test failed. Please check your configuration.');
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
+  const stopTesting = () => {
+    if (voiceService) {
+      voiceService.stopListening();
+      setIsListening(false);
+    }
+  };
+
+  const handleDeploy = async () => {
+    if (!validation.isValid) {
+      alert('Please fix all errors before deploying');
+      return;
+    }
+
+    try {
+      setDeploymentStatus('deploying');
+      
+      const config = VoiceAgentParser.parseMarkdown(markdownConfig);
+      config.name = agentName || config.name;
+      
+      // In a real implementation, this would save to Supabase
+      console.log('Deploying agent config:', config);
+      
+      // Simulate deployment
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      setDeploymentStatus('deployed');
+      
+      if (onAgentCreated) {
+        onAgentCreated(config);
+      }
+      
+    } catch (error) {
+      console.error('Deployment failed:', error);
+      setDeploymentStatus('error');
+    }
+  };
+
+  const handleExport = () => {
+    const config = VoiceAgentParser.parseMarkdown(markdownConfig);
+    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${agentName || 'voice-agent'}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportTemplate = (templateName: string) => {
+    let template = '';
+    
+    switch (templateName) {
+      case 'motivational-coach':
+        template = VoiceAgentParser.generateTemplate('Motivational Coach');
+        template = template.replace('encouraging', 'encouraging')
+                         .replace('moderate', 'high')
+                         .replace('- Encouraging and supportive', '- High-energy and motivational\n- Uses positive affirmations\n- Celebrates small wins');
+        break;
+        
+      case 'productivity-assistant':
+        template = VoiceAgentParser.generateTemplate('Productivity Assistant');
+        template = template.replace('encouraging', 'direct')
+                         .replace('moderate', 'moderate')
+                         .replace('- Encouraging and supportive', '- Direct and efficient\n- Task-focused\n- Time-conscious');
+        break;
+        
+      case 'mindful-guide':
+        template = VoiceAgentParser.generateTemplate('Mindful Guide');
+        template = template.replace('encouraging', 'socratic')
+                         .replace('medium', 'slow')
+                         .replace('- Encouraging and supportive', '- Calm and reflective\n- Asks thoughtful questions\n- Promotes self-awareness');
+        break;
+        
+      default:
+        template = VoiceAgentParser.generateTemplate();
+    }
+    
+    setMarkdownConfig(template);
+  };
+
+  const insertAtCursor = (text: string) => {
+    const textarea = markdownRef.current;
+    if (!textarea) return;
+    
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const value = markdownConfig;
+    
+    const newValue = value.substring(0, start) + text + value.substring(end);
+    setMarkdownConfig(newValue);
+    
+    // Restore cursor position
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + text.length, start + text.length);
+    }, 0);
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              🎤 {mode === 'create' ? 'Create' : 'Edit'} Voice Agent
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-2">
+              Build your AI voice coach with zero code required
+            </p>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            {/* Validation Status */}
+            <div className="flex items-center space-x-2">
+              {validation.isValid ? (
+                <CheckCircle className="w-5 h-5 text-green-500" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-red-500" />
+              )}
+              <span className={`text-sm font-medium ${
+                validation.isValid ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {validation.isValid ? 'Valid Configuration' : `${validation.errors.length} Error(s)`}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Agent Name */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Agent Name
+          </label>
+          <input
+            type="text"
+            value={agentName}
+            onChange={(e) => setAgentName(e.target.value)}
+            placeholder="My Personal Coach"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                     bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                     focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Configuration Panel */}
+        <div className="space-y-6">
+          {/* Template Gallery */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              🎨 Quick Start Templates
+            </h2>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                onClick={() => handleImportTemplate('motivational-coach')}
+                className="p-3 border border-gray-200 dark:border-gray-600 rounded-lg 
+                         hover:bg-gray-50 dark:hover:bg-gray-700 text-left"
+              >
+                <div className="text-sm font-medium text-gray-900 dark:text-white">
+                  💪 Motivational Coach
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  High-energy, celebrates wins
+                </div>
+              </button>
+              
+              <button
+                onClick={() => handleImportTemplate('productivity-assistant')}
+                className="p-3 border border-gray-200 dark:border-gray-600 rounded-lg 
+                         hover:bg-gray-50 dark:hover:bg-gray-700 text-left"
+              >
+                <div className="text-sm font-medium text-gray-900 dark:text-white">
+                  🎯 Productivity Assistant
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  Direct, task-focused
+                </div>
+              </button>
+              
+              <button
+                onClick={() => handleImportTemplate('mindful-guide')}
+                className="p-3 border border-gray-200 dark:border-gray-600 rounded-lg 
+                         hover:bg-gray-50 dark:hover:bg-gray-700 text-left"
+              >
+                <div className="text-sm font-medium text-gray-900 dark:text-white">
+                  🧘 Mindful Guide
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  Calm, reflective, thoughtful
+                </div>
+              </button>
+              
+              <button
+                onClick={() => setMarkdownConfig(VoiceAgentParser.generateTemplate())}
+                className="p-3 border border-gray-200 dark:border-gray-600 rounded-lg 
+                         hover:bg-gray-50 dark:hover:bg-gray-700 text-left"
+              >
+                <div className="text-sm font-medium text-gray-900 dark:text-white">
+                  📝 Blank Template
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  Start from scratch
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Voice Upload */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              🎙️ Custom Voice (Optional)
+            </h2>
+            
+            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 
+                          rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="audio/*"
+                onChange={handleVoiceUpload}
+                className="hidden"
+              />
+              
+              {voiceFile ? (
+                <div className="space-y-3">
+                  <div className="text-green-600 dark:text-green-400">
+                    ✅ {voiceFile.name}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {(voiceFile.size / 1024 / 1024).toFixed(1)}MB
+                  </div>
+                  <button
+                    onClick={() => setVoiceFile(null)}
+                    className="text-red-600 hover:text-red-700 text-sm"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <Upload className="w-12 h-12 text-gray-400 mx-auto" />
+                  <div>
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      Upload voice sample
+                    </button>
+                    <div className="text-sm text-gray-500 mt-1">
+                      30 seconds of clear speech (MP3, WAV, M4A)
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              ⚡ Quick Actions
+            </h2>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => insertAtCursor('\n- new wake word\n')}
+                className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 
+                         rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+              >
+                <Mic className="w-4 h-4 mx-auto mb-1" />
+                <div className="text-xs">Add Wake Word</div>
+              </button>
+              
+              <button
+                onClick={() => insertAtCursor('\n- trigger → response\n')}
+                className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 
+                         rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-700 dark:text-green-300"
+              >
+                <Settings className="w-4 h-4 mx-auto mb-1" />
+                <div className="text-xs">Add Pattern</div>
+              </button>
+              
+              <button
+                onClick={() => insertAtCursor('\n- personality trait\n')}
+                className="p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 
+                         rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 text-purple-700 dark:text-purple-300"
+              >
+                <Copy className="w-4 h-4 mx-auto mb-1" />
+                <div className="text-xs">Add Trait</div>
+              </button>
+              
+              <button
+                onClick={() => setShowPreview(!showPreview)}
+                className="p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 
+                         rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300"
+              >
+                {showPreview ? <EyeOff className="w-4 h-4 mx-auto mb-1" /> : <Eye className="w-4 h-4 mx-auto mb-1" />}
+                <div className="text-xs">{showPreview ? 'Hide' : 'Preview'}</div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Configuration Editor */}
+        <div className="space-y-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                📝 Configuration
+              </h2>
+              
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={handleExport}
+                  className="p-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+                  title="Export Configuration"
+                >
+                  <Download className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <textarea
+                ref={markdownRef}
+                value={markdownConfig}
+                onChange={(e) => setMarkdownConfig(e.target.value)}
+                className="w-full h-96 px-3 py-2 border border-gray-300 dark:border-gray-600 
+                         rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white 
+                         font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Paste your agent configuration here..."
+              />
+              
+              {/* Validation Messages */}
+              {(validation.errors.length > 0 || validation.warnings.length > 0) && (
+                <div className="space-y-2">
+                  {validation.errors.map((error, index) => (
+                    <div key={index} className="flex items-center space-x-2 text-red-600 dark:text-red-400">
+                      <AlertCircle className="w-4 h-4" />
+                      <span className="text-sm">{error}</span>
+                    </div>
+                  ))}
+                  
+                  {validation.warnings.map((warning, index) => (
+                    <div key={index} className="flex items-center space-x-2 text-yellow-600 dark:text-yellow-400">
+                      <Info className="w-4 h-4" />
+                      <span className="text-sm">{warning}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Test & Deploy */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              🧪 Test & Deploy
+            </h2>
+            
+            <div className="space-y-4">
+              {/* Test Voice */}
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={isListening ? stopTesting : handleTestVoice}
+                  disabled={isTesting || !validation.isValid}
+                  className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-lg 
+                    font-medium transition-colors ${
+                    isListening
+                      ? 'bg-red-600 hover:bg-red-700 text-white'
+                      : isTesting
+                      ? 'bg-gray-400 text-white cursor-not-allowed'
+                      : validation.isValid
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  {isTesting ? (
+                    <>
+                      <TestTube className="w-4 h-4 animate-pulse" />
+                      <span>Testing...</span>
+                    </>
+                  ) : isListening ? (
+                    <>
+                      <MicOff className="w-4 h-4" />
+                      <span>Stop Listening</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-4 h-4" />
+                      <span>Test Voice</span>
+                    </>
+                  )}
+                </button>
+              </div>
+              
+              {isListening && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 
+                              rounded-lg p-4 text-center">
+                  <div className="flex items-center justify-center space-x-2 text-blue-700 dark:text-blue-300">
+                    <Mic className="w-5 h-5 animate-pulse" />
+                    <span>Listening for voice commands... Try saying a wake word!</span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Deploy Button */}
+              <button
+                onClick={handleDeploy}
+                disabled={!validation.isValid || deploymentStatus === 'deploying'}
+                className={`w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-lg 
+                  font-medium transition-colors ${
+                  deploymentStatus === 'deployed'
+                    ? 'bg-green-600 text-white'
+                    : deploymentStatus === 'deploying'
+                    ? 'bg-gray-400 text-white cursor-not-allowed'
+                    : validation.isValid
+                    ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                {deploymentStatus === 'deploying' ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Deploying...</span>
+                  </>
+                ) : deploymentStatus === 'deployed' ? (
+                  <>
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Deployed Successfully!</span>
+                  </>
+                ) : (
+                  <>
+                    <Share className="w-4 h-4" />
+                    <span>Deploy Agent</span>
+                  </>
+                )}
+              </button>
+              
+              {deploymentStatus === 'deployed' && (
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 
+                              rounded-lg p-4">
+                  <div className="text-green-800 dark:text-green-200 text-sm">
+                    <strong>🎉 Agent deployed successfully!</strong>
+                    <div className="mt-2 space-y-1">
+                      <div>• WhatsApp: Available on your connected number</div>
+                      <div>• Web Interface: Ready in your dashboard</div>
+                      <div>• Apple Watch: Coming soon</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Preview Panel */}
+      {showPreview && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            👁️ Configuration Preview
+          </h2>
+          
+          {validation.isValid ? (
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+              <pre className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
+                {JSON.stringify(VoiceAgentParser.parseMarkdown(markdownConfig), null, 2)}
+              </pre>
+            </div>
+          ) : (
+            <div className="text-red-600 dark:text-red-400 text-center py-8">
+              Fix configuration errors to see preview
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

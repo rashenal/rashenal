@@ -253,7 +253,7 @@ export default function JobFinderDashboard({ className = '' }: JobFinderDashboar
               const validation = await JobFinderService.validateSchema();
               console.log('Schema validation result:', validation);
               if (validation.success) {
-                setSuccess(`Schema validation passed! All tables accessible.`);
+                setSuccess('Schema validation passed! All tables accessible.');
               } else {
                 const failedTables = Object.entries(validation.results)
                   .filter(([_, result]) => !result.success)

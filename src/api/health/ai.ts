@@ -62,7 +62,7 @@ export async function checkAIChat(): Promise<HealthCheckResult> {
   const startTime = Date.now();
   
   try {
-    const testMessage = "This is a health check. Please respond with just 'Health check successful' and nothing else.";
+    const testMessage = 'This is a health check. Please respond with just \'Health check successful\' and nothing else.';
     
     const response = await fetch('/api/ai/chat', {
       method: 'POST',

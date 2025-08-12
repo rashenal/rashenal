@@ -176,7 +176,7 @@ export class RealClaudeCVParser {
       this.updateProgress('complete', 100, 'CV processing failed');
       
       // Provide specific error messages based on error type
-      let errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       
       // Don't fall back to sample data - throw the actual error
       throw new Error(`CV processing failed: ${errorMessage}`);

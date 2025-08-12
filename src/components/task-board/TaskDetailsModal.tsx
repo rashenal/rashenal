@@ -33,6 +33,8 @@ import {
   BarChart3
 } from 'lucide-react';
 import { Task, TaskBoard, SubTask, ENERGY_LEVELS, PRIORITY_LEVELS } from '../../types/TaskBoard';
+import { EnhancedTaskService } from '../../lib/enhanced-task-service';
+import TaskDependenciesModal from './TaskDependenciesModal';
 
 interface TaskDetailsModalProps {
   task: Task;
@@ -65,7 +67,8 @@ export default function TaskDetailsModal({
   const [newTag, setNewTag] = useState('');
   const [newComment, setNewComment] = useState('');
   const [newSubtask, setNewSubtask] = useState('');
-  const [activeTab, setActiveTab] = useState<'details' | 'subtasks' | 'comments' | 'attachments' | 'time' | 'ai'>('details');
+  const [showDependenciesModal, setShowDependenciesModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'details' | 'subtasks' | 'comments' | 'attachments' | 'time' | 'ai' | 'dependencies'>('details');
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [currentSessionTime, setCurrentSessionTime] = useState(0);
 
@@ -107,64 +110,119 @@ export default function TaskDetailsModal({
     }));
   };
 
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
     if (newComment.trim()) {
-      const updatedTask = {
-        ...task,
-        comments: [
-          ...task.comments,
-          {
-            id: `comment_${Date.now()}`,
-            author: 'Current User', // TODO: Get from user context
-            content: newComment.trim(),
-            created_at: new Date().toISOString()
-          }
-        ],
-        updated_at: new Date().toISOString()
-      };
-      onTaskUpdated(updatedTask);
-      setNewComment('');
+      try {
+        // Save comment to database
+        const { data: savedComment, error } = await EnhancedTaskService.addComment(
+          task.id,
+          newComment.trim()
+        );
+        
+        if (error) {
+          console.error('Failed to add comment:', error);
+          // You might want to show an error toast here
+          return;
+        }
+
+        // Update local state with the saved comment
+        const updatedTask = {
+          ...task,
+          comments: [
+            ...task.comments,
+            {
+              id: savedComment?.id || `comment_${Date.now()}`,
+              author: savedComment?.user_name || 'Current User',
+              content: savedComment?.content || newComment.trim(),
+              created_at: savedComment?.created_at || new Date().toISOString()
+            }
+          ],
+          updated_at: new Date().toISOString()
+        };
+        
+        onTaskUpdated(updatedTask);
+        setNewComment('');
+      } catch (error) {
+        console.error('Error adding comment:', error);
+        // You might want to show an error toast here
+      }
     }
   };
 
-  const handleAddSubtask = () => {
+  const handleAddSubtask = async () => {
     if (newSubtask.trim()) {
-      const updatedTask = {
-        ...task,
-        sub_tasks: [
-          ...task.sub_tasks,
-          {
-            id: `subtask_${Date.now()}`,
-            task_id: task.id,
-            title: newSubtask.trim(),
-            description: '',
-            is_completed: false,
-            position: task.sub_tasks.length,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-        ],
-        updated_at: new Date().toISOString()
-      };
-      onTaskUpdated(updatedTask);
-      setNewSubtask('');
+      try {
+        // Save subtask to database
+        const { data: savedSubtask, error } = await EnhancedTaskService.addSubtask(
+          task.id,
+          newSubtask.trim()
+        );
+        
+        if (error) {
+          console.error('Failed to add subtask:', error);
+          return;
+        }
+
+        // Update local state with the saved subtask
+        const updatedTask = {
+          ...task,
+          sub_tasks: [
+            ...task.sub_tasks,
+            {
+              id: savedSubtask?.id || `subtask_${Date.now()}`,
+              task_id: task.id,
+              title: savedSubtask?.title || newSubtask.trim(),
+              description: savedSubtask?.description || '',
+              is_completed: savedSubtask?.is_completed || false,
+              position: savedSubtask?.position || task.sub_tasks.length,
+              created_at: savedSubtask?.created_at || new Date().toISOString(),
+              updated_at: savedSubtask?.updated_at || new Date().toISOString()
+            }
+          ],
+          updated_at: new Date().toISOString()
+        };
+        
+        onTaskUpdated(updatedTask);
+        setNewSubtask('');
+      } catch (error) {
+        console.error('Error adding subtask:', error);
+      }
     }
   };
 
-  const handleToggleSubtask = (subtaskId: string) => {
-    const updatedSubtasks = task.sub_tasks.map(st => 
-      st.id === subtaskId ? { ...st, is_completed: !st.is_completed, updated_at: new Date().toISOString() } : st
-    );
-    const completedCount = updatedSubtasks.filter(st => st.is_completed).length;
-    const progress = updatedSubtasks.length > 0 ? (completedCount / updatedSubtasks.length) * 100 : 0;
-    
-    const updatedTask = {
-      ...task,
-      sub_tasks: updatedSubtasks,
-      progress_percentage: Math.round(progress),
-      updated_at: new Date().toISOString()
-    };
-    onTaskUpdated(updatedTask);
+  const handleToggleSubtask = async (subtaskId: string) => {
+    const subtask = task.sub_tasks.find(st => st.id === subtaskId);
+    if (!subtask) return;
+
+    try {
+      // Toggle in database
+      const { error } = await EnhancedTaskService.toggleSubtask(
+        subtaskId,
+        !subtask.is_completed
+      );
+      
+      if (error) {
+        console.error('Failed to toggle subtask:', error);
+        return;
+      }
+
+      // Update local state
+      const updatedSubtasks = task.sub_tasks.map(st => 
+        st.id === subtaskId ? { ...st, is_completed: !st.is_completed, updated_at: new Date().toISOString() } : st
+      );
+      const completedCount = updatedSubtasks.filter(st => st.is_completed).length;
+      const progress = updatedSubtasks.length > 0 ? (completedCount / updatedSubtasks.length) * 100 : 0;
+      
+      const updatedTask = {
+        ...task,
+        sub_tasks: updatedSubtasks,
+        progress_percentage: Math.round(progress),
+        updated_at: new Date().toISOString()
+      };
+      onTaskUpdated(updatedTask);
+    } catch (error) {
+      console.error('Error toggling subtask:', error);
+    }
   };
 
   const toggleTimer = () => {
@@ -306,6 +364,7 @@ export default function TaskDetailsModal({
               { id: 'subtasks', label: `Subtasks (${completedSubtasks}/${totalSubtasks})`, icon: CheckCircle2 },
               { id: 'comments', label: `Comments (${task.comments.length})`, icon: MessageSquare },
               { id: 'attachments', label: `Files (${task.attachments.length})`, icon: Paperclip },
+              { id: 'dependencies', label: 'Dependencies', icon: Link },
               { id: 'time', label: `Time (${totalTrackedTime}m)`, icon: Timer },
               { id: 'ai', label: 'AI Insights', icon: Brain }
             ].map(tab => {
@@ -775,6 +834,73 @@ export default function TaskDetailsModal({
             </div>
           )}
 
+          {activeTab === 'dependencies' && (
+            <div className="space-y-6">
+              {/* Dependencies Overview */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-6 rounded-xl">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    <Link className="h-6 w-6 text-blue-600" />
+                    <h3 className="text-lg font-semibold text-blue-900">Task Dependencies</h3>
+                  </div>
+                  <button
+                    onClick={() => setShowDependenciesModal(true)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                  >
+                    Manage Dependencies
+                  </button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center">
+                    <div className={`text-2xl font-bold mb-1 ${
+                      task.dependency_status === 'blocked' ? 'text-red-600' :
+                      task.dependency_status === 'ready' ? 'text-green-600' :
+                      'text-blue-600'
+                    }`}>
+                      {task.dependency_status === 'blocked' ? 'Blocked' :
+                       task.dependency_status === 'ready' ? 'Ready' :
+                       'Independent'}
+                    </div>
+                    <div className="text-sm text-gray-600">Current Status</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-600 mb-1">
+                      {task.parent_id && task.parent_id !== task.id ? '1' : '0'}
+                    </div>
+                    <div className="text-sm text-gray-600">Parent Tasks</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600 mb-1">
+                      {task.has_children ? '1+' : '0'}
+                    </div>
+                    <div className="text-sm text-gray-600">Child Tasks</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-semibold text-gray-900 mb-3">Quick Actions</h4>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => setShowDependenciesModal(true)}
+                    className="w-full flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Link className="h-5 w-5 text-blue-600" />
+                      <div className="text-left">
+                        <div className="font-medium text-gray-900">Manage Dependencies</div>
+                        <div className="text-sm text-gray-500">Set parent tasks or view dependent tasks</div>
+                      </div>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-gray-400" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'ai' && (
             <div className="space-y-6">
               {/* AI Completion Probability */}
@@ -892,6 +1018,16 @@ export default function TaskDetailsModal({
           </div>
         </div>
       </div>
+
+      {/* Dependencies Modal */}
+      {showDependenciesModal && (
+        <TaskDependenciesModal
+          task={task}
+          allTasks={board.tasks}
+          onClose={() => setShowDependenciesModal(false)}
+          onTaskUpdated={onTaskUpdated}
+        />
+      )}
     </div>
   );
 }

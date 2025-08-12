@@ -155,7 +155,7 @@ export class TestRunner {
       }
 
       if (this.config.failFast && report.summary.failed > 0) {
-        throw new Error(`CI failed: Test failures detected and fail-fast enabled`);
+        throw new Error('CI failed: Test failures detected and fail-fast enabled');
       }
     }
   }
@@ -202,12 +202,12 @@ export class TestRunner {
     
     if (dashboardData.recent_results) {
       const results = dashboardData.recent_results;
-      console.log(`\n📈 Test Results:`);
+      console.log('\n📈 Test Results:');
       console.log(`   Total Tests: ${results.total_tests}`);
       console.log(`   Passed: ${results.passed} ✅`);
       console.log(`   Failed: ${results.failed} ❌`);
       console.log(`   Success Rate: ${results.success_rate}%`);
-      console.log(`\n🚨 Error Breakdown:`);
+      console.log('\n🚨 Error Breakdown:');
       console.log(`   Critical: ${results.critical_errors}`);
       console.log(`   High: ${results.high_errors}`);
       console.log(`   Medium: ${results.medium_errors}`);
@@ -215,7 +215,7 @@ export class TestRunner {
     }
 
     if (analytics.averages) {
-      console.log(`\n📊 Quality Scores (Average):`);
+      console.log('\n📊 Quality Scores (Average):');
       console.log(`   Quality: ${Math.round(analytics.averages.quality_score)}/100`);
       console.log(`   Accessibility: ${Math.round(analytics.averages.accessibility_score)}/100`);
       console.log(`   Performance: ${Math.round(analytics.averages.performance_score)}/100`);
@@ -223,12 +223,12 @@ export class TestRunner {
     }
 
     if (dashboardData.alerts && dashboardData.alerts.length > 0) {
-      console.log(`\n⚠️ Alerts:`);
+      console.log('\n⚠️ Alerts:');
       dashboardData.alerts.forEach((alert: string) => console.log(`   ${alert}`));
     }
 
     if (dashboardData.recommendations && dashboardData.recommendations.length > 0) {
-      console.log(`\n💡 Top Recommendations:`);
+      console.log('\n💡 Top Recommendations:');
       dashboardData.recommendations.slice(0, 5).forEach((rec: any, i: number) => {
         console.log(`   ${i + 1}. [${rec.priority.toUpperCase()}] ${rec.title}`);
       });

@@ -5,124 +5,124 @@ export default function Courses() {
   const courses = [
     {
       id: 1,
-      title: "Foundations of Self-Belief",
-      description: "Learn the core principles of replacing self-doubt with unshakeable confidence through proven psychological techniques.",
-      instructor: "Rashee Harvey",
-      duration: "2 hours",
+      title: 'Foundations of Self-Belief',
+      description: 'Learn the core principles of replacing self-doubt with unshakeable confidence through proven psychological techniques.',
+      instructor: 'Rashee Harvey',
+      duration: '2 hours',
       lessons: 8,
-      level: "Beginner",
-      price: "Free",
+      level: 'Beginner',
+      price: 'Free',
       rating: 4.9,
       students: 1250,
-      image: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800",
+      image: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800',
       features: [
-        "Understanding the psychology of self-doubt",
-        "Cognitive restructuring techniques",
-        "Building confidence through small wins",
-        "Creating empowering belief systems"
+        'Understanding the psychology of self-doubt',
+        'Cognitive restructuring techniques',
+        'Building confidence through small wins',
+        'Creating empowering belief systems'
       ]
     },
     {
       id: 2,
-      title: "AI-Powered Visualization Mastery",
-      description: "Master the art of creating compelling vision movies and using AI tools to accelerate your transformation.",
-      instructor: "Rashee Harvey",
-      duration: "3 hours",
+      title: 'AI-Powered Visualization Mastery',
+      description: 'Master the art of creating compelling vision movies and using AI tools to accelerate your transformation.',
+      instructor: 'Rashee Harvey',
+      duration: '3 hours',
       lessons: 12,
-      level: "Intermediate",
-      price: "Free",
+      level: 'Intermediate',
+      price: 'Free',
       rating: 4.8,
       students: 890,
-      image: "https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=800",
+      image: 'https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=800',
       features: [
-        "Science of visualization",
-        "Creating effective vision boards",
-        "Introduction to AI vision movies",
-        "Daily visualization practices"
+        'Science of visualization',
+        'Creating effective vision boards',
+        'Introduction to AI vision movies',
+        'Daily visualization practices'
       ]
     },
     {
       id: 3,
-      title: "Habit Architecture Masterclass",
-      description: "Build lasting habits that support your transformation goals using science-based methods and smart tracking.",
-      instructor: "Rashee Harvey",
-      duration: "4 hours",
+      title: 'Habit Architecture Masterclass',
+      description: 'Build lasting habits that support your transformation goals using science-based methods and smart tracking.',
+      instructor: 'Rashee Harvey',
+      duration: '4 hours',
       lessons: 16,
-      level: "Intermediate",
-      price: "$197",
+      level: 'Intermediate',
+      price: '$197',
       rating: 4.9,
       students: 650,
-      image: "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=800",
+      image: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=800',
       features: [
-        "The science of habit formation",
-        "Habit stacking techniques",
-        "Overcoming habit obstacles",
-        "Creating habit systems that stick"
+        'The science of habit formation',
+        'Habit stacking techniques',
+        'Overcoming habit obstacles',
+        'Creating habit systems that stick'
       ]
     },
     {
       id: 4,
-      title: "Transformation Coaching Certification",
-      description: "Become a certified transformation coach and learn to guide others from self-doubt to self-belief.",
-      instructor: "Rashee Harvey",
-      duration: "20 hours",
+      title: 'Transformation Coaching Certification',
+      description: 'Become a certified transformation coach and learn to guide others from self-doubt to self-belief.',
+      instructor: 'Rashee Harvey',
+      duration: '20 hours',
       lessons: 40,
-      level: "Advanced",
-      price: "$997",
+      level: 'Advanced',
+      price: '$997',
       rating: 5.0,
       students: 125,
-      image: "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=800",
+      image: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=800',
       features: [
-        "Professional coaching techniques",
-        "Client assessment methods",
-        "Transformation frameworks",
-        "Business building strategies",
-        "Certification upon completion"
+        'Professional coaching techniques',
+        'Client assessment methods',
+        'Transformation frameworks',
+        'Business building strategies',
+        'Certification upon completion'
       ]
     },
     {
       id: 5,
-      title: "Digital Detox & Mindful Living",
-      description: "Reclaim your attention and create space for transformation by mastering your relationship with technology.",
-      instructor: "Rashee Harvey",
-      duration: "2.5 hours",
+      title: 'Digital Detox & Mindful Living',
+      description: 'Reclaim your attention and create space for transformation by mastering your relationship with technology.',
+      instructor: 'Rashee Harvey',
+      duration: '2.5 hours',
       lessons: 10,
-      level: "Beginner",
-      price: "$97",
+      level: 'Beginner',
+      price: '$97',
       rating: 4.7,
       students: 420,
-      image: "https://images.pexels.com/photos/3184340/pexels-photo-3184340.jpeg?auto=compress&cs=tinysrgb&w=800",
+      image: 'https://images.pexels.com/photos/3184340/pexels-photo-3184340.jpeg?auto=compress&cs=tinysrgb&w=800',
       features: [
-        "Understanding digital addiction",
-        "Creating healthy boundaries",
-        "Mindfulness practices",
-        "Productivity optimization"
+        'Understanding digital addiction',
+        'Creating healthy boundaries',
+        'Mindfulness practices',
+        'Productivity optimization'
       ]
     },
     {
       id: 6,
-      title: "Vision to Reality Blueprint",
-      description: "A comprehensive system for turning your biggest dreams into achievable, step-by-step action plans.",
-      instructor: "Rashee Harvey",
-      duration: "5 hours",
+      title: 'Vision to Reality Blueprint',
+      description: 'A comprehensive system for turning your biggest dreams into achievable, step-by-step action plans.',
+      instructor: 'Rashee Harvey',
+      duration: '5 hours',
       lessons: 20,
-      level: "Advanced",
-      price: "$297",
+      level: 'Advanced',
+      price: '$297',
       rating: 4.9,
       students: 380,
-      image: "https://images.pexels.com/photos/3184357/pexels-photo-3184357.jpeg?auto=compress&cs=tinysrgb&w=800",
+      image: 'https://images.pexels.com/photos/3184357/pexels-photo-3184357.jpeg?auto=compress&cs=tinysrgb&w=800',
       features: [
-        "Vision clarification exercises",
-        "Goal setting frameworks",
-        "Action planning systems",
-        "Progress tracking methods",
-        "Obstacle navigation strategies"
+        'Vision clarification exercises',
+        'Goal setting frameworks',
+        'Action planning systems',
+        'Progress tracking methods',
+        'Obstacle navigation strategies'
       ]
     }
   ];
 
-  const freeCourses = courses.filter(course => course.price === "Free");
-  const paidCourses = courses.filter(course => course.price !== "Free");
+  const freeCourses = courses.filter(course => course.price === 'Free');
+  const paidCourses = courses.filter(course => course.price !== 'Free');
 
   return (
     <div className="min-h-screen bg-white pt-20">

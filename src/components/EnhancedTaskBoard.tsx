@@ -35,6 +35,9 @@ import {
 import { useUser } from '../contexts/userContext';
 import { TaskBoard, Task, TaskColumn, BoardView, TaskFilters, ENERGY_LEVELS, PRIORITY_LEVELS } from '../types/TaskBoard';
 import { BOARD_TEMPLATES } from '../data/boardTemplates';
+import { EnhancedTaskService, type EnhancedTaskUI } from '../lib/enhanced-task-service';
+import { validateTasks } from '../utils/dataValidation';
+import { ErrorBoundary } from './ErrorBoundary';
 import AITemplateChatModal from './task-board/AITemplateChatModal';
 import TaskCard from './task-board/TaskCard';
 import CreateTaskModal from './task-board/CreateTaskModal';
@@ -74,29 +77,117 @@ export default function EnhancedTaskBoard({ boardId }: EnhancedTaskBoardProps) {
     return saved ? JSON.parse(saved) : defaultTaskCardSettings;
   });
 
-  // Initialize boards from localStorage or create welcome board
+  // Load tasks from database and create a virtual board
   useEffect(() => {
     if (!user) return;
     
-    const loadBoards = () => {
-      const savedBoards = localStorage.getItem(`taskBoards_${user.id}`);
-      if (savedBoards) {
-        const parsedBoards = JSON.parse(savedBoards);
-        setBoards(parsedBoards);
-        if (boardId) {
-          const board = parsedBoards.find((b: TaskBoard) => b.id === boardId);
-          setCurrentBoard(board || parsedBoards[0]);
-        } else {
-          setCurrentBoard(parsedBoards[0]);
+    const loadTasksFromDatabase = async () => {
+      try {
+        setIsLoading(true);
+        const result = await EnhancedTaskService.getUserTasks();
+        
+        if (result.error) {
+          console.error('Error loading tasks:', result.error);
+          createWelcomeBoard(); // Fallback to welcome board
+          return;
         }
-      } else {
-        // Create welcome board
-        createWelcomeBoard();
+
+        // Convert database tasks to TaskBoard format with validation
+        const dbTasks = result.data || [];
+        const convertedTasks: Task[] = validateTasks(dbTasks.map(dbTask => ({
+          id: dbTask.id,
+          task_number: (dbTask as any).task_number,
+          board_id: 'main-board',
+          column_id: dbTask.status || 'backlog',
+          user_id: dbTask.user_id,
+          title: dbTask.title,
+          description: dbTask.description,
+          priority: dbTask.priority,
+          energy_level: dbTask.energy_level,
+          business_value: dbTask.business_value,
+          personal_value: dbTask.personal_value,
+          estimated_duration: dbTask.estimated_time,
+          due_date: dbTask.due_date,
+          position: dbTask.position,
+          tags: dbTask.tags,
+          parent_id: (dbTask as any).parent_id,
+          has_children: (dbTask as any).has_children,
+          dependency_status: (dbTask as any).dependency_status,
+          status: dbTask.status,
+          created_at: dbTask.createdAt.toISOString(),
+          updated_at: dbTask.updatedAt.toISOString()
+        })));
+
+        // Create a virtual board with database tasks
+        const virtualBoard: TaskBoard = {
+          id: 'main-board',
+          user_id: user.id,
+          name: '🚀 Your Tasks',
+          description: 'Database-backed task management',
+          color_scheme: 'gradient-to-r from-blue-500 to-purple-600',
+          is_archived: false,
+          is_favorite: true,
+          progress_percentage: 0,
+          columns: [
+            { id: 'backlog', board_id: 'main-board', name: '📋 Backlog', color: 'gray', position: 0, is_completion_column: false },
+            { id: 'todo', board_id: 'main-board', name: '📝 To Do', color: 'blue', position: 1, is_completion_column: false },
+            { id: 'in_progress', board_id: 'main-board', name: '⚡ In Progress', color: 'orange', position: 2, is_completion_column: false },
+            { id: 'done', board_id: 'main-board', name: '✅ Done', color: 'green', position: 3, is_completion_column: true }
+          ],
+          tasks: convertedTasks,
+          goals_connected: [],
+          ai_insights: {
+            productivity_score: 80,
+            bottlenecks: [],
+            progress_prediction: {
+              estimated_completion_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+              confidence_level: 75,
+              key_risks: []
+            },
+            optimization_suggestions: [],
+            workload_analysis: {
+              current_capacity_usage: 70,
+              energy_distribution: { medium: 80, high: 20 },
+              peak_productivity_times: ['morning'],
+              suggested_task_scheduling: []
+            }
+          },
+          settings: {
+            auto_archive_completed: false,
+            auto_archive_days: 30,
+            enable_ai_suggestions: true,
+            enable_time_tracking: true,
+            enable_goal_integration: true,
+            notification_preferences: {
+              due_date_reminders: true,
+              progress_updates: true,
+              ai_insights: true,
+              collaboration_updates: false
+            },
+            view_preferences: {
+              default_view: 'kanban',
+              show_sub_tasks: true,
+              show_dependencies: true,
+              show_ai_insights: true,
+              compact_mode: false
+            }
+          },
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          last_activity: new Date().toISOString()
+        };
+
+        setBoards([virtualBoard]);
+        setCurrentBoard(virtualBoard);
+      } catch (error) {
+        console.error('Error loading tasks from database:', error);
+        createWelcomeBoard(); // Fallback
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
-    loadBoards();
+    loadTasksFromDatabase();
   }, [user, boardId]);
 
   // Save boards to localStorage whenever boards change

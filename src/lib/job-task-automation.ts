@@ -238,36 +238,36 @@ export class JobTaskAutomation {
       description += `**Job Posting:** [View Job](${jobMatch.url})\n`;
     }
     
-    description += `\n### Key Requirements:\n`;
+    description += '\n### Key Requirements:\n';
     jobMatch.requirements.slice(0, 5).forEach(req => {
       description += `- ${req}\n`;
     });
 
     if (jobMatch.ai_analysis) {
-      description += `\n### AI Analysis:\n`;
+      description += '\n### AI Analysis:\n';
       description += `**Recommended Action:** ${jobMatch.ai_analysis.recommended_action}\n`;
       description += `**Estimated Effort:** ${jobMatch.ai_analysis.estimated_effort}\n`;
       
       if (jobMatch.ai_analysis.pros.length > 0) {
-        description += `\n**Pros:**\n`;
+        description += '\n**Pros:**\n';
         jobMatch.ai_analysis.pros.forEach(pro => {
           description += `- ✅ ${pro}\n`;
         });
       }
       
       if (jobMatch.ai_analysis.cons.length > 0) {
-        description += `\n**Considerations:**\n`;
+        description += '\n**Considerations:**\n';
         jobMatch.ai_analysis.cons.forEach(con => {
           description += `- ⚠️ ${con}\n`;
         });
       }
     }
 
-    description += `\n### Next Steps:\n`;
-    description += `1. Research company and role in detail\n`;
-    description += `2. Tailor resume and cover letter\n`;
-    description += `3. Submit application\n`;
-    description += `4. Set up follow-up reminders\n`;
+    description += '\n### Next Steps:\n';
+    description += '1. Research company and role in detail\n';
+    description += '2. Tailor resume and cover letter\n';
+    description += '3. Submit application\n';
+    description += '4. Set up follow-up reminders\n';
 
     return description;
   }

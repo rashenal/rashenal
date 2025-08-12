@@ -648,7 +648,7 @@ export class EnhancedTestRunner extends TestRunner {
     console.log(`🎯 Overall Quality Score: ${Math.round(report.quality_scores.overall)}/100`);
 
     // Quality breakdown
-    console.log(`\n📈 Quality Scores Breakdown:`);
+    console.log('\n📈 Quality Scores Breakdown:');
     console.log(`   🎯 Functionality: ${Math.round(report.quality_scores.functionality)}/100`);
     console.log(`   ♿ Accessibility: ${Math.round(report.quality_scores.accessibility)}/100`);
     console.log(`   ⚡ Performance: ${Math.round(report.quality_scores.performance)}/100`);
@@ -658,22 +658,22 @@ export class EnhancedTestRunner extends TestRunner {
 
     // Recommendations
     if (report.recommendations.critical.length > 0) {
-      console.log(`\n🚨 Critical Recommendations:`);
+      console.log('\n🚨 Critical Recommendations:');
       report.recommendations.critical.forEach(rec => console.log(`   • ${rec}`));
     }
 
     if (report.recommendations.high.length > 0) {
-      console.log(`\n⚠️ High Priority Recommendations:`);
+      console.log('\n⚠️ High Priority Recommendations:');
       report.recommendations.high.forEach(rec => console.log(`   • ${rec}`));
     }
 
     if (report.recommendations.medium.length > 0) {
-      console.log(`\n💡 Medium Priority Recommendations:`);
+      console.log('\n💡 Medium Priority Recommendations:');
       report.recommendations.medium.slice(0, 3).forEach(rec => console.log(`   • ${rec}`));
     }
 
     // Key insights
-    console.log(`\n🔍 Key Insights:`);
+    console.log('\n🔍 Key Insights:');
     if (report.detailed_insights.performance_bottlenecks.length > 0) {
       console.log(`   Performance: ${report.detailed_insights.performance_bottlenecks.length} bottlenecks identified`);
     }

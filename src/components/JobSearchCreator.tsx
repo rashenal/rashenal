@@ -417,7 +417,7 @@ export default function JobSearchCreator({ className = '' }: JobSearchCreatorPro
       );
 
       setSuccess(`🚀 Background search started! Execution ID: ${executionId}`);
-      setInfo(`🔍 Your search is now running in the background. You can monitor progress in the Monitor tab and continue using the app.`);
+      setInfo('🔍 Your search is now running in the background. You can monitor progress in the Monitor tab and continue using the app.');
       
       // Auto-clear messages after delay
       setTimeout(() => {

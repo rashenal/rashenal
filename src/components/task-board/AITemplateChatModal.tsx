@@ -42,7 +42,7 @@ export default function AITemplateChatModal({ templateId, onClose, onCreateBoard
       const aiResponse = {
         id: (Date.now() + 1).toString(),
         type: 'ai' as const,
-        content: "Thank you for that information! Based on what you've told me, I can customize this template to better match your needs. Would you like me to create the customized board now?",
+        content: 'Thank you for that information! Based on what you\'ve told me, I can customize this template to better match your needs. Would you like me to create the customized board now?',
         timestamp: new Date()
       };
 

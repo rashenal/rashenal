@@ -379,20 +379,20 @@ export class AccessibilityAuditor {
 
   // Generate detailed report
   public generateReport(result: AccessibilityAuditResult): string {
-    let report = `# Accessibility Audit Report\n\n`;
+    let report = '# Accessibility Audit Report\n\n';
     report += `**Overall Score:** ${result.score}/100\n\n`;
-    report += `**WCAG Compliance:**\n`;
+    report += '**WCAG Compliance:**\n';
     report += `- Level A: ${result.wcagCompliance.A ? '✅ Pass' : '❌ Fail'}\n`;
     report += `- Level AA: ${result.wcagCompliance.AA ? '✅ Pass' : '❌ Fail'}\n`;
     report += `- Level AAA: ${result.wcagCompliance.AAA ? '✅ Pass' : '❌ Fail'}\n\n`;
     
-    report += `**Issues Summary:**\n`;
+    report += '**Issues Summary:**\n';
     report += `- Errors: ${result.summary.errors}\n`;
     report += `- Warnings: ${result.summary.warnings}\n`;
     report += `- Info: ${result.summary.info}\n\n`;
 
     if (result.issues.length > 0) {
-      report += `## Issues Found\n\n`;
+      report += '## Issues Found\n\n';
       
       result.issues.forEach((issue, index) => {
         report += `### ${index + 1}. ${issue.rule}\n`;
@@ -404,17 +404,17 @@ export class AccessibilityAuditor {
         report += `**Suggestion:** ${issue.suggestion}\n`;
         
         if (issue.contrast) {
-          report += `**Contrast Details:**\n`;
+          report += '**Contrast Details:**\n';
           report += `- Foreground: ${issue.contrast.foreground}\n`;
           report += `- Background: ${issue.contrast.background}\n`;
           report += `- Ratio: ${issue.contrast.ratio.toFixed(2)}:1\n`;
           report += `- Required: ${issue.contrast.required}:1\n`;
         }
         
-        report += `\n---\n\n`;
+        report += '\n---\n\n';
       });
     } else {
-      report += `## ✅ No Issues Found\n\nCongratulations! Your page meets WCAG AAA accessibility standards.\n`;
+      report += '## ✅ No Issues Found\n\nCongratulations! Your page meets WCAG AAA accessibility standards.\n';
     }
 
     return report;

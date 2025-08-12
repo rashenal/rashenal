@@ -422,7 +422,7 @@ export class TestOrchestrator {
       recommendations.push({
         priority: 'high',
         category: 'accessibility',
-        title: `Improve Accessibility Compliance`,
+        title: 'Improve Accessibility Compliance',
         description: `${accessibilityErrors.length} accessibility issues detected that affect user inclusion.`,
         action_items: [
           'Review WCAG 2.1 AA compliance',
@@ -442,7 +442,7 @@ export class TestOrchestrator {
       recommendations.push({
         priority: 'high',
         category: 'performance',
-        title: `Optimize Performance`,
+        title: 'Optimize Performance',
         description: `${performanceErrors.length} performance issues detected affecting user experience.`,
         action_items: [
           'Optimize database queries',
@@ -462,7 +462,7 @@ export class TestOrchestrator {
       recommendations.push({
         priority: 'critical',
         category: 'security',
-        title: `Address Security Vulnerabilities`,
+        title: 'Address Security Vulnerabilities',
         description: `${securityErrors.length} security issues detected that could compromise user data.`,
         action_items: [
           'Review authentication mechanisms',
@@ -482,7 +482,7 @@ export class TestOrchestrator {
       recommendations.push({
         priority: 'medium',
         category: 'ai_quality',
-        title: `Improve AI Response Quality`,
+        title: 'Improve AI Response Quality',
         description: `${aiErrors.length} AI quality issues detected in coaching interactions.`,
         action_items: [
           'Review AI prompts and context',

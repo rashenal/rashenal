@@ -118,11 +118,11 @@ export class JobPreferenceAgent {
     
     if (!exclusionData) {
       return {
-        response: "I couldn't understand what you want to exclude. Could you be more specific? For example: 'No sales jobs' or 'Exclude companies in finance'",
+        response: 'I couldn\'t understand what you want to exclude. Could you be more specific? For example: \'No sales jobs\' or \'Exclude companies in finance\'',
         clarifyingQuestions: [
-          "What specific companies would you like to exclude?",
-          "Are there certain job titles you want to avoid?",
-          "Any industries you're not interested in?"
+          'What specific companies would you like to exclude?',
+          'Are there certain job titles you want to avoid?',
+          'Any industries you\'re not interested in?'
         ],
         needsClarification: true,
         confidence: 0.3
@@ -550,12 +550,12 @@ export class JobPreferenceAgent {
     
     if (Object.keys(preferences).length === 0) {
       return {
-        response: "I'm having trouble understanding your preferences. Could you tell me more specifically about the type of job you're looking for?",
+        response: 'I\'m having trouble understanding your preferences. Could you tell me more specifically about the type of job you\'re looking for?',
         clarifyingQuestions: [
-          "What job titles are you interested in?",
-          "Where would you like to work (location/remote)?",
-          "What's your desired salary range?",
-          "What size company do you prefer?"
+          'What job titles are you interested in?',
+          'Where would you like to work (location/remote)?',
+          'What\'s your desired salary range?',
+          'What size company do you prefer?'
         ],
         needsClarification: true,
         confidence: 0.3
@@ -605,11 +605,11 @@ export class JobPreferenceAgent {
   private async handleRemovePreference(message: string, intent: any): Promise<ConversationalResponse> {
     // Implementation for removing preferences
     return {
-      response: "I'll help you remove that preference. What specifically would you like to remove?",
+      response: 'I\'ll help you remove that preference. What specifically would you like to remove?',
       clarifyingQuestions: [
-        "Remove a company from exclusions?",
-        "Remove a keyword filter?",
-        "Change location preferences?"
+        'Remove a company from exclusions?',
+        'Remove a keyword filter?',
+        'Change location preferences?'
       ],
       needsClarification: true,
       confidence: 0.7
@@ -619,7 +619,7 @@ export class JobPreferenceAgent {
   private async handleQueryPreferences(message: string, intent: any): Promise<ConversationalResponse> {
     if (!this.preferences) {
       return {
-        response: "You haven't set any preferences yet. Would you like to tell me what kind of jobs you're looking for?",
+        response: 'You haven\'t set any preferences yet. Would you like to tell me what kind of jobs you\'re looking for?',
         needsClarification: false,
         confidence: 1.0
       };
@@ -641,9 +641,9 @@ export class JobPreferenceAgent {
   }
 
   private generatePreferencesSummary(): string {
-    if (!this.preferences) return "No preferences set.";
+    if (!this.preferences) return 'No preferences set.';
     
-    const parts: string[] = ["Here are your current preferences:\n"];
+    const parts: string[] = ['Here are your current preferences:\n'];
     
     if (this.preferences.jobTitles.length > 0) {
       parts.push(`📍 **Job Titles**: ${this.preferences.jobTitles.join(', ')}`);
@@ -675,7 +675,7 @@ export class JobPreferenceAgent {
   private async handleRefineSearch(message: string, intent: any): Promise<ConversationalResponse> {
     // Implementation for refining search
     return {
-      response: "Let's refine your job search. What would you like to adjust?",
+      response: 'Let\'s refine your job search. What would you like to adjust?',
       suggestedActions: [
         {
           id: 'narrow_location',
@@ -733,7 +733,7 @@ export class JobPreferenceAgent {
       };
     } catch (error) {
       return {
-        response: "I'm here to help with your job search. You can tell me what kind of jobs you're looking for, what to exclude, or ask about your current preferences.",
+        response: 'I\'m here to help with your job search. You can tell me what kind of jobs you\'re looking for, what to exclude, or ask about your current preferences.',
         needsClarification: false,
         confidence: 0.5
       };

@@ -78,7 +78,7 @@ class GoalsAPI {
         return res.status(500).json({ error: error.message });
       }
 
-      let response: any = { goals, count: goals?.length || 0 };
+      const response: any = { goals, count: goals?.length || 0 };
 
       // Include progress data if requested
       if (include_progress === 'true' && goals) {

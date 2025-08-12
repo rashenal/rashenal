@@ -870,7 +870,7 @@ export class LoadTestAgent extends TestAgentBase {
             component: 'system_capacity',
             message: `System performance degraded significantly at ${userCount} concurrent users`,
             reproduction_steps: [
-              `Run gradual load test`,
+              'Run gradual load test',
               `Increase users to ${userCount}`,
               'Monitor system performance'
             ],
@@ -890,7 +890,7 @@ export class LoadTestAgent extends TestAgentBase {
           component: 'system_capacity',
           message: `System failed at ${userCount} concurrent users: ${error}`,
           reproduction_steps: [
-            `Run gradual load test`,
+            'Run gradual load test',
             `Increase users to ${userCount}`
           ],
           expected: 'System should handle increasing load',
@@ -903,7 +903,7 @@ export class LoadTestAgent extends TestAgentBase {
     if (breakingPoint > 0) {
       console.log(`📊 System breaking point identified at ${breakingPoint} concurrent users`);
     } else {
-      console.log(`✅ System handled all tested load levels successfully`);
+      console.log('✅ System handled all tested load levels successfully');
     }
   }
 

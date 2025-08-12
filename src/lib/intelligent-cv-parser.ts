@@ -482,7 +482,7 @@ E-commerce Platform | Personal Project
     
     // Find skills section
     const skillsSection = this.findSection(text, this.SECTION_PATTERNS.skills);
-    let searchText = skillsSection || text;
+    const searchText = skillsSection || text;
     
     // Extract skills from common skills list
     for (const skill of this.COMMON_SKILLS) {

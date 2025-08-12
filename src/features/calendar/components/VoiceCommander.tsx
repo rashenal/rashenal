@@ -64,16 +64,16 @@ interface VoiceSettings {
 }
 
 const EXAMPLE_COMMANDS = [
-  "Schedule coffee with Sarah next week when we're both free",
-  "Move my morning routine 30 minutes earlier for the next month", 
-  "Find me 2 hours for deep work on the AI project this week",
-  "Remind me to call mom when I'm walking home",
-  "Block focus time daily until this goal is complete",
-  "What's my energy level at 3 PM today?",
-  "Cancel my 2 PM meeting and reschedule for tomorrow",
-  "Create a habit for daily meditation at 7 AM",
-  "Show me all events tagged with 'health'",
-  "When is my next free 2-hour block?"
+  'Schedule coffee with Sarah next week when we\'re both free',
+  'Move my morning routine 30 minutes earlier for the next month', 
+  'Find me 2 hours for deep work on the AI project this week',
+  'Remind me to call mom when I\'m walking home',
+  'Block focus time daily until this goal is complete',
+  'What\'s my energy level at 3 PM today?',
+  'Cancel my 2 PM meeting and reschedule for tomorrow',
+  'Create a habit for daily meditation at 7 AM',
+  'Show me all events tagged with \'health\'',
+  'When is my next free 2-hour block?'
 ];
 
 export default function VoiceCommander({
@@ -352,9 +352,9 @@ export default function VoiceCommander({
     try {
       // Simulate voice authentication process
       const phrases = [
-        "My voice is my password, verify me",
-        "I am the owner of this calendar",
-        "Authenticate my voice biometric signature"
+        'My voice is my password, verify me',
+        'I am the owner of this calendar',
+        'Authenticate my voice biometric signature'
       ];
 
       for (let i = 0; i < phrases.length; i++) {

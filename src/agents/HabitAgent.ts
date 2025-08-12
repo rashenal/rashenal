@@ -288,7 +288,7 @@ export class HabitAgent {
     const dates = completions.map(c => new Date(c.completed_at));
     dates.sort((a, b) => a.getTime() - b.getTime());
 
-    let gaps = [];
+    const gaps = [];
     for (let i = 1; i < dates.length; i++) {
       const gapDays = Math.round((dates[i].getTime() - dates[i-1].getTime()) / (1000 * 60 * 60 * 24));
       gaps.push(gapDays);

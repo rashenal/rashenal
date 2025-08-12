@@ -197,4 +197,151 @@ export class VoiceAgentParser {
       });
     }
     
-    return {\n      id: this.generateId(),\n      name: config.name || 'Unnamed Agent',\n      voiceProfile: {\n        style: this.normalizeStyle(config.voiceProfile?.style || 'encouraging'),\n        pace: this.normalizePace(config.voiceProfile?.pace || 'medium'),\n        energy: this.normalizeEnergy(config.voiceProfile?.energy || 'moderate'),\n        customVoiceUrl: config.voiceProfile?.voiceSample\n      },\n      wakeWords: config.wakeWords || ['hey claude', 'hey rashee'],\n      conversationPatterns,\n      personality: {\n        traits: config.traits || ['encouraging', 'supportive'],\n        responseStyle: config.voiceProfile?.style || 'encouraging'\n      },\n      integrations: {\n        whatsapp: config.integrations?.includes('whatsapp') || false,\n        web: config.integrations?.includes('web') || true,\n        appleWatch: config.integrations?.includes('apple watch') || false\n      }\n    };\n  }\n  \n  private static generateId(): string {\n    return 'agent_' + Math.random().toString(36).substr(2, 9);\n  }\n  \n  private static normalizeStyle(style: string): 'encouraging' | 'direct' | 'analytical' | 'socratic' {\n    const normalized = style.toLowerCase();\n    if (['direct', 'analytical', 'socratic'].includes(normalized)) {\n      return normalized as any;\n    }\n    return 'encouraging';\n  }\n  \n  private static normalizePace(pace: string): 'slow' | 'medium' | 'fast' {\n    const normalized = pace.toLowerCase();\n    if (['slow', 'fast'].includes(normalized)) {\n      return normalized as any;\n    }\n    return 'medium';\n  }\n  \n  private static normalizeEnergy(energy: string): 'low' | 'moderate' | 'high' {\n    const normalized = energy.toLowerCase();\n    if (['low', 'high'].includes(normalized)) {\n      return normalized as any;\n    }\n    return 'moderate';\n  }\n\n  // Generate markdown template for new agents\n  static generateTemplate(name: string = 'My Personal Coach'): string {\n    return `# ${name}\n\n## Voice Profile\n- **Style:** encouraging\n- **Pace:** medium  \n- **Energy:** moderate\n- **Voice Sample:** (upload your voice file here)\n\n## Wake Words\n- hey claude\n- hey rashee\n- start coaching\n\n## Conversation Patterns\n### Greeting\n- Good morning! I'm here to help you make the most of your day.\n- Hello! Ready to tackle your goals together?\n\n### Check-in Questions\n- How did you sleep last night?\n- What's your energy level right now?\n- What's most important to you today?\n\n### Response Patterns\n- tired → I understand you're feeling tired. Let's plan a gentle day that still moves you forward.\n- energetic → Great energy! Let's channel that into your most important goals.\n- stuck → When I feel stuck, I like to break things down into smaller steps. What's one tiny thing we could try?\n- motivated → I love that motivation! Let's capture it with a specific action plan.\n\n## Personality\n### Traits\n- Encouraging and supportive\n- Practical and action-oriented\n- Emotionally intelligent\n- Growth-minded\n\n## Integrations\n- WhatsApp: ✅\n- Web Interface: ✅\n- Apple Watch: ❌\n`;\n  }\n\n  // Validate markdown configuration\n  static validateConfig(markdown: string): { isValid: boolean; errors: string[]; warnings: string[] } {\n    const errors: string[] = [];\n    const warnings: string[] = [];\n    \n    try {\n      const config = this.parseMarkdown(markdown);\n      \n      // Required fields validation\n      if (!config.name || config.name === 'Unnamed Agent') {\n        errors.push('Agent name is required');\n      }\n      \n      if (!config.wakeWords || config.wakeWords.length === 0) {\n        errors.push('At least one wake word is required');\n      }\n      \n      if (!config.conversationPatterns || config.conversationPatterns.length === 0) {\n        warnings.push('No conversation patterns defined - agent will use defaults');\n      }\n      \n      // Voice profile validation\n      if (!['encouraging', 'direct', 'analytical', 'socratic'].includes(config.voiceProfile.style)) {\n        warnings.push('Invalid voice style - will default to \"encouraging\"');\n      }\n      \n      if (!['slow', 'medium', 'fast'].includes(config.voiceProfile.pace)) {\n        warnings.push('Invalid voice pace - will default to \"medium\"');\n      }\n      \n      if (!['low', 'moderate', 'high'].includes(config.voiceProfile.energy)) {\n        warnings.push('Invalid voice energy - will default to \"moderate\"');\n      }\n      \n      // Integration validation\n      if (!config.integrations.web && !config.integrations.whatsapp && !config.integrations.appleWatch) {\n        errors.push('At least one integration platform must be enabled');\n      }\n      \n    } catch (error) {\n      errors.push(`Failed to parse configuration: ${error}`);\n    }\n    \n    return {\n      isValid: errors.length === 0,\n      errors,\n      warnings\n    };\n  }\n}\n\nexport default VoiceAgentParser;
+    return {
+      id: this.generateId(),
+      name: config.name || 'Unnamed Agent',
+      voiceProfile: {
+        style: this.normalizeStyle(config.voiceProfile?.style || 'encouraging'),
+        pace: this.normalizePace(config.voiceProfile?.pace || 'medium'),
+        energy: this.normalizeEnergy(config.voiceProfile?.energy || 'moderate'),
+        customVoiceUrl: config.voiceProfile?.voiceSample
+      },
+      wakeWords: config.wakeWords || ['hey claude', 'hey rashee'],
+      conversationPatterns,
+      personality: {
+        traits: config.traits || ['encouraging', 'supportive'],
+        responseStyle: config.voiceProfile?.style || 'encouraging'
+      },
+      integrations: {
+        whatsapp: config.integrations?.includes('whatsapp') || false,
+        web: config.integrations?.includes('web') || true,
+        appleWatch: config.integrations?.includes('apple watch') || false
+      }
+    };
+  }
+  
+  private static generateId(): string {
+    return 'agent_' + Math.random().toString(36).substr(2, 9);
+  }
+  
+  private static normalizeStyle(style: string): 'encouraging' | 'direct' | 'analytical' | 'socratic' {
+    const normalized = style.toLowerCase();
+    if (['direct', 'analytical', 'socratic'].includes(normalized)) {
+      return normalized as any;
+    }
+    return 'encouraging';
+  }
+  
+  private static normalizePace(pace: string): 'slow' | 'medium' | 'fast' {
+    const normalized = pace.toLowerCase();
+    if (['slow', 'fast'].includes(normalized)) {
+      return normalized as any;
+    }
+    return 'medium';
+  }
+  
+  private static normalizeEnergy(energy: string): 'low' | 'moderate' | 'high' {
+    const normalized = energy.toLowerCase();
+    if (['low', 'high'].includes(normalized)) {
+      return normalized as any;
+    }
+    return 'moderate';
+  }
+
+  // Generate markdown template for new agents
+  static generateTemplate(name: string = 'My Personal Coach'): string {
+    return `# ${name}
+
+## Voice Profile
+- **Style:** encouraging
+- **Pace:** medium  
+- **Energy:** moderate
+- **Voice Sample:** (upload your voice file here)
+
+## Wake Words
+- hey claude
+- hey rashee
+- start coaching
+
+## Conversation Patterns
+### Greeting
+- Good morning! I'm here to help you make the most of your day.
+- Hello! Ready to tackle your goals together?
+
+### Check-in Questions
+- How did you sleep last night?
+- What's your energy level right now?
+- What's most important to you today?
+
+### Response Patterns
+- tired → I understand you're feeling tired. Let's plan a gentle day that still moves you forward.
+- energetic → Great energy! Let's channel that into your most important goals.
+- stuck → When I feel stuck, I like to break things down into smaller steps. What's one tiny thing we could try?
+- motivated → I love that motivation! Let's capture it with a specific action plan.
+
+## Personality
+### Traits
+- Encouraging and supportive
+- Practical and action-oriented
+- Emotionally intelligent
+- Growth-minded
+
+## Integrations
+- WhatsApp: ✅
+- Web Interface: ✅
+- Apple Watch: ❌
+`;
+  }
+
+  // Validate markdown configuration
+  static validateConfig(markdown: string): { isValid: boolean; errors: string[]; warnings: string[] } {
+    const errors: string[] = [];
+    const warnings: string[] = [];
+    
+    try {
+      const config = this.parseMarkdown(markdown);
+      
+      // Required fields validation
+      if (!config.name || config.name === 'Unnamed Agent') {
+        errors.push('Agent name is required');
+      }
+      
+      if (!config.wakeWords || config.wakeWords.length === 0) {
+        errors.push('At least one wake word is required');
+      }
+      
+      if (!config.conversationPatterns || config.conversationPatterns.length === 0) {
+        warnings.push('No conversation patterns defined - agent will use defaults');
+      }
+      
+      // Voice profile validation
+      if (!['encouraging', 'direct', 'analytical', 'socratic'].includes(config.voiceProfile.style)) {
+        warnings.push('Invalid voice style - will default to "encouraging"');
+      }
+      
+      if (!['slow', 'medium', 'fast'].includes(config.voiceProfile.pace)) {
+        warnings.push('Invalid voice pace - will default to "medium"');
+      }
+      
+      if (!['low', 'moderate', 'high'].includes(config.voiceProfile.energy)) {
+        warnings.push('Invalid voice energy - will default to "moderate"');
+      }
+      
+      // Integration validation
+      if (!config.integrations.web && !config.integrations.whatsapp && !config.integrations.appleWatch) {
+        errors.push('At least one integration platform must be enabled');
+      }
+      
+    } catch (error) {
+      errors.push(`Failed to parse configuration: ${error}`);
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+      warnings
+    };
+  }
+}
+
+export default VoiceAgentParser;

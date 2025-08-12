@@ -47,6 +47,10 @@ interface WorkItem {
   order: number;
   attachment_count?: number;
   comment_count?: number;
+  task_number?: string; // Task number like "RAI-1"
+  parent_id?: string; // For dependency tracking
+  has_children?: boolean; // True if has dependent tasks
+  dependency_status?: 'independent' | 'blocked' | 'ready' | 'in_progress' | 'completed';
 }
 
 interface Comment {
@@ -77,6 +81,10 @@ const mapDbToWorkItem = (dbTask: EnhancedTaskUI): WorkItem => ({
   order: dbTask.position || 0,
   attachment_count: dbTask.attachment_count || 0,
   comment_count: dbTask.comment_count || 0,
+  task_number: (dbTask as any).task_number || undefined,
+  parent_id: (dbTask as any).parent_id || undefined,
+  has_children: (dbTask as any).has_children || false,
+  dependency_status: (dbTask as any).dependency_status || 'independent',
 });
 
 const mapWorkItemToDb = (workItem: Partial<WorkItem>, userId: string) => ({
@@ -456,9 +464,18 @@ export default function SmartTasks() {
                   >
                     <div className="flex items-start justify-between mb-2">
                       {settings.showTitle && (
-                        <h3 className="font-medium text-gray-900 text-sm leading-tight">
-                          {item.title}
-                        </h3>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            {item.task_number && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 whitespace-nowrap">
+                                {item.task_number}
+                              </span>
+                            )}
+                            <h3 className="font-medium text-gray-900 text-sm leading-tight">
+                              {item.title}
+                            </h3>
+                          </div>
+                        </div>
                       )}
                       <div className="flex space-x-1">
                         {settings.showPriority && (
@@ -654,6 +671,40 @@ export default function SmartTasks() {
                     />
                   </div>
                 </div>
+
+                {/* Task Dependencies */}
+                {editingItem && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Dependencies
+                    </label>
+                    <div className="bg-gray-50 p-3 rounded-lg space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">
+                            Task Number: {editingItem.task_number || 'Not assigned'}
+                          </p>
+                          <p className="text-xs text-gray-600">
+                            Status: <span className="capitalize">{editingItem.dependency_status || 'independent'}</span>
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-gray-600">
+                            Has Dependencies: {editingItem.has_children ? 'Yes' : 'No'}
+                          </p>
+                          {editingItem.parent_id && editingItem.parent_id !== editingItem.id && (
+                            <p className="text-xs text-gray-600">
+                              Depends On: Task {editingItem.parent_id.slice(-4)}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-500 bg-white p-2 rounded border">
+                        <p><strong>Note:</strong> Dependencies are automatically managed. When parent tasks are completed, dependent tasks become ready to work on.</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Task Attachments */}
                 {editingItem && (

@@ -233,7 +233,7 @@ export class OAuthManager {
         revokeUrl = `https://oauth2.googleapis.com/revoke?token=${token}`;
         break;
       case 'outlook':
-        revokeUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/logout`;
+        revokeUrl = 'https://login.microsoftonline.com/common/oauth2/v2.0/logout';
         break;
       default:
         throw new Error(`Token revocation not implemented for ${provider}`);

@@ -414,8 +414,8 @@ export default function EnhancedJobSearchResults({
             <h3 className="text-lg font-medium text-primary mb-2">No jobs found</h3>
             <p className="text-secondary mb-4">
               {results.length === 0 
-                ? "No jobs have been found for this search yet. Try running the search again."
-                : "No jobs match your current filters. Try adjusting the filter criteria."
+                ? 'No jobs have been found for this search yet. Try running the search again.'
+                : 'No jobs match your current filters. Try adjusting the filter criteria.'
               }
             </p>
             {results.length === 0 && (

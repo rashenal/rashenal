@@ -415,7 +415,7 @@ export class SchemaValidator {
     
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
     const migrations: string[] = [
-      `-- Auto-generated migration to fix schema issues`,
+      '-- Auto-generated migration to fix schema issues',
       `-- Generated at: ${new Date().toISOString()}`,
       `-- Issues found: ${validation.issues.length}`,
       '',
@@ -563,7 +563,7 @@ export class SchemaValidator {
             fs.writeFileSync(filepath, migration);
             console.log(`✅ Migration saved to: ${filepath}`);
             console.log('\nTo apply the migration, run:');
-            console.log(`  supabase db push`);
+            console.log('  supabase db push');
           } catch (err) {
             console.error(`❌ Failed to save migration: ${err instanceof Error ? err.message : 'Unknown error'}`);
             console.log('\nMigration content:');

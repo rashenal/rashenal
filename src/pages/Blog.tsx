@@ -4,43 +4,43 @@ import { Calendar, User, ArrowRight, Clock } from 'lucide-react';
 const blogPosts = [
   {
     id: 1,
-    title: "5 Signs You're Ready for Transformation",
-    excerpt: "Discover the key indicators that signal you're prepared to make meaningful changes in your life and replace self-doubt with self-belief.",
-    author: "Rashee Harvey",
-    date: "2024-01-15",
-    readTime: "5 min read",
-    image: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800",
-    category: "Personal Growth"
+    title: '5 Signs You\'re Ready for Transformation',
+    excerpt: 'Discover the key indicators that signal you\'re prepared to make meaningful changes in your life and replace self-doubt with self-belief.',
+    author: 'Rashee Harvey',
+    date: '2024-01-15',
+    readTime: '5 min read',
+    image: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800',
+    category: 'Personal Growth'
   },
   {
     id: 2,
-    title: "The Science Behind AI-Powered Vision Movies",
-    excerpt: "Learn how visualization combined with AI technology creates powerful neural pathways that help manifest your goals into reality.",
-    author: "Rashee Harvey",
-    date: "2024-01-10",
-    readTime: "7 min read",
-    image: "https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=800",
-    category: "AI Technology"
+    title: 'The Science Behind AI-Powered Vision Movies',
+    excerpt: 'Learn how visualization combined with AI technology creates powerful neural pathways that help manifest your goals into reality.',
+    author: 'Rashee Harvey',
+    date: '2024-01-10',
+    readTime: '7 min read',
+    image: 'https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=800',
+    category: 'AI Technology'
   },
   {
     id: 3,
-    title: "Building Habits That Stick: A Coach's Guide",
-    excerpt: "Discover the proven strategies I use with clients to create lasting behavioral changes that support their transformation journey.",
-    author: "Rashee Harvey",
-    date: "2024-01-05",
-    readTime: "6 min read",
-    image: "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=800",
-    category: "Habit Formation"
+    title: 'Building Habits That Stick: A Coach\'s Guide',
+    excerpt: 'Discover the proven strategies I use with clients to create lasting behavioral changes that support their transformation journey.',
+    author: 'Rashee Harvey',
+    date: '2024-01-05',
+    readTime: '6 min read',
+    image: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=800',
+    category: 'Habit Formation'
   },
   {
     id: 4,
-    title: "From Self-Doubt to Self-Belief: My Journey",
-    excerpt: "A personal reflection on my own transformation and how it led me to become the Queen of Transformation.",
-    author: "Rashee Harvey",
-    date: "2024-01-01",
-    readTime: "8 min read",
-    image: "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=800",
-    category: "Personal Story"
+    title: 'From Self-Doubt to Self-Belief: My Journey',
+    excerpt: 'A personal reflection on my own transformation and how it led me to become the Queen of Transformation.',
+    author: 'Rashee Harvey',
+    date: '2024-01-01',
+    readTime: '8 min read',
+    image: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=800',
+    category: 'Personal Story'
   }
 ];
 

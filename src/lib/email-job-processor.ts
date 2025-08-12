@@ -116,7 +116,7 @@ const generateWeekOfJobAlerts = (): SimulatedEmail[] => {
         const jobs = linkedinJobs.slice(0, Math.floor(Math.random() * 3) + 3); // 3-6 jobs per email
         emails.push({
           id: `linkedin-${day}-${email}`,
-          subject: `Your job alert for agile coach`,
+          subject: 'Your job alert for agile coach',
           from: 'noreply@linkedin.com',
           content: `LinkedIn
 Your job alert for agile coach
@@ -133,7 +133,7 @@ Actively recruiting`).join('\n\n')}`,
         const jobs = indeedJobs.slice(0, Math.floor(Math.random() * 2) + 2); // 2-4 jobs per email
         emails.push({
           id: `indeed-${day}-${email}`,
-          subject: `Indeed Job Alert: New jobs for software engineer`,
+          subject: 'Indeed Job Alert: New jobs for software engineer',
           from: 'noreply@indeed.com',
           content: `New jobs matching your preferences:
 
@@ -149,7 +149,7 @@ Full-time, Permanent`).join('\n\n')}`,
         const jobs = glassdoorJobs.slice(0, Math.floor(Math.random() * 2) + 2); // 2-4 jobs per email
         emails.push({
           id: `glassdoor-${day}-${email}`,
-          subject: `Glassdoor Job Alert: Programming jobs`,
+          subject: 'Glassdoor Job Alert: Programming jobs',
           from: 'jobs@glassdoor.com',
           content: `New programming jobs in London:
 

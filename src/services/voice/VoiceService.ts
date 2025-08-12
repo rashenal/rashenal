@@ -169,7 +169,7 @@ export class VoiceService {
     } catch (error) {
       console.error('Error processing voice command:', error);
       return {
-        text: "I'm sorry, I didn't catch that. Could you try again?",
+        text: 'I\'m sorry, I didn\'t catch that. Could you try again?',
         actions: []
       };
     }
@@ -230,7 +230,7 @@ export class VoiceService {
 
     if (transcript.includes('task') || transcript.includes('todo')) {
       return {
-        text: "I can help you create a new task or review your current ones. What would you like to do?",
+        text: 'I can help you create a new task or review your current ones. What would you like to do?',
         actions: []
       };
     }
@@ -273,10 +273,10 @@ export class VoiceService {
     const style = this.config.voiceProfile.style;
     
     const responses = {
-      encouraging: "I'm here to support you! What would you like to work on today?",
-      direct: "How can I help you be more productive?",
-      analytical: "Based on your patterns, what specific area would you like to focus on?",
-      socratic: "What do you think would be the most impactful thing to focus on right now?"
+      encouraging: 'I\'m here to support you! What would you like to work on today?',
+      direct: 'How can I help you be more productive?',
+      analytical: 'Based on your patterns, what specific area would you like to focus on?',
+      socratic: 'What do you think would be the most impactful thing to focus on right now?'
     };
 
     return {
@@ -392,7 +392,7 @@ export class VoiceService {
     };
   }
 
-  async testVoice(text: string = "Hello! I'm your personal voice agent."): Promise<void> {
+  async testVoice(text: string = 'Hello! I\'m your personal voice agent.'): Promise<void> {
     await this.speak(text);
   }
 }

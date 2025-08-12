@@ -218,7 +218,7 @@ export default function JobProfileManager({ className = '' }: JobProfileManagerP
       
       // Provide detailed error information based on error type
       let errorMessage = 'CV processing failed. Please fill out the form manually.';
-      let showForm = true;
+      const showForm = true;
       
       if (err instanceof Error) {
         console.log('JobProfileManager: Error message analysis:', err.message);
@@ -382,8 +382,8 @@ export default function JobProfileManager({ className = '' }: JobProfileManagerP
 
   // Calculate confidence score for Claude AI extraction
   const calculateConfidence = (data: ComprehensiveCV): number => {
-    let score = 0;
-    let factors = 0;
+    const score = 0;
+    const factors = 0;
     
     // Use the built-in confidence score from the comprehensive CV
     return data.confidence.overall;

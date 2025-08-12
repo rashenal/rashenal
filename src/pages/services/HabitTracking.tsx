@@ -206,25 +206,25 @@ export default function HabitTracking() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                name: "Jennifer L.",
-                transformation: "Lost 40 pounds",
-                habit: "Daily 30-minute walks",
-                image: "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=400",
-                quote: "The habit tracker helped me stay consistent with small daily walks. After 6 months, I had lost 40 pounds without feeling like I was on a diet."
+                name: 'Jennifer L.',
+                transformation: 'Lost 40 pounds',
+                habit: 'Daily 30-minute walks',
+                image: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=400',
+                quote: 'The habit tracker helped me stay consistent with small daily walks. After 6 months, I had lost 40 pounds without feeling like I was on a diet.'
               },
               {
-                name: "David M.",
-                transformation: "Wrote a book",
-                habit: "500 words daily",
-                image: "https://images.pexels.com/photos/3184340/pexels-photo-3184340.jpeg?auto=compress&cs=tinysrgb&w=400",
-                quote: "By tracking just 500 words per day, I completed my first novel in 8 months. The visual progress kept me motivated even on tough days."
+                name: 'David M.',
+                transformation: 'Wrote a book',
+                habit: '500 words daily',
+                image: 'https://images.pexels.com/photos/3184340/pexels-photo-3184340.jpeg?auto=compress&cs=tinysrgb&w=400',
+                quote: 'By tracking just 500 words per day, I completed my first novel in 8 months. The visual progress kept me motivated even on tough days.'
               },
               {
-                name: "Maria S.",
-                transformation: "Reduced anxiety",
-                habit: "Morning meditation",
-                image: "https://images.pexels.com/photos/3184357/pexels-photo-3184357.jpeg?auto=compress&cs=tinysrgb&w=400",
-                quote: "10 minutes of daily meditation tracked consistently for 3 months completely changed my relationship with stress and anxiety."
+                name: 'Maria S.',
+                transformation: 'Reduced anxiety',
+                habit: 'Morning meditation',
+                image: 'https://images.pexels.com/photos/3184357/pexels-photo-3184357.jpeg?auto=compress&cs=tinysrgb&w=400',
+                quote: '10 minutes of daily meditation tracked consistently for 3 months completely changed my relationship with stress and anxiety.'
               }
             ].map((story, index) => (
               <div key={index} className="bg-white p-8 rounded-2xl shadow-lg">

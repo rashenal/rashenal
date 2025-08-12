@@ -26,7 +26,7 @@ export class TaskService {
 
       let query = supabase
         .from('tasks')
-        .select(`*, profiles(full_name)`)
+        .select('*, profiles(full_name)')
         .eq('user_id', user.id)
         .order('position', { ascending: true })
         .order('created_at', { ascending: false });
@@ -124,7 +124,7 @@ export class TaskService {
       const { data, error } = await supabase
         .from('tasks')
         .insert([taskToInsert])
-        .select(`*, profiles(full_name)`)
+        .select('*, profiles(full_name)')
         .single();
 
       if (error) {
@@ -188,7 +188,7 @@ export class TaskService {
         .update(updateData)
         .eq('id', taskId)
         .eq('user_id', user.id)
-        .select(`*, profiles(full_name)`)
+        .select('*, profiles(full_name)')
         .single();
 
       if (error) {

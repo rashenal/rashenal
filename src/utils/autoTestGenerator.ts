@@ -235,14 +235,14 @@ export class AutoTestGenerator {
     });
 
     if (componentInfo.hasState && !existingContent.includes('state')) {
-      const todoComment = `// TODO: Add tests for state management\n`;
+      const todoComment = '// TODO: Add tests for state management\n';
       if (!existingContent.includes(todoComment)) {
         updatedContent = todoComment + updatedContent;
       }
     }
 
     if (componentInfo.hasEffects && !existingContent.includes('effect')) {
-      const todoComment = `// TODO: Add tests for useEffect hooks\n`;
+      const todoComment = '// TODO: Add tests for useEffect hooks\n';
       if (!existingContent.includes(todoComment)) {
         updatedContent = todoComment + updatedContent;
       }

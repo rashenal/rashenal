@@ -157,10 +157,10 @@ export class AdminTestAgent extends TestAgentBase {
     try {
       // Test SQL injection attempts
       const maliciousInputs = [
-        "'; DROP TABLE habits; --",
-        "1' OR '1'='1",
-        "admin'/*",
-        "1; DELETE FROM users; --"
+        '\'; DROP TABLE habits; --',
+        '1\' OR \'1\'=\'1',
+        'admin\'/*',
+        '1; DELETE FROM users; --'
       ];
 
       for (const input of maliciousInputs) {

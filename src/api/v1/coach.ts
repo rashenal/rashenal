@@ -138,11 +138,11 @@ class CoachAPI {
     // For now, return contextual mock responses
     
     const responses = [
-      "That's a great goal! Let's break it down into manageable steps.",
-      "I can see you're making progress. What's been working well for you?",
-      "It sounds like you might be feeling overwhelmed. Let's prioritize what's most important.",
-      "Remember, small consistent actions lead to big results over time.",
-      "How can we make this more specific and measurable?"
+      'That\'s a great goal! Let\'s break it down into manageable steps.',
+      'I can see you\'re making progress. What\'s been working well for you?',
+      'It sounds like you might be feeling overwhelmed. Let\'s prioritize what\'s most important.',
+      'Remember, small consistent actions lead to big results over time.',
+      'How can we make this more specific and measurable?'
     ];
 
     return responses[Math.floor(Math.random() * responses.length)];

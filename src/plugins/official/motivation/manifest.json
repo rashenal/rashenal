@@ -1,0 +1,51 @@
+{
+  "id": "ai.asista.motivation",
+  "name": "Motivation Booster",
+  "version": "1.0.0",
+  "description": "AI-powered motivational support that adapts to your energy and goals",
+  "author": {
+    "name": "Asista.AI",
+    "email": "plugins@asista.ai",
+    "website": "https://asista.ai"
+  },
+  "category": "wellness",
+  "tags": ["motivation", "wellness", "ai", "energy-aware"],
+  "permissions": [
+    "tasks:read",
+    "habits:read", 
+    "goals:read",
+    "ai:chat",
+    "notifications:send"
+  ],
+  "entry": "./index.ts",
+  "minPlatformVersion": "1.0.0",
+  "settings": [
+    {
+      "key": "notification_frequency",
+      "label": "Notification Frequency",
+      "type": "select",
+      "options": [
+        {"value": 900000, "label": "Every 15 minutes"},
+        {"value": 1800000, "label": "Every 30 minutes"},
+        {"value": 3600000, "label": "Every hour"},
+        {"value": 7200000, "label": "Every 2 hours"}
+      ],
+      "default": 1800000,
+      "description": "How often to check for motivation opportunities"
+    },
+    {
+      "key": "energy_aware",
+      "label": "Energy-Aware Messages",
+      "type": "boolean",
+      "default": true,
+      "description": "Adapt messages based on your current energy level"
+    },
+    {
+      "key": "voice_enabled",
+      "label": "Voice Commands",
+      "type": "boolean",
+      "default": true,
+      "description": "Enable voice commands like 'motivate me'"
+    }
+  ]
+}

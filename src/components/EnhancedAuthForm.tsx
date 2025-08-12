@@ -318,7 +318,7 @@ export default function EnhancedAuthForm({
         {/* Mode Switch */}
         <div className="text-center">
           <p className="text-sm text-gray-600">
-            {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+            {isSignUp ? 'Already have an account?' : 'Don\'t have an account?'}{' '}
             <button
               type="button"
               onClick={() => onModeChange?.(isSignUp ? 'signin' : 'signup')}

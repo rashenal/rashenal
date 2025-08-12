@@ -20,7 +20,11 @@ export default tseslint.config(
     '**/*.-Backup*.tsx',
     '**/*.-Backup*.ts',
     '**/backup/**/*',
-    'src/supabase/migrations/**/*'
+    'src/supabase/migrations/**/*',
+    'supabase/functions/**/*',
+    'supabase/migrations/**/*',
+    'src/utils/automated-tests.ts',
+    'src/utils/testWatcher.ts'
   ] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],

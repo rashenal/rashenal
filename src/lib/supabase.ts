@@ -1,13 +1,13 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
+  throw new Error('Missing Supabase environment variables');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Auth helper functions
 export const auth = {
@@ -20,8 +20,8 @@ export const auth = {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
         data: userData
       }
-    })
-    return { data, error }
+    });
+    return { data, error };
   },
 
   // Sign in
@@ -29,25 +29,25 @@ export const auth = {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
-    })
-    return { data, error }
+    });
+    return { data, error };
   },
 
   // Sign out
   signOut: async () => {
-    const { error } = await supabase.auth.signOut()
-    return { error }
+    const { error } = await supabase.auth.signOut();
+    return { error };
   },
 
   // Get current user
   getCurrentUser: async () => {
-    const { data: { user }, error } = await supabase.auth.getUser()
-    return { user, error }
+    const { data: { user }, error } = await supabase.auth.getUser();
+    return { user, error };
   },
 
   // Listen to auth changes
   onAuthStateChange: (callback: (event: string, session: any) => void) => {
-    return supabase.auth.onAuthStateChange(callback)
+    return supabase.auth.onAuthStateChange(callback);
   },
 
   // Resend confirmation email
@@ -58,7 +58,7 @@ export const auth = {
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`
       }
-    })
-    return { data, error }
+    });
+    return { data, error };
   }
-}
+};

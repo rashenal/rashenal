@@ -28,7 +28,7 @@ interface AICoachChatProps {
   className?: string;
 }
 
-export default function AICoachChat({ className = "" }: AICoachChatProps) {
+export default function AICoachChat({ className = '' }: AICoachChatProps) {
   const { user } = useUser();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
@@ -68,7 +68,7 @@ export default function AICoachChat({ className = "" }: AICoachChatProps) {
         const welcomeMessage: ChatMessage = {
           id: 'welcome-1',
           type: 'ai',
-          message: "Hi! I'm your AI transformation coach. I can see your progress and I'm here to help you replace self-doubt with self-belief. How are you feeling about your journey today?",
+          message: 'Hi! I\'m your AI transformation coach. I can see your progress and I\'m here to help you replace self-doubt with self-belief. How are you feeling about your journey today?',
           timestamp: new Date()
         };
         setMessages([welcomeMessage]);
@@ -245,7 +245,7 @@ export default function AICoachChat({ className = "" }: AICoachChatProps) {
       const fallbackMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        message: "I'm having trouble connecting right now, but I'm still here to support you! While I reconnect, remember that consistency beats perfection. What habit would you like to focus on today?",
+        message: 'I\'m having trouble connecting right now, but I\'m still here to support you! While I reconnect, remember that consistency beats perfection. What habit would you like to focus on today?',
         timestamp: new Date(),
         status: 'sent'
       };
@@ -291,7 +291,7 @@ export default function AICoachChat({ className = "" }: AICoachChatProps) {
       {
         id: 'new-start',
         type: 'ai',
-        message: "Fresh start! I'm here to support your transformation journey. What would you like to focus on today?",
+        message: 'Fresh start! I\'m here to support your transformation journey. What would you like to focus on today?',
         timestamp: new Date(),
         status: 'sent'
       }
@@ -305,10 +305,10 @@ export default function AICoachChat({ className = "" }: AICoachChatProps) {
 
   // Accessibility-focused quick prompts for neurodiverse users
   const quickPrompts = [
-    { text: "How can I stay motivated?", category: "motivation" },
-    { text: "I'm struggling with consistency", category: "challenge" },
-    { text: "What should I focus on today?", category: "planning" },
-    { text: "Celebrate my progress!", category: "celebration" }
+    { text: 'How can I stay motivated?', category: 'motivation' },
+    { text: 'I\'m struggling with consistency', category: 'challenge' },
+    { text: 'What should I focus on today?', category: 'planning' },
+    { text: 'Celebrate my progress!', category: 'celebration' }
   ];
 
   // Show login prompt if not authenticated
@@ -508,7 +508,7 @@ export default function AICoachChat({ className = "" }: AICoachChatProps) {
               onClick={sendMessage}
               disabled={isLoading || !currentMessage.trim()}
               className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-              aria-label={isLoading ? "Sending message" : "Send message"}
+              aria-label={isLoading ? 'Sending message' : 'Send message'}
             >
               {isLoading ? (
                 <Loader className="h-4 w-4 animate-spin" aria-hidden="true" />

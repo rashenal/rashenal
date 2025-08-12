@@ -22,24 +22,24 @@ export default function InclusiveLandingPage() {
 
   const testimonials = [
     {
-      name: "Maria Rodriguez",
-      role: "Product Manager, Tech Startup",
-      image: "👩🏽‍💼",
-      quote: "As someone with ADHD, I've tried every productivity tool. Rashenal actually gets how my brain works - it doesn't judge, it just helps me succeed.",
+      name: 'Maria Rodriguez',
+      role: 'Product Manager, Tech Startup',
+      image: '👩🏽‍💼',
+      quote: 'As someone with ADHD, I\'ve tried every productivity tool. Rashenal actually gets how my brain works - it doesn\'t judge, it just helps me succeed.',
       rating: 5
     },
     {
-      name: "David Chen",
-      role: "Software Engineer & Dad of 2",
-      image: "👨🏻‍💻",
-      quote: "Between work and family chaos, I needed something that understood real life isn't linear. Rashenal adapts to my energy levels, not the other way around.",
+      name: 'David Chen',
+      role: 'Software Engineer & Dad of 2',
+      image: '👨🏻‍💻',
+      quote: 'Between work and family chaos, I needed something that understood real life isn\'t linear. Rashenal adapts to my energy levels, not the other way around.',
       rating: 5
     },
     {
-      name: "Amara Williams",
-      role: "Freelance Designer",
-      image: "👩🏿‍🎨",
-      quote: "Finally, a productivity app that doesn't assume I work 9-5 in an office. The inclusive design makes me feel seen and supported, not overwhelmed.",
+      name: 'Amara Williams',
+      role: 'Freelance Designer',
+      image: '👩🏿‍🎨',
+      quote: 'Finally, a productivity app that doesn\'t assume I work 9-5 in an office. The inclusive design makes me feel seen and supported, not overwhelmed.',
       rating: 5
     }
   ];
@@ -47,50 +47,50 @@ export default function InclusiveLandingPage() {
   const features = [
     {
       icon: Brain,
-      title: "Neurodiversity-Friendly",
-      description: "Designed by and for neurodiverse minds. Whether you're ADHD, autistic, or neurotypical - we meet you where you are.",
-      color: "purple"
+      title: 'Neurodiversity-Friendly',
+      description: 'Designed by and for neurodiverse minds. Whether you\'re ADHD, autistic, or neurotypical - we meet you where you are.',
+      color: 'purple'
     },
     {
       icon: Accessibility,
-      title: "Accessibility First",
-      description: "Full keyboard navigation, screen reader support, and customizable interfaces. Technology should work for everyone.",
-      color: "blue"
+      title: 'Accessibility First',
+      description: 'Full keyboard navigation, screen reader support, and customizable interfaces. Technology should work for everyone.',
+      color: 'blue'
     },
     {
       icon: Heart,
-      title: "Gentle Progress",
-      description: "No guilt, no shame, no pressure. Celebrate small wins and learn from setbacks in a supportive environment.",
-      color: "pink"
+      title: 'Gentle Progress',
+      description: 'No guilt, no shame, no pressure. Celebrate small wins and learn from setbacks in a supportive environment.',
+      color: 'pink'
     },
     {
       icon: Shield,
-      title: "Privacy Focused",
-      description: "Your data stays yours. We're transparent about what we collect and why. No dark patterns, no surveillance capitalism.",
-      color: "green"
+      title: 'Privacy Focused',
+      description: 'Your data stays yours. We\'re transparent about what we collect and why. No dark patterns, no surveillance capitalism.',
+      color: 'green'
     }
   ];
 
   const inclusiveHeroImages = [
     {
-      alt: "Professional woman in her 50s with silver hair confidently using a tablet in a modern office",
-      description: "Experienced professional",
-      emoji: "👩🏽‍💼✨"
+      alt: 'Professional woman in her 50s with silver hair confidently using a tablet in a modern office',
+      description: 'Experienced professional',
+      emoji: '👩🏽‍💼✨'
     },
     {
-      alt: "Black professional in wheelchair at ergonomic standing desk with multiple monitors",
-      description: "Tech professional with adaptive workspace",
-      emoji: "👨🏿‍💻♿"
+      alt: 'Black professional in wheelchair at ergonomic standing desk with multiple monitors',
+      description: 'Tech professional with adaptive workspace',
+      emoji: '👨🏿‍💻♿'
     },
     {
-      alt: "South Asian person with visible hearing aid participating in video conference",
-      description: "Inclusive remote collaboration",
-      emoji: "👨🏽‍💼🦻"
+      alt: 'South Asian person with visible hearing aid participating in video conference',
+      description: 'Inclusive remote collaboration',
+      emoji: '👨🏽‍💼🦻'
     },
     {
-      alt: "Person with noise-canceling headphones in organized, calm workspace",
-      description: "Neurodiverse-friendly work environment",
-      emoji: "👩🏼‍💻🎧"
+      alt: 'Person with noise-canceling headphones in organized, calm workspace',
+      description: 'Neurodiverse-friendly work environment',
+      emoji: '👩🏼‍💻🎧'
     }
   ];
 

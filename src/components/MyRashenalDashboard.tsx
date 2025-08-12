@@ -26,9 +26,12 @@ import { useTasks } from '../lib/use-tasks';
 import { supabase } from '../lib/supabase';
 import DashboardSettings, { DashboardSettings as DashboardSettingsType, defaultDashboardSettings } from './settings/DashboardSettings';
 import { getLocalSettings } from './shared/SettingsModal';
+// Plugin system imports
+import { PluginSystem } from '../plugins/core/PluginSystem';
+import { MotivationWidget } from '../plugins/official/motivation/components/MotivationWidget';
 
 // Dashboard Overview Component
-function DashboardOverview() {
+function DashboardOverview({ pluginWidgets = [] }: { pluginWidgets?: any[] }) {
   const { user } = useUser();
   const [timerActive, setTimerActive] = useState(false);
   const [timerMinutes, setTimerMinutes] = useState(15);
@@ -78,10 +81,10 @@ function DashboardOverview() {
 
   // Mock achievements
   const achievements = [
-    { title: "Meditation Master", description: "10-day meditation streak", icon: "🧘", earned: true },
-    { title: "Early Bird", description: "7 days of 6 AM workouts", icon: "🌅", earned: true },
-    { title: "Bookworm", description: "Read 5 hours this week", icon: "📚", earned: false },
-    { title: "Hydration Hero", description: "Perfect water intake for 3 days", icon: "💧", earned: false }
+    { title: 'Meditation Master', description: '10-day meditation streak', icon: '🧘', earned: true },
+    { title: 'Early Bird', description: '7 days of 6 AM workouts', icon: '🌅', earned: true },
+    { title: 'Bookworm', description: 'Read 5 hours this week', icon: '📚', earned: false },
+    { title: 'Hydration Hero', description: 'Perfect water intake for 3 days', icon: '💧', earned: false }
   ];
 
   const getProgressColor = (color: string) => {
@@ -108,7 +111,7 @@ function DashboardOverview() {
       goalsCompleted: `${completedHabits}/4`,
       streakDays: Math.max(...habits.map(h => h.streak)),
       aiSessions: 8,
-      improvement: "+23%"
+      improvement: '+23%'
     }
   }), [user, habits, completedHabits]);
 
@@ -552,6 +555,21 @@ function AICoachSection() {
             </div>
           </div>
         </div>
+        
+        {/* Plugin Widgets Area */}
+        {pluginWidgets.length > 0 && (
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold text-gray-900 mb-6">Plugin Enhancements</h3>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {pluginWidgets.map(widget => {
+                const Component = widget.component;
+                return (
+                  <Component key={widget.id} {...widget.props} />
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -566,6 +584,10 @@ export default function MyRashenalDashboard() {
   const [dashboardSettings, setDashboardSettings] = useState<DashboardSettingsType>(
     () => getLocalSettings('dashboard', defaultDashboardSettings)
   );
+  
+  // Plugin system state
+  const [pluginsInitialized, setPluginsInitialized] = useState(false);
+  const [pluginWidgets, setPluginWidgets] = useState<any[]>([]);
 
   // ✅ KEPT: Auto-select dashboard when user logs in
   useEffect(() => {
@@ -573,6 +595,71 @@ export default function MyRashenalDashboard() {
       setCurrentView('dashboard');
     }
   }, [user]);
+  
+  // Plugin system initialization
+  useEffect(() => {
+    const initializePlugins = async () => {
+      if (!user?.id || pluginsInitialized) return;
+      
+      try {
+        console.log('Initializing plugin system...');
+        const pluginSystem = PluginSystem.getInstance();
+        await pluginSystem.initialize(supabase, user.id);
+        
+        // Check for installed plugins
+        const { data: installations } = await supabase
+          .from('plugin_installations')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('enabled', true);
+        
+        if (installations && installations.length > 0) {
+          console.log(`Found ${installations.length} installed plugins`);
+          
+          // For each installed plugin, add its widget
+          const widgets = installations.map(installation => {
+            if (installation.plugin_id === 'ai.asista.motivation') {
+              return {
+                id: 'motivation-widget',
+                component: MotivationWidget,
+                props: { pluginId: 'ai.asista.motivation' }
+              };
+            }
+            return null;
+          }).filter(Boolean);
+          
+          setPluginWidgets(widgets);
+        } else {
+          // Auto-install motivation plugin for demonstration
+          console.log('Auto-installing motivation plugin for demo');
+          const success = await pluginSystem.installPlugin('ai.asista.motivation');
+          
+          if (success) {
+            setPluginWidgets([{
+              id: 'motivation-widget',
+              component: MotivationWidget,
+              props: { pluginId: 'ai.asista.motivation' }
+            }]);
+          }
+        }
+        
+        setPluginsInitialized(true);
+        console.log('✅ Plugin system initialized successfully');
+      } catch (error) {
+        console.error('Plugin system initialization error:', error);
+        
+        // Fallback: Show motivation widget even if plugin system fails
+        setPluginWidgets([{
+          id: 'motivation-widget-fallback',
+          component: MotivationWidget,
+          props: { pluginId: 'ai.asista.motivation' }
+        }]);
+        setPluginsInitialized(true);
+      }
+    };
+    
+    initializePlugins();
+  }, [user, supabase, pluginsInitialized]);
 
   if (!user) {
     return (
@@ -678,7 +765,7 @@ export default function MyRashenalDashboard() {
 
       {/* Dashboard Content */}
       <div className="min-h-96">
-        {currentView === 'dashboard' && <DashboardOverview />}
+        {currentView === 'dashboard' && <DashboardOverview pluginWidgets={pluginWidgets} />}
         {/* ✅ ADDED: New AI Coach section with full interactive chat */}
         {currentView === 'ai-coach' && <AICoachSection />}
         {currentView === 'tasks' && <SmartTasksSection />}

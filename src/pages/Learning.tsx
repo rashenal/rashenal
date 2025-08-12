@@ -7,65 +7,65 @@ export default function Learning() {
   const learningJourneys = [
     {
       id: 1,
-      title: "Mastering Public Speaking",
-      author: "Sarah Johnson",
-      avatar: "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=100",
-      course: "Toastmasters International",
+      title: 'Mastering Public Speaking',
+      author: 'Sarah Johnson',
+      avatar: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=100',
+      course: 'Toastmasters International',
       progress: 65,
-      objective: "Overcome fear of public speaking and deliver confident presentations",
-      lastUpdate: "2 days ago",
+      objective: 'Overcome fear of public speaking and deliver confident presentations',
+      lastUpdate: '2 days ago',
       supporters: 23,
       posts: 12,
-      image: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=400"
+      image: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=400'
     },
     {
       id: 2,
-      title: "Learning Spanish for Travel",
-      author: "Marcus Chen",
-      avatar: "https://images.pexels.com/photos/3184340/pexels-photo-3184340.jpeg?auto=compress&cs=tinysrgb&w=100",
-      course: "Duolingo + Local Classes",
+      title: 'Learning Spanish for Travel',
+      author: 'Marcus Chen',
+      avatar: 'https://images.pexels.com/photos/3184340/pexels-photo-3184340.jpeg?auto=compress&cs=tinysrgb&w=100',
+      course: 'Duolingo + Local Classes',
       progress: 42,
-      objective: "Achieve conversational Spanish for upcoming trip to Spain",
-      lastUpdate: "1 day ago",
+      objective: 'Achieve conversational Spanish for upcoming trip to Spain',
+      lastUpdate: '1 day ago',
       supporters: 18,
       posts: 8,
-      image: "https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=400"
+      image: 'https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=400'
     },
     {
       id: 3,
-      title: "Web Development Bootcamp",
-      author: "Lisa Rodriguez",
-      avatar: "https://images.pexels.com/photos/3184357/pexels-photo-3184357.jpeg?auto=compress&cs=tinysrgb&w=100",
-      course: "FreeCodeCamp + Rashee's Habit Tracking",
+      title: 'Web Development Bootcamp',
+      author: 'Lisa Rodriguez',
+      avatar: 'https://images.pexels.com/photos/3184357/pexels-photo-3184357.jpeg?auto=compress&cs=tinysrgb&w=100',
+      course: 'FreeCodeCamp + Rashee\'s Habit Tracking',
       progress: 78,
-      objective: "Build my first full-stack application and change careers",
-      lastUpdate: "3 hours ago",
+      objective: 'Build my first full-stack application and change careers',
+      lastUpdate: '3 hours ago',
       supporters: 31,
       posts: 24,
-      image: "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400"
+      image: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400'
     }
   ];
 
   const recentPosts = [
     {
       id: 1,
-      author: "Sarah Johnson",
-      avatar: "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=100",
-      journey: "Mastering Public Speaking",
-      content: "Just completed my 5th speech! The feedback was incredible. I'm finally starting to feel confident on stage. The key was practicing my opening line 50 times until it felt natural.",
-      image: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=300",
-      time: "2 hours ago",
+      author: 'Sarah Johnson',
+      avatar: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=100',
+      journey: 'Mastering Public Speaking',
+      content: 'Just completed my 5th speech! The feedback was incredible. I\'m finally starting to feel confident on stage. The key was practicing my opening line 50 times until it felt natural.',
+      image: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=300',
+      time: '2 hours ago',
       likes: 12,
       comments: 5
     },
     {
       id: 2,
-      author: "Lisa Rodriguez",
-      avatar: "https://images.pexels.com/photos/3184357/pexels-photo-3184357.jpeg?auto=compress&cs=tinysrgb&w=100",
-      journey: "Web Development Bootcamp",
-      content: "Breakthrough moment today! Finally understood React hooks. Built my first interactive component. Screenshot of my todo app attached - it's not pretty but it WORKS! 🎉",
-      image: "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=300",
-      time: "4 hours ago",
+      author: 'Lisa Rodriguez',
+      avatar: 'https://images.pexels.com/photos/3184357/pexels-photo-3184357.jpeg?auto=compress&cs=tinysrgb&w=100',
+      journey: 'Web Development Bootcamp',
+      content: 'Breakthrough moment today! Finally understood React hooks. Built my first interactive component. Screenshot of my todo app attached - it\'s not pretty but it WORKS! 🎉',
+      image: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=300',
+      time: '4 hours ago',
       likes: 18,
       comments: 8
     }

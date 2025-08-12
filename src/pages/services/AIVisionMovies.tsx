@@ -112,20 +112,20 @@ export default function AIVisionMovies() {
               <div className="space-y-6">
                 {[
                   {
-                    title: "Neural Pathway Programming",
-                    description: "Seeing yourself succeed creates new neural pathways that make success feel familiar and achievable."
+                    title: 'Neural Pathway Programming',
+                    description: 'Seeing yourself succeed creates new neural pathways that make success feel familiar and achievable.'
                   },
                   {
-                    title: "Emotional Connection",
-                    description: "Movies create emotional experiences that traditional vision boards simply cannot match."
+                    title: 'Emotional Connection',
+                    description: 'Movies create emotional experiences that traditional vision boards simply cannot match.'
                   },
                   {
-                    title: "Daily Motivation",
-                    description: "Your personalized movie becomes a powerful daily ritual that keeps you focused and inspired."
+                    title: 'Daily Motivation',
+                    description: 'Your personalized movie becomes a powerful daily ritual that keeps you focused and inspired.'
                   },
                   {
-                    title: "Subconscious Programming",
-                    description: "Regular viewing programs your subconscious mind to recognize and pursue opportunities."
+                    title: 'Subconscious Programming',
+                    description: 'Regular viewing programs your subconscious mind to recognize and pursue opportunities.'
                   }
                 ].map((benefit, index) => (
                   <div key={index} className="flex items-start space-x-4">
@@ -170,18 +170,18 @@ export default function AIVisionMovies() {
           <div className="grid md:grid-cols-2 gap-8">
             {[
               {
-                name: "Sarah Johnson",
-                role: "Entrepreneur",
-                image: "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=400",
-                quote: "Watching myself succeed in my vision movie every morning gave me the confidence to launch my business. Within 6 months, everything I saw in that movie became reality.",
-                result: "Launched successful business"
+                name: 'Sarah Johnson',
+                role: 'Entrepreneur',
+                image: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=400',
+                quote: 'Watching myself succeed in my vision movie every morning gave me the confidence to launch my business. Within 6 months, everything I saw in that movie became reality.',
+                result: 'Launched successful business'
               },
               {
-                name: "Marcus Chen",
-                role: "Sales Director",
-                image: "https://images.pexels.com/photos/3184340/pexels-photo-3184340.jpeg?auto=compress&cs=tinysrgb&w=400",
-                quote: "The vision movie made my goals feel so real and achievable. I could see myself as the top performer, and that's exactly what happened.",
-                result: "Became #1 sales performer"
+                name: 'Marcus Chen',
+                role: 'Sales Director',
+                image: 'https://images.pexels.com/photos/3184340/pexels-photo-3184340.jpeg?auto=compress&cs=tinysrgb&w=400',
+                quote: 'The vision movie made my goals feel so real and achievable. I could see myself as the top performer, and that\'s exactly what happened.',
+                result: 'Became #1 sales performer'
               }
             ].map((testimonial, index) => (
               <div key={index} className="bg-white p-8 rounded-2xl shadow-lg">

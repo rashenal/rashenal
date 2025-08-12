@@ -196,7 +196,7 @@ export class WhatsAppWebhookHandler {
 
       try {
         let responseText = '';
-        let voiceResponse = '';
+        const voiceResponse = '';
 
         if (messageType === 'text') {
           const text = message.text.body;
@@ -277,7 +277,7 @@ export class WhatsAppWebhookHandler {
    * Send error response
    */
   private async sendErrorResponse(userPhone: string): Promise<void> {
-    const errorMessage = "I'm sorry, I'm having trouble processing your message right now. Please try again in a moment.";
+    const errorMessage = 'I\'m sorry, I\'m having trouble processing your message right now. Please try again in a moment.';
     
     const whatsapp = new WhatsAppService({
       webhookUrl: process.env.WHATSAPP_WEBHOOK_URL!,

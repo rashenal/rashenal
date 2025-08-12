@@ -32,6 +32,8 @@ import PrivacyDashboard from './components/PrivacyDashboard';
 import UserProfileManager from './components/UserProfileManager';
 import EnhancedTaskBoard from './components/EnhancedTaskBoard';
 import VoiceHub from './pages/voice/VoiceHub';
+import { PluginsPage } from './pages/Plugins';
+import PersistenceTestScenarios from './tests/PersistenceTestScenarios';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { UserProvider, useUser } from './contexts/userContext';
 import { GamificationProvider } from './contexts/GamificationContext';
@@ -107,6 +109,10 @@ function AppRoutes() {
               element={session ? <VoiceHub /> : <Navigate to="/auth" replace />}
             />
             <Route
+              path="/plugins"
+              element={session ? <PluginsPage /> : <Navigate to="/auth" replace />}
+            />
+            <Route
               path="/goals"
               element={session ? <GoalsManagement /> : <Navigate to="/auth" replace />}
             />
@@ -158,6 +164,10 @@ function AppRoutes() {
             <Route path="/contact" element={<ContactForm />} />
             <Route path="/newsletter" element={<Newsletter />} />
             <Route path="/debug" element={<DebugDashboard />} />
+            <Route 
+              path="/test-persistence" 
+              element={session ? <PersistenceTestScenarios /> : <Navigate to="/auth" replace />} 
+            />
             <Route path="/auth/outlook/callback" element={<OAuthCallback />} />
             <Route path="/auth/gmail/callback" element={<OAuthCallback />} />
             <Route path="*" element={<Navigate to="/" />} />

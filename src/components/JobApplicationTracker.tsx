@@ -135,7 +135,7 @@ export default function JobApplicationTracker({ className = '' }: JobApplication
           tags: ['job-interview', application.company_name.toLowerCase().replace(/\s+/g, '-')],
           project_id: null
         });
-        setSuccess(`Application status updated! A task has been created to help you prepare.`);
+        setSuccess('Application status updated! A task has been created to help you prepare.');
       } else {
         setSuccess('Application status updated!');
       }

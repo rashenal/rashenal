@@ -93,7 +93,7 @@ export class OptimizationTest {
     const startTime = Date.now();
     
     try {
-      const testPrompt = "Please provide a comprehensive and detailed analysis of the following data with extensive explanations and multiple examples to help me understand the complex concepts involved.";
+      const testPrompt = 'Please provide a comprehensive and detailed analysis of the following data with extensive explanations and multiple examples to help me understand the complex concepts involved.';
       
       const result = await promptOptimizer.optimizePrompt(testPrompt, 'integration_test');
       

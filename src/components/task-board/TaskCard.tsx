@@ -58,8 +58,8 @@ export default function TaskCard({
     onDragEnd();
   };
 
-  const priorityConfig = PRIORITY_LEVELS[task.priority];
-  const energyConfig = ENERGY_LEVELS[task.energy_level];
+  const priorityConfig = PRIORITY_LEVELS[task.priority] || PRIORITY_LEVELS.medium;
+  const energyConfig = ENERGY_LEVELS[task.energy_level] || ENERGY_LEVELS.m;
   
   const completedSubtasks = task.sub_tasks.filter(st => st.is_completed).length;
   const totalSubtasks = task.sub_tasks.length;
@@ -169,9 +169,17 @@ export default function TaskCard({
       <div className="space-y-3">
         {/* Title and Description */}
         <div>
-          <h3 className={`font-semibold text-gray-900 ${compact ? 'text-sm' : 'text-base'} leading-tight`}>
-            {task.title}
-          </h3>
+          <div className="flex items-start gap-2">
+            {/* Task Number Badge */}
+            {task.task_number && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 whitespace-nowrap">
+                {task.task_number}
+              </span>
+            )}
+            <h3 className={`font-semibold text-gray-900 ${compact ? 'text-sm' : 'text-base'} leading-tight flex-1`}>
+              {task.title}
+            </h3>
+          </div>
           {!compact && task.description && displaySettings?.showDescription !== false && (
             <p className="text-sm text-gray-600 mt-1 line-clamp-2">{task.description}</p>
           )}

@@ -34,13 +34,13 @@ export default function TaskboardAssistant({ tasks, onTaskAction }: TaskboardAss
     {
       id: 'welcome',
       type: 'assistant',
-      content: "👋 Hello! I'm your Taskboard Assistant. I can help you organize tasks, suggest priorities, estimate time, and optimize your workflow. What would you like to work on?",
+      content: '👋 Hello! I\'m your Taskboard Assistant. I can help you organize tasks, suggest priorities, estimate time, and optimize your workflow. What would you like to work on?',
       timestamp: new Date(),
       suggestions: [
-        "Analyze my current tasks",
-        "Suggest task priorities", 
-        "Help me break down a large task",
-        "Optimize my workflow"
+        'Analyze my current tasks',
+        'Suggest task priorities', 
+        'Help me break down a large task',
+        'Optimize my workflow'
       ]
     }
   ]);
@@ -89,19 +89,19 @@ export default function TaskboardAssistant({ tasks, onTaskAction }: TaskboardAss
     }
 
     if (statusCounts['IN_PROGRESS'] > 3) {
-      recommendations.push("You have many tasks in progress. Consider focusing on completing some before starting new ones.");
+      recommendations.push('You have many tasks in progress. Consider focusing on completing some before starting new ones.');
     }
 
     if (priorityCounts['HIGH'] > 5) {
-      recommendations.push("You have many high-priority tasks. Consider if all are truly urgent or if some can be reprioritized.");
+      recommendations.push('You have many high-priority tasks. Consider if all are truly urgent or if some can be reprioritized.');
     }
 
     if (statusCounts['BACKLOG'] > 10) {
-      recommendations.push("Your backlog is growing. Consider breaking down large tasks or archiving items that are no longer relevant.");
+      recommendations.push('Your backlog is growing. Consider breaking down large tasks or archiving items that are no longer relevant.');
     }
 
     if (recommendations.length === 0) {
-      recommendations.push("Your task organization looks good! Keep up the great work with staying organized.");
+      recommendations.push('Your task organization looks good! Keep up the great work with staying organized.');
     }
 
     return recommendations;
@@ -139,7 +139,7 @@ export default function TaskboardAssistant({ tasks, onTaskAction }: TaskboardAss
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
-        content: "I'm sorry, I'm having trouble responding right now. Please try again in a moment.",
+        content: 'I\'m sorry, I\'m having trouble responding right now. Please try again in a moment.',
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -161,35 +161,35 @@ export default function TaskboardAssistant({ tasks, onTaskAction }: TaskboardAss
 
     if (lowerMessage.includes('priorities') || lowerMessage.includes('prioritize')) {
       return {
-        content: `🎯 **Priority Suggestions:**\n\n1. **Focus on overdue items first** - Complete any overdue tasks to get back on track\n2. **High-priority + Due soon** - Tackle high-priority tasks with approaching deadlines\n3. **Quick wins** - Complete small tasks to build momentum\n4. **Block out focus time** - Dedicate uninterrupted time for complex tasks\n\nWould you like me to suggest specific tasks to focus on based on your current workload?`,
+        content: '🎯 **Priority Suggestions:**\n\n1. **Focus on overdue items first** - Complete any overdue tasks to get back on track\n2. **High-priority + Due soon** - Tackle high-priority tasks with approaching deadlines\n3. **Quick wins** - Complete small tasks to build momentum\n4. **Block out focus time** - Dedicate uninterrupted time for complex tasks\n\nWould you like me to suggest specific tasks to focus on based on your current workload?',
         suggestions: ['Show me top 3 priorities', 'Help with time blocking', 'Break down complex tasks']
       };
     }
 
     if (lowerMessage.includes('break down') || lowerMessage.includes('large task')) {
       return {
-        content: `🔨 **Task Breakdown Strategy:**\n\n1. **Identify the main outcome** - What does "done" look like?\n2. **List all major steps** - What are the key milestones?\n3. **Break steps into actions** - Make each item actionable (starts with a verb)\n4. **Estimate time** - Assign realistic time estimates\n5. **Set dependencies** - Order tasks by what needs to happen first\n\nTell me about a specific task you'd like to break down, and I'll help you create actionable sub-tasks!`,
+        content: '🔨 **Task Breakdown Strategy:**\n\n1. **Identify the main outcome** - What does "done" look like?\n2. **List all major steps** - What are the key milestones?\n3. **Break steps into actions** - Make each item actionable (starts with a verb)\n4. **Estimate time** - Assign realistic time estimates\n5. **Set dependencies** - Order tasks by what needs to happen first\n\nTell me about a specific task you\'d like to break down, and I\'ll help you create actionable sub-tasks!',
         suggestions: ['I have a specific task to break down', 'Help with time estimation', 'Show me examples']
       };
     }
 
     if (lowerMessage.includes('workflow') || lowerMessage.includes('optimize')) {
       return {
-        content: `⚡ **Workflow Optimization Tips:**\n\n• **Batch similar tasks** - Group similar activities together\n• **Use time blocking** - Dedicate specific times for different types of work\n• **Limit WIP** - Try to keep "In Progress" items to 3 or fewer\n• **Review regularly** - Weekly review to adjust priorities and clean up\n• **Automate recurring tasks** - Look for patterns that can be templated\n\nBased on your current tasks, I can suggest specific optimizations. What area would you like to focus on?`,
+        content: '⚡ **Workflow Optimization Tips:**\n\n• **Batch similar tasks** - Group similar activities together\n• **Use time blocking** - Dedicate specific times for different types of work\n• **Limit WIP** - Try to keep "In Progress" items to 3 or fewer\n• **Review regularly** - Weekly review to adjust priorities and clean up\n• **Automate recurring tasks** - Look for patterns that can be templated\n\nBased on your current tasks, I can suggest specific optimizations. What area would you like to focus on?',
         suggestions: ['Analyze my workflow patterns', 'Suggest time blocks', 'Help with recurring tasks']
       };
     }
 
     if (lowerMessage.includes('time') || lowerMessage.includes('estimate')) {
       return {
-        content: `⏱️ **Time Estimation Tips:**\n\n• **Use the "3-point estimation"**: Best case + Worst case + Most likely, divided by 3\n• **Add buffer time**: Multiply estimates by 1.5 for realistic planning\n• **Track actual time**: Learn from experience to improve future estimates\n• **Break down large tasks**: Easier to estimate smaller pieces\n\nFor your current tasks, I'd recommend starting with rough estimates and refining as you work. Would you like help estimating specific tasks?`,
+        content: '⏱️ **Time Estimation Tips:**\n\n• **Use the "3-point estimation"**: Best case + Worst case + Most likely, divided by 3\n• **Add buffer time**: Multiply estimates by 1.5 for realistic planning\n• **Track actual time**: Learn from experience to improve future estimates\n• **Break down large tasks**: Easier to estimate smaller pieces\n\nFor your current tasks, I\'d recommend starting with rough estimates and refining as you work. Would you like help estimating specific tasks?',
         suggestions: ['Help estimate my tasks', 'Show estimation techniques', 'Track time spent']
       };
     }
 
     // Default response
     return {
-      content: `I'm here to help you manage your tasks more effectively! I can assist with:\n\n• 📊 Analyzing your current task load\n• 🎯 Suggesting task priorities\n• 🔨 Breaking down complex tasks\n• ⚡ Optimizing your workflow\n• ⏱️ Time estimation and planning\n\nWhat would you like to work on? Just ask me anything about task management!`,
+      content: 'I\'m here to help you manage your tasks more effectively! I can assist with:\n\n• 📊 Analyzing your current task load\n• 🎯 Suggesting task priorities\n• 🔨 Breaking down complex tasks\n• ⚡ Optimizing your workflow\n• ⏱️ Time estimation and planning\n\nWhat would you like to work on? Just ask me anything about task management!',
       suggestions: ['Analyze my current tasks', 'Help me prioritize', 'Optimize my workflow', 'Break down a large task']
     };
   };

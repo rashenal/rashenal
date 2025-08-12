@@ -39,16 +39,16 @@ export default function AICoachingDashboard() {
   ];
 
   const aiMessages = [
-    { type: 'ai', message: "Good morning! I noticed you've been consistent with meditation. How are you feeling today?" },
-    { type: 'user', message: "Feeling great! Ready for today's session." },
-    { type: 'ai', message: "Excellent! Your 12-day streak is impressive. Let's aim for 15 minutes today. I'll guide you through a focus-building session." }
+    { type: 'ai', message: 'Good morning! I noticed you\'ve been consistent with meditation. How are you feeling today?' },
+    { type: 'user', message: 'Feeling great! Ready for today\'s session.' },
+    { type: 'ai', message: 'Excellent! Your 12-day streak is impressive. Let\'s aim for 15 minutes today. I\'ll guide you through a focus-building session.' }
   ];
 
   const achievements = [
-    { title: "Meditation Master", description: "10-day meditation streak", icon: "🧘", earned: true },
-    { title: "Early Bird", description: "7 days of 6 AM workouts", icon: "🌅", earned: true },
-    { title: "Bookworm", description: "Read 5 hours this week", icon: "📚", earned: false },
-    { title: "Hydration Hero", description: "Perfect water intake for 3 days", icon: "💧", earned: false }
+    { title: 'Meditation Master', description: '10-day meditation streak', icon: '🧘', earned: true },
+    { title: 'Early Bird', description: '7 days of 6 AM workouts', icon: '🌅', earned: true },
+    { title: 'Bookworm', description: 'Read 5 hours this week', icon: '📚', earned: false },
+    { title: 'Hydration Hero', description: 'Perfect water intake for 3 days', icon: '💧', earned: false }
   ];
 
   return (

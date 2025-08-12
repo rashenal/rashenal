@@ -342,14 +342,14 @@ export default function CalendarCore() {
     
     if (hour < 12) {
       if (healthEvents > 0 && workEvents <= 3) {
-        return "🌟 Your day is designed for success! You've balanced wellness with productivity.";
+        return '🌟 Your day is designed for success! You\'ve balanced wellness with productivity.';
       } else if (workEvents > 5) {
-        return "⚡ Ambitious agenda today! Remember to protect your energy and take breaks.";
+        return '⚡ Ambitious agenda today! Remember to protect your energy and take breaks.';
       } else {
-        return "🎯 Today looks perfectly balanced. You're in control of your time.";
+        return '🎯 Today looks perfectly balanced. You\'re in control of your time.';
       }
     }
-    return "Good day! Your calendar is your pathway to success.";
+    return 'Good day! Your calendar is your pathway to success.';
   };
 
   // Render different views
@@ -460,7 +460,7 @@ export default function CalendarCore() {
                     ? 'bg-green-100 text-green-600' 
                     : 'text-gray-400 hover:text-gray-600'
                 }`}
-                title={isVoiceAuthenticated ? "Voice Commands" : "Voice Authentication Required"}
+                title={isVoiceAuthenticated ? 'Voice Commands' : 'Voice Authentication Required'}
               >
                 {isVoiceActive ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
               </button>

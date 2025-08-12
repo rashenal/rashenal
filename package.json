@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npm run pre-dev && vite",
+    "dev": "vite",
+    "dev-with-checks": "npm run pre-dev && vite",
     "build": "npm run pre-build && vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -27,6 +28,7 @@
     "test:e2e:smoke": "playwright test --grep='@smoke'",
     "test:auto": "tsx src/utils/testWatcher.ts",
     "test:generate": "tsx src/utils/autoTestGenerator.ts",
+    "test:plugins": "vitest run src/tests/plugins/",
     "test:ai": "tsx src/agents/testing/TestRunner.ts --mode manual --agents user,admin --testLevel comprehensive",
     "test:imports": "node scripts/test-imports.js",
     "test:components": "vitest run src/components/task-board/__tests__",

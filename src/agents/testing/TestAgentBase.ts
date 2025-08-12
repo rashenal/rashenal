@@ -359,14 +359,14 @@ export abstract class TestAgentBase {
     
     // Generate contextually appropriate response
     if (prompt.toLowerCase().includes('motivation')) {
-      return "I understand you're looking for motivation. Based on your recent progress, you've been doing great with your habits. Here's what I suggest: focus on small wins today, and remember that consistency beats perfection. What specific area would you like to work on?";
+      return 'I understand you\'re looking for motivation. Based on your recent progress, you\'ve been doing great with your habits. Here\'s what I suggest: focus on small wins today, and remember that consistency beats perfection. What specific area would you like to work on?';
     }
     
     if (prompt.toLowerCase().includes('tasks')) {
-      return "Looking at your task list, I notice you have several high-priority items. Let's prioritize the urgent ones first and break down the larger tasks into smaller, manageable steps. Which task feels most overwhelming right now?";
+      return 'Looking at your task list, I notice you have several high-priority items. Let\'s prioritize the urgent ones first and break down the larger tasks into smaller, manageable steps. Which task feels most overwhelming right now?';
     }
 
-    return "Thank you for sharing that with me. I'm here to help you on your personal growth journey. Based on what you've told me, I have some suggestions that might be helpful. What would you like to focus on today?";
+    return 'Thank you for sharing that with me. I\'m here to help you on your personal growth journey. Based on what you\'ve told me, I have some suggestions that might be helpful. What would you like to focus on today?';
   }
 
   /**

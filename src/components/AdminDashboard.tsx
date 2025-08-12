@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useUser } from '../contexts/userContext';
 import TestRunner from './TestRunner';
+import EnhancedTestDashboard from './admin/EnhancedTestDashboard';
 import { checkAllFeatures } from '../api/health/features';
 import EmailAgentMonitor from './admin/EmailAgentMonitor';
 import DatabaseMigrationHelper from './DatabaseMigrationHelper';
@@ -367,9 +368,7 @@ export default function AdminDashboard() {
             )}
 
             {activeTab === 'tests' && (
-              <div className="bg-white rounded-lg shadow-sm border">
-                <TestRunner />
-              </div>
+              <EnhancedTestDashboard />
             )}
 
             {activeTab === 'email-agent' && (

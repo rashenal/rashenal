@@ -438,7 +438,7 @@ export class EventIntelligence {
 
   private calculateScheduleScore(events: CalendarEvent[]): number {
     let score = 0;
-    let totalEvents = events.length;
+    const totalEvents = events.length;
     
     if (totalEvents === 0) return 100;
     
@@ -565,7 +565,7 @@ export class EventIntelligence {
       energyAlignment = Math.max(0, 100 - Math.abs(energyLevel - requiredEnergy));
     }
     
-    let goalAlignment = 70; // Default goal alignment
+    const goalAlignment = 70; // Default goal alignment
     
     // Time preference alignment
     let timeAlignment = 80;

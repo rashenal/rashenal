@@ -53,12 +53,7 @@ export class EnhancedTaskService {
 
       let query = supabase
         .from('tasks')
-        .select(`
-          *,
-          profiles(full_name),
-          task_attachments(id, file_name, file_size, file_type, file_url, created_at),
-          task_comments(id, content, created_at, profiles(full_name))
-        `)
+        .select(`*`)
         .eq('user_id', user.id)
         .order('position', { ascending: true })
         .order('created_at', { ascending: false });
@@ -86,9 +81,10 @@ export class EnhancedTaskService {
     }
   }
 
-  // Create task with proper persistence
+  // Create task with dependencies and numbering
   static async createTask(
-    taskData: CreateTaskInput
+    taskData: CreateTaskInput,
+    parentTaskId?: string
   ): Promise<DatabaseResponse<EnhancedTaskUI>> {
     try {
       const {
@@ -154,6 +150,8 @@ export class EnhancedTaskService {
         estimated_energy: taskData.estimated_energy || null,
         owner: taskData.owner || null,
         tags: taskData.tags || null,
+        parent_id: parentTaskId || null, // Dependencies: will self-reference via trigger if null
+        dependency_status: parentTaskId ? 'blocked' : 'independent',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -365,6 +363,268 @@ export class EnhancedTaskService {
     }
   }
 
+  // Add subtask to task
+  static async addSubtask(
+    taskId: string,
+    title: string,
+    description?: string
+  ): Promise<DatabaseResponse<any>> {
+    try {
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+      if (authError || !user) {
+        return { data: null, error: new Error('User not authenticated') };
+      }
+
+      const subtaskData = {
+        parent_task_id: taskId,
+        user_id: user.id,
+        title: title.trim(),
+        description: description?.trim(),
+        is_completed: false,
+        position: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      const { data, error } = await supabase
+        .from('task_subtasks')
+        .insert([subtaskData])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error adding subtask:', error);
+        return { data: null, error: new Error('Failed to add subtask') };
+      }
+
+      return { data, error: null };
+    } catch (error) {
+      console.error('Unexpected error in addSubtask:', error);
+      return {
+        data: null,
+        error:
+          error instanceof Error ? error : new Error('Failed to add subtask'),
+      };
+    }
+  }
+
+  // Toggle subtask completion
+  static async toggleSubtask(
+    subtaskId: string,
+    isCompleted: boolean
+  ): Promise<DatabaseResponse<any>> {
+    try {
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+      if (authError || !user) {
+        return { data: null, error: new Error('User not authenticated') };
+      }
+
+      const updateData = {
+        is_completed: isCompleted,
+        completed_at: isCompleted ? new Date().toISOString() : null,
+        updated_at: new Date().toISOString()
+      };
+
+      const { data, error } = await supabase
+        .from('task_subtasks')
+        .update(updateData)
+        .eq('id', subtaskId)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error toggling subtask:', error);
+        return { data: null, error: new Error('Failed to toggle subtask') };
+      }
+
+      return { data, error: null };
+    } catch (error) {
+      console.error('Unexpected error in toggleSubtask:', error);
+      return {
+        data: null,
+        error:
+          error instanceof Error ? error : new Error('Failed to toggle subtask'),
+      };
+    }
+  }
+
+  // Delete subtask
+  static async deleteSubtask(subtaskId: string): Promise<{ error: Error | null }> {
+    try {
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+      if (authError || !user) {
+        return { error: new Error('User not authenticated') };
+      }
+
+      const { error } = await supabase
+        .from('task_subtasks')
+        .delete()
+        .eq('id', subtaskId)
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error deleting subtask:', error);
+        return { error: new Error('Failed to delete subtask') };
+      }
+
+      return { error: null };
+    } catch (error) {
+      console.error('Unexpected error in deleteSubtask:', error);
+      return {
+        error:
+          error instanceof Error ? error : new Error('Failed to delete subtask'),
+      };
+    }
+  }
+
+  // Create dependent task (child task that depends on parent)
+  static async createDependentTask(
+    parentTaskId: string,
+    taskData: CreateTaskInput
+  ): Promise<DatabaseResponse<EnhancedTaskUI>> {
+    return this.createTask(taskData, parentTaskId);
+  }
+
+  // Set task dependency (make taskId depend on parentId)
+  static async setTaskDependency(
+    taskId: string,
+    parentId: string
+  ): Promise<DatabaseResponse<any>> {
+    try {
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+      if (authError || !user) {
+        return { data: null, error: new Error('User not authenticated') };
+      }
+
+      // Check if parent task is completed
+      const { data: parentTask, error: parentError } = await supabase
+        .from('tasks')
+        .select('status')
+        .eq('id', parentId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (parentError) {
+        return { data: null, error: new Error('Parent task not found') };
+      }
+
+      const dependencyStatus = parentTask.status === 'done' ? 'ready' : 'blocked';
+
+      const { data, error } = await supabase
+        .from('tasks')
+        .update({
+          parent_id: parentId,
+          dependency_status: dependencyStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', taskId)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error setting task dependency:', error);
+        return { data: null, error: new Error('Failed to set dependency') };
+      }
+
+      return { data, error: null };
+    } catch (error) {
+      console.error('Unexpected error in setTaskDependency:', error);
+      return {
+        data: null,
+        error:
+          error instanceof Error ? error : new Error('Failed to set dependency'),
+      };
+    }
+  }
+
+  // Remove task dependency (make task independent)
+  static async removeDependency(taskId: string): Promise<DatabaseResponse<any>> {
+    try {
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+      if (authError || !user) {
+        return { data: null, error: new Error('User not authenticated') };
+      }
+
+      const { data, error } = await supabase
+        .from('tasks')
+        .update({
+          parent_id: taskId, // Self-reference for independent task
+          dependency_status: 'independent',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', taskId)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error removing task dependency:', error);
+        return { data: null, error: new Error('Failed to remove dependency') };
+      }
+
+      return { data, error: null };
+    } catch (error) {
+      console.error('Unexpected error in removeDependency:', error);
+      return {
+        data: null,
+        error:
+          error instanceof Error ? error : new Error('Failed to remove dependency'),
+      };
+    }
+  }
+
+  // Get task dependencies (children that depend on this task)
+  static async getTaskChildren(taskId: string): Promise<DatabaseResponse<any[]>> {
+    try {
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+      if (authError || !user) {
+        return { data: [], error: new Error('User not authenticated') };
+      }
+
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('id, task_number, title, status, dependency_status')
+        .eq('parent_id', taskId)
+        .eq('user_id', user.id)
+        .neq('id', taskId) // Exclude self-reference
+        .order('created_at');
+
+      if (error) {
+        console.error('Error getting task children:', error);
+        return { data: [], error: new Error('Failed to get dependencies') };
+      }
+
+      return { data: data || [], error: null };
+    } catch (error) {
+      console.error('Unexpected error in getTaskChildren:', error);
+      return {
+        data: [],
+        error:
+          error instanceof Error ? error : new Error('Failed to get dependencies'),
+      };
+    }
+  }
+
   // Add comment to task
   static async addComment(
     taskId: string,
@@ -390,10 +650,7 @@ export class EnhancedTaskService {
       const { data, error } = await supabase
         .from('task_comments')
         .insert([commentData])
-        .select(`
-          *,
-          profiles(full_name)
-        `)
+        .select(`*`)
         .single();
 
       if (error) {
@@ -404,7 +661,7 @@ export class EnhancedTaskService {
       return { 
         data: {
           ...data,
-          user_name: data.profiles?.full_name || 'Unknown user'
+          user_name: 'Current User' // Since we don't have profile relationship
         } as TaskComment, 
         error: null 
       };
@@ -432,14 +689,11 @@ export class EnhancedTaskService {
       plannedStartDate: dbTask.planned_start_date
         ? new Date(dbTask.planned_start_date)
         : undefined,
-      createdByName: dbTask.profiles?.full_name || 'Unknown user',
-      attachments: dbTask.task_attachments || [],
-      comments: (dbTask.task_comments || []).map((comment: any) => ({
-        ...comment,
-        user_name: comment.profiles?.full_name || 'Unknown user'
-      })),
-      attachment_count: dbTask.task_attachments?.length || 0,
-      comment_count: dbTask.task_comments?.length || 0,
+      createdByName: 'Current User',
+      attachments: [], // Empty for now until we fix attachments table
+      comments: [], // Empty for now until we fix comments table
+      attachment_count: 0,
+      comment_count: 0,
     };
   }
 

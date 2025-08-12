@@ -120,10 +120,10 @@ export default function Community() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Latest Discussions</h3>
               <div className="space-y-4">
                 {[
-                  { title: "How to overcome imposter syndrome?", author: "Sarah M.", replies: 12, time: "2 hours ago" },
-                  { title: "My 30-day habit tracking results!", author: "Mike R.", replies: 8, time: "4 hours ago" },
-                  { title: "Vision movie creation tips", author: "Lisa K.", replies: 15, time: "6 hours ago" },
-                  { title: "Finding the right accountability partner", author: "James D.", replies: 6, time: "8 hours ago" }
+                  { title: 'How to overcome imposter syndrome?', author: 'Sarah M.', replies: 12, time: '2 hours ago' },
+                  { title: 'My 30-day habit tracking results!', author: 'Mike R.', replies: 8, time: '4 hours ago' },
+                  { title: 'Vision movie creation tips', author: 'Lisa K.', replies: 15, time: '6 hours ago' },
+                  { title: 'Finding the right accountability partner', author: 'James D.', replies: 6, time: '8 hours ago' }
                 ].map((discussion, index) => (
                   <div key={index} className="flex justify-between items-start">
                     <div>
@@ -144,10 +144,10 @@ export default function Community() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Success Stories</h3>
               <div className="space-y-4">
                 {[
-                  { name: "Emma T.", achievement: "Completed first vision movie", time: "1 day ago" },
-                  { name: "David L.", achievement: "30-day meditation streak", time: "2 days ago" },
-                  { name: "Rachel P.", achievement: "Started dream business", time: "3 days ago" },
-                  { name: "Tom W.", achievement: "Lost 20 pounds with new habits", time: "5 days ago" }
+                  { name: 'Emma T.', achievement: 'Completed first vision movie', time: '1 day ago' },
+                  { name: 'David L.', achievement: '30-day meditation streak', time: '2 days ago' },
+                  { name: 'Rachel P.', achievement: 'Started dream business', time: '3 days ago' },
+                  { name: 'Tom W.', achievement: 'Lost 20 pounds with new habits', time: '5 days ago' }
                 ].map((story, index) => (
                   <div key={index} className="flex items-center space-x-3">
                     <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
