@@ -46,14 +46,14 @@ export function MotivationWidget({
       
       // Fallback to direct motivation generation
       const motivations = [
-        "Progress isn't always visible, but it's always happening. Trust your journey.",
-        "Small steps taken consistently create extraordinary results over time.",
-        "Your energy is precious. Use it on what truly matters to you.",
-        "It's okay to rest. Taking breaks is part of moving forward.",
-        "You're exactly where you need to be right now. Keep going.",
-        "Every task completed, no matter how small, is a victory worth celebrating.",
-        "Your future self will thank you for the effort you're putting in today.",
-        "Consistency beats perfection. You're building something meaningful."
+        'Progress isn\'t always visible, but it\'s always happening. Trust your journey.',
+        'Small steps taken consistently create extraordinary results over time.',
+        'Your energy is precious. Use it on what truly matters to you.',
+        'It\'s okay to rest. Taking breaks is part of moving forward.',
+        'You\'re exactly where you need to be right now. Keep going.',
+        'Every task completed, no matter how small, is a victory worth celebrating.',
+        'Your future self will thank you for the effort you\'re putting in today.',
+        'Consistency beats perfection. You\'re building something meaningful.'
       ];
       
       const randomMotivation = motivations[Math.floor(Math.random() * motivations.length)];
@@ -63,7 +63,7 @@ export function MotivationWidget({
       
     } catch (error) {
       console.error('Error fetching motivation:', error);
-      setMotivation("You're doing great. Keep going! 💜");
+      setMotivation('You\'re doing great. Keep going! 💜');
       setAuthor('Asista');
     } finally {
       setLoading(false);

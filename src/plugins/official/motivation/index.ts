@@ -182,7 +182,7 @@ export default class MotivationPlugin implements Plugin {
       return motivation;
     } catch (error) {
       console.error('Error generating personalized motivation:', error);
-      return "You're doing great. Keep going! 💜";
+      return 'You\'re doing great. Keep going! 💜';
     }
   }
   
@@ -202,19 +202,19 @@ export default class MotivationPlugin implements Plugin {
       
       return `You've completed ${completedToday} tasks today. ${
         completedToday > 0 
-          ? "That's wonderful progress!" 
-          : "It's okay to start small. You're exactly where you need to be."
+          ? 'That\'s wonderful progress!' 
+          : 'It\'s okay to start small. You\'re exactly where you need to be.'
       }`;
     } catch (error) {
       console.error('Error getting progress summary:', error);
-      return "You're making progress in your own way. That's what matters.";
+      return 'You\'re making progress in your own way. That\'s what matters.';
     }
   }
   
   private async sendWelcomeMessage(): Promise<void> {
     this.context.ui.showNotification({
       title: '✨ Motivation Booster Activated',
-      message: "I'm here to support your journey with gentle encouragement.",
+      message: 'I\'m here to support your journey with gentle encouragement.',
       type: 'success',
       duration: 5000
     });

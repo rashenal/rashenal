@@ -250,7 +250,7 @@ export default function InnovationLabs() {
                       <p className="text-gray-600 text-sm mb-3">{plugin.description}</p>
                       
                       <div className="flex items-center justify-between">
-                        <span className={`px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium`}>
+                        <span className={'px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium'}>
                           {plugin.category}
                         </span>
                         <span className="text-xs text-gray-500">

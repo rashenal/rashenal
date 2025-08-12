@@ -312,7 +312,7 @@ export default function EnhancedTestDashboard() {
           await delay(500);
           
           // Verify it was saved to database
-          addLog(test.id, `Fetching from database...`);
+          addLog(test.id, 'Fetching from database...');
           const { data: savedPrefs, error: fetchError } = await supabase
             .from('user_profiles')
             .select('preferences')
@@ -769,7 +769,7 @@ ${JSON.stringify(testResults, null, 2)}
                           <button
                             onClick={() => toggleLogVisibility(test.id)}
                             className="p-1 text-gray-500 hover:text-gray-700"
-                            title={showLogs ? "Hide logs" : "Show logs"}
+                            title={showLogs ? 'Hide logs' : 'Show logs'}
                           >
                             {showLogs ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                           </button>

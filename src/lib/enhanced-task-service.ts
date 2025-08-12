@@ -53,7 +53,7 @@ export class EnhancedTaskService {
 
       let query = supabase
         .from('tasks')
-        .select(`*`)
+        .select('*')
         .eq('user_id', user.id)
         .order('position', { ascending: true })
         .order('created_at', { ascending: false });
@@ -650,7 +650,7 @@ export class EnhancedTaskService {
       const { data, error } = await supabase
         .from('task_comments')
         .insert([commentData])
-        .select(`*`)
+        .select('*')
         .single();
 
       if (error) {

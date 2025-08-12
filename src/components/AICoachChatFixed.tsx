@@ -19,10 +19,10 @@ interface QuickPrompt {
 }
 
 const quickPrompts: QuickPrompt[] = [
-  { text: "What should I focus on today?", category: 'goals' },
-  { text: "Help me build a new habit", category: 'habits' },
-  { text: "I need motivation", category: 'motivation' },
-  { text: "Review my progress", category: 'reflection' },
+  { text: 'What should I focus on today?', category: 'goals' },
+  { text: 'Help me build a new habit', category: 'habits' },
+  { text: 'I need motivation', category: 'motivation' },
+  { text: 'Review my progress', category: 'reflection' },
 ];
 
 interface UserContext {

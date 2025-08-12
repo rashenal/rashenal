@@ -183,7 +183,7 @@ describe('Motivation Plugin', () => {
       
       const motivation = await plugin.getPersonalizedMotivation();
       
-      expect(motivation).toBe("You're doing great. Keep going! 💜");
+      expect(motivation).toBe('You\'re doing great. Keep going! 💜');
     });
 
     it('should adapt to low energy level', async () => {
@@ -241,7 +241,7 @@ describe('Motivation Plugin', () => {
       
       expect(mockContext.ui.showNotification).toHaveBeenCalledWith({
         title: '✨ Motivation Booster Activated',
-        message: "I'm here to support your journey with gentle encouragement.",
+        message: 'I\'m here to support your journey with gentle encouragement.',
         type: 'success',
         duration: 5000
       });

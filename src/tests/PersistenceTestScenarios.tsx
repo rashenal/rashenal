@@ -172,7 +172,7 @@ export default function PersistenceTestScenarios() {
           await delay(500);
           
           // Verify it was saved to database
-          addLog(test.id, `Fetching from database...`);
+          addLog(test.id, 'Fetching from database...');
           const { data: savedPrefs, error: fetchError } = await supabase
             .from('user_profiles')
             .select('preferences')
@@ -191,7 +191,7 @@ export default function PersistenceTestScenarios() {
             throw new Error('Preference not saved to database');
           }
           
-          addLog(test.id, `Success! Restoring original value...`);
+          addLog(test.id, 'Success! Restoring original value...');
           // Restore original value
           await updatePreference('taskBoard', 'showCardDetails', !testValue);
           break;
@@ -295,7 +295,7 @@ export default function PersistenceTestScenarios() {
             throw new Error('Task attributes not fully saved');
           }
           
-          addLog(test.id, `All attributes verified, cleaning up...`);
+          addLog(test.id, 'All attributes verified, cleaning up...');
           // Clean up
           await supabase
             .from('tasks')
@@ -1344,7 +1344,7 @@ ${JSON.stringify(preferences, null, 2)}
                         <button
                           onClick={() => setShowLogs(!showLogs)}
                           className="p-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                          title={showLogs ? "Hide logs" : "Show logs"}
+                          title={showLogs ? 'Hide logs' : 'Show logs'}
                         >
                           <AlertCircle className="h-4 w-4" />
                         </button>
