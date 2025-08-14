@@ -167,10 +167,14 @@ export default function EnhancedNavigation({ onContactFormOpen }: NavigationProp
                 to="/" 
                 className="flex items-center space-x-3 text-gray-900 hover:text-blue-600 transition-colors"
               >
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Sparkles className="h-6 w-6 text-white" />
+                <div className="w-10 h-10 rounded-lg overflow-hidden">
+                  <img 
+                    src="/aisista-logo.png" 
+                    alt="aisista.ai logo" 
+                    className="w-full h-full object-contain"
+                  />
                 </div>
-                <span className="text-xl font-bold">Rashenal AI</span>
+                <span className="text-xl font-bold">aisista.ai</span>
               </Link>
             </div>
 

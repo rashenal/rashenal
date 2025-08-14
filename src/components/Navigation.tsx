@@ -44,9 +44,12 @@ export default function Navigation({ onContactFormOpen }: NavigationProps) {
       <nav className="navigation">
         <div className="nav-brand">
           <Link to="/" className="logo">
-            <Sparkles className="logo-icon" />
-            {/* ✅ CHANGED: Updated brand name */}
-            <span className="brand-name">Rashenal AI</span>
+            <img 
+              src="/aisista-logo.png" 
+              alt="aisista.ai logo" 
+              className="logo-icon w-8 h-8 object-contain"
+            />
+            <span className="brand-name">aisista.ai</span>
           </Link>
         </div>
 

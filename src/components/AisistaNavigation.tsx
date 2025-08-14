@@ -174,8 +174,12 @@ export default function AisistaNavigation({ onContactFormOpen }: NavigationProps
                 to="/" 
                 className="flex items-center space-x-3 text-gray-900 hover:text-purple-600 transition-colors group"
               >
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-purple-200 transition-all duration-300">
-                  <Sparkles className="h-6 w-6 text-white" />
+                <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg group-hover:shadow-purple-200 transition-all duration-300">
+                  <img 
+                    src="/aisista-logo.png" 
+                    alt="aisista.ai logo" 
+                    className="w-full h-full object-contain"
+                  />
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">

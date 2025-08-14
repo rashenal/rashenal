@@ -78,6 +78,7 @@ function AppRoutes() {
           <Routes>
             <Route path="/" element={<InclusiveLandingPage />} />
             <Route path="/auth" element={<AuthForm />} />
+            <Route path="/login" element={<AuthForm />} />
             <Route
               path="/tasks"
               element={session ? <EnhancedTaskBoard /> : <Navigate to="/auth" replace />}
