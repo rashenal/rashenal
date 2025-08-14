@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, AlertCircle, CheckCircle, Clock, Eye } from 'lucide-react';
+import { Play, Pause, RotateCcw, AlertCircle, CheckCircle, Clock, Eye, Monitor, Maximize2, Minimize2 } from 'lucide-react';
 
 interface TestResult {
   id: string;
@@ -28,6 +28,8 @@ const TestMonitorDashboard: React.FC = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [selectedTest, setSelectedTest] = useState<TestResult | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
+  const [showBrowserPreview, setShowBrowserPreview] = useState(false);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const wsRef = useRef<WebSocket | null>(null);
   const logContainerRef = useRef<HTMLDivElement>(null);
 
@@ -426,8 +428,145 @@ const TestMonitorDashboard: React.FC = () => {
                 )}
               </div>
             </div>
+
+            {/* Browser Preview Panel */}
+            <div className="bg-white rounded-lg shadow-sm">
+              <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">Live Browser Preview</h3>
+                <button
+                  onClick={() => setShowBrowserPreview(!showBrowserPreview)}
+                  className="flex items-center px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                >
+                  <Monitor className="w-4 h-4 mr-2" />
+                  {showBrowserPreview ? 'Hide' : 'Show'} Preview
+                </button>
+              </div>
+              
+              {showBrowserPreview && (
+                <div className="p-4 space-y-4">
+                  {/* Multiple Browser Windows */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Main Test Window */}
+                    <div className="border rounded-lg overflow-hidden">
+                      <div className="bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 flex items-center justify-between">
+                        <span>🌐 Test Browser 1 - Current Test</span>
+                        <button className="text-gray-500 hover:text-gray-700">
+                          <Maximize2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="bg-white h-64 flex items-center justify-center border-2 border-dashed border-gray-200">
+                        <iframe
+                          src="http://localhost:5173"
+                          className="w-full h-full border-0"
+                          title="Test Browser 1"
+                          sandbox="allow-same-origin allow-scripts allow-forms allow-navigation"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Secondary Test Window */}
+                    <div className="border rounded-lg overflow-hidden">
+                      <div className="bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 flex items-center justify-between">
+                        <span>🔧 Test Browser 2 - Login Page</span>
+                        <button className="text-gray-500 hover:text-gray-700">
+                          <Maximize2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="bg-white h-64 flex items-center justify-center">
+                        <iframe
+                          src="http://localhost:5173/login"
+                          className="w-full h-full border-0"
+                          title="Test Browser 2"
+                          sandbox="allow-same-origin allow-scripts allow-forms allow-navigation"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Mobile View */}
+                    <div className="border rounded-lg overflow-hidden">
+                      <div className="bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 flex items-center justify-between">
+                        <span>📱 Mobile View - Tasks Page</span>
+                        <button className="text-gray-500 hover:text-gray-700">
+                          <Maximize2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="bg-white h-64 flex items-center justify-center">
+                        <div className="w-32 h-full border border-gray-300 rounded overflow-hidden">
+                          <iframe
+                            src="http://localhost:5173/tasks"
+                            className="w-full h-full border-0 transform scale-50 origin-top-left"
+                            style={{ width: '200%', height: '200%' }}
+                            title="Mobile View"
+                            sandbox="allow-same-origin allow-scripts allow-forms allow-navigation"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* AI Coach View */}
+                    <div className="border rounded-lg overflow-hidden">
+                      <div className="bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 flex items-center justify-between">
+                        <span>🤖 AI Coach - Dashboard</span>
+                        <button className="text-gray-500 hover:text-gray-700">
+                          <Maximize2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="bg-white h-64 flex items-center justify-center">
+                        <iframe
+                          src="http://localhost:5173/ai-coach"
+                          className="w-full h-full border-0"
+                          title="AI Coach View"
+                          sandbox="allow-same-origin allow-scripts allow-forms allow-navigation"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Browser Controls */}
+                  <div className="flex items-center justify-between bg-gray-50 px-4 py-3 rounded">
+                    <div className="flex items-center space-x-4">
+                      <span className="text-sm font-medium text-gray-700">Browser Controls:</span>
+                      <button className="px-3 py-1 bg-green-100 text-green-700 rounded text-sm hover:bg-green-200">
+                        Refresh All
+                      </button>
+                      <button className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200">
+                        Sync to Test
+                      </button>
+                      <button className="px-3 py-1 bg-purple-100 text-purple-700 rounded text-sm hover:bg-purple-200">
+                        Screenshot All
+                      </button>
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      🔄 Auto-refresh: ON
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Fullscreen Browser Preview Modal */}
+        {showBrowserPreview && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" id="fullscreen-preview">
+            <div className="absolute inset-4 bg-white rounded-lg overflow-hidden">
+              <div className="bg-gray-100 px-4 py-3 flex items-center justify-between">
+                <span className="font-medium">Fullscreen Test Browser</span>
+                <button 
+                  onClick={() => document.getElementById('fullscreen-preview')?.classList.add('hidden')}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <Minimize2 className="w-5 h-5" />
+                </button>
+              </div>
+              <iframe
+                src="http://localhost:5173"
+                className="w-full h-full border-0"
+                title="Fullscreen Browser"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
