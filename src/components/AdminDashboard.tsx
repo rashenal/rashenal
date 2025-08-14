@@ -30,6 +30,7 @@ import {
 import { useUser } from '../contexts/userContext';
 import TestRunner from './TestRunner';
 import EnhancedTestDashboard from './admin/EnhancedTestDashboard';
+import TestMonitorDashboard from './admin/TestMonitorDashboard';
 import { checkAllFeatures } from '../api/health/features';
 import EmailAgentMonitor from './admin/EmailAgentMonitor';
 import DatabaseMigrationHelper from './DatabaseMigrationHelper';
@@ -160,6 +161,7 @@ export default function AdminDashboard() {
     { id: 'database', name: 'Database Manager', icon: Database },
     { id: 'health', name: 'Health Monitor', icon: Activity },
     { id: 'tests', name: 'Test Dashboard', icon: TestTube },
+    { id: 'test-monitor', name: 'Live Test Monitor', icon: Monitor },
     { id: 'users', name: 'User Management', icon: Users },
     { id: 'debug', name: 'Debug Console', icon: Terminal },
     { id: 'settings', name: 'System Settings', icon: Settings }
@@ -369,6 +371,10 @@ export default function AdminDashboard() {
 
             {activeTab === 'tests' && (
               <EnhancedTestDashboard />
+            )}
+
+            {activeTab === 'test-monitor' && (
+              <TestMonitorDashboard />
             )}
 
             {activeTab === 'email-agent' && (
