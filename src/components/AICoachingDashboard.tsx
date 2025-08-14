@@ -52,7 +52,7 @@ export default function AICoachingDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-indigo-900/20 p-4 theme-transition">
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-indigo-900/20 p-4 theme-transition">
       <div className="max-w-7xl mx-auto">
         {/* Dark mode toggle in header */}
         <div className="flex justify-end mb-4">
@@ -308,6 +308,6 @@ export default function AICoachingDashboard() {
           localStorage.setItem('settings_goals', JSON.stringify(newSettings));
         }}
       />
-    </div>
+    </main>
   );
 }
