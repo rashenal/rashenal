@@ -143,7 +143,11 @@ export default function EnhancedTaskBoard({ boardId }: EnhancedTaskBoardProps) {
 
   // Load tasks from database and create a virtual board
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      // Show demo content when user is not authenticated
+      createDemoBoard();
+      return;
+    }
     
     const loadTasksFromDatabase = async () => {
       try {
@@ -253,6 +257,163 @@ export default function EnhancedTaskBoard({ boardId }: EnhancedTaskBoardProps) {
 
     loadTasksFromDatabase();
   }, [user, boardId]);
+
+  const createDemoBoard = useCallback(() => {
+    const demoBoard: TaskBoard = {
+      id: 'demo-board',
+      user_id: 'demo-user',
+      name: '🚀 Enhanced TaskBoard Demo',
+      description: 'Experience all features: drag & drop, projects, comments, and more!',
+      color_scheme: 'gradient-to-r from-blue-500 to-purple-600',
+      is_archived: false,
+      is_favorite: true,
+      progress_percentage: 25,
+      columns: [
+        { id: 'backlog', board_id: 'demo-board', name: '📋 Backlog', color: 'gray', position: 0, is_completion_column: false },
+        { id: 'todo', board_id: 'demo-board', name: '📝 To Do', color: 'blue', position: 1, is_completion_column: false },
+        { id: 'in_progress', board_id: 'demo-board', name: '⚡ In Progress', color: 'orange', position: 2, is_completion_column: false },
+        { id: 'done', board_id: 'demo-board', name: '✅ Done', color: 'green', position: 3, is_completion_column: true }
+      ],
+      tasks: [
+        {
+          id: 'demo-task-1',
+          task_number: 1,
+          board_id: 'demo-board',
+          column_id: 'backlog',
+          user_id: 'demo-user',
+          title: 'Design new landing page',
+          description: 'Create wireframes and mockups for the new product landing page with improved conversion rates',
+          priority: 'high',
+          energy_level: 'medium',
+          business_value: 85,
+          personal_value: 70,
+          estimated_duration: 240,
+          due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          position: 0,
+          tags: ['design', 'marketing', 'high-impact', 'work'],
+          parent_id: null,
+          has_children: false,
+          dependency_status: 'none',
+          status: 'backlog',
+          created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+          updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: 'demo-task-2',
+          task_number: 2,
+          board_id: 'demo-board',
+          column_id: 'todo',
+          user_id: 'demo-user',
+          title: 'Implement user authentication',
+          description: 'Set up secure login/logout functionality with password reset and 2FA support',
+          priority: 'urgent',
+          energy_level: 'high',
+          business_value: 95,
+          personal_value: 80,
+          estimated_duration: 480,
+          due_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+          position: 0,
+          tags: ['security', 'backend', 'authentication', 'work'],
+          parent_id: null,
+          has_children: true,
+          dependency_status: 'blocked',
+          status: 'todo',
+          created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+          updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: 'demo-task-3',
+          task_number: 3,
+          board_id: 'demo-board',
+          column_id: 'in_progress',
+          user_id: 'demo-user',
+          title: 'Write API documentation',
+          description: 'Create comprehensive API docs with examples, authentication details, and integration guides',
+          priority: 'medium',
+          energy_level: 'low',
+          business_value: 60,
+          personal_value: 40,
+          estimated_duration: 180,
+          due_date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+          position: 0,
+          tags: ['documentation', 'api', 'developer-experience', 'learning'],
+          parent_id: null,
+          has_children: false,
+          dependency_status: 'ready',
+          status: 'in_progress',
+          created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 'demo-task-4',
+          task_number: 4,
+          board_id: 'demo-board',
+          column_id: 'done',
+          user_id: 'demo-user',
+          title: 'Set up CI/CD pipeline',
+          description: 'Configure automated testing, building, and deployment pipeline with proper staging environments',
+          priority: 'medium',
+          energy_level: 'medium',
+          business_value: 75,
+          personal_value: 85,
+          estimated_duration: 360,
+          due_date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+          position: 0,
+          tags: ['devops', 'automation', 'infrastructure', 'personal'],
+          parent_id: null,
+          has_children: false,
+          dependency_status: 'ready',
+          status: 'done',
+          created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+          updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+        }
+      ],
+      goals_connected: [],
+      ai_insights: {
+        productivity_score: 78,
+        bottlenecks: ['Authentication blocking other features'],
+        progress_prediction: {
+          estimated_completion_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+          confidence_level: 82,
+          key_risks: ['Scope creep on authentication features']
+        },
+        optimization_suggestions: ['Consider breaking down authentication task', 'Prioritize landing page for marketing campaign'],
+        workload_analysis: {
+          current_capacity_usage: 75,
+          energy_distribution: { low: 30, medium: 50, high: 20 },
+          peak_productivity_times: ['morning', 'late-afternoon'],
+          suggested_task_scheduling: []
+        }
+      },
+      settings: {
+        auto_archive_completed: false,
+        auto_archive_days: 30,
+        enable_ai_suggestions: true,
+        enable_time_tracking: true,
+        enable_goal_integration: true,
+        notification_preferences: {
+          due_date_reminders: true,
+          progress_updates: true,
+          ai_insights: true,
+          collaboration_updates: false
+        },
+        view_preferences: {
+          default_view: 'kanban',
+          show_sub_tasks: true,
+          show_dependencies: true,
+          show_ai_insights: true,
+          compact_mode: false
+        }
+      },
+      created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+      last_activity: new Date().toISOString()
+    };
+
+    setBoards([demoBoard]);
+    setCurrentBoard(demoBoard);
+    setIsLoading(false);
+  }, []);
 
   const createWelcomeBoard = useCallback(() => {
     if (!user) return;
@@ -377,6 +538,7 @@ export default function EnhancedTaskBoard({ boardId }: EnhancedTaskBoardProps) {
 
   // Comments and audit functionality
   const logAuditEntry = useCallback((taskId: string, action: string, field?: string, oldValue?: any, newValue?: any) => {
+    // Skip audit logging for demo mode when user is null
     if (!user) return;
     
     const auditEntry: TaskAuditEntry = {
@@ -401,13 +563,16 @@ export default function EnhancedTaskBoard({ boardId }: EnhancedTaskBoardProps) {
   }, [user]);
   
   const addComment = useCallback((taskId: string) => {
-    if (!newComment.trim() || !user) return;
+    if (!newComment.trim()) return;
+    
+    // For demo mode, create a dummy user when user is null
+    const userName = user?.email || 'Demo User';
     
     const comment: TaskComment = {
       id: `comment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       task_id: taskId,
-      user_id: user.id,
-      user_name: user.email || 'User',
+      user_id: user?.id || 'demo-user',
+      user_name: userName,
       content: newComment.trim(),
       created_at: new Date().toISOString()
     };
@@ -468,9 +633,9 @@ export default function EnhancedTaskBoard({ boardId }: EnhancedTaskBoardProps) {
     
     let tasks = [...currentBoard.tasks];
     
-    // Apply project filter
+    // Apply project filter using tags
     if (selectedProject) {
-      tasks = tasks.filter(task => (task as any).project_id === selectedProject);
+      tasks = tasks.filter(task => task.tags.includes(selectedProject));
     }
     
     // Apply search filter

@@ -82,7 +82,7 @@ function AppRoutes() {
             <Route path="/login" element={<AuthForm />} />
             <Route
               path="/tasks"
-              element={session ? <EnhancedTaskBoard /> : <Navigate to="/auth" replace />}
+              element={<EnhancedTaskBoard />}
             />
             <Route
               path="/tasks-old"
