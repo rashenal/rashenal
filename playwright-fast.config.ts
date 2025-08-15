@@ -55,5 +55,5 @@ export default defineConfig({
   },
 
   // Global test configuration for faster execution
-  globalSetup: require.resolve('./tests/global-setup.ts'),
+  globalSetup: './tests/global-setup.ts',
 });

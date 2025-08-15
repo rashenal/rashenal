@@ -31,6 +31,7 @@ import AIssistents from './components/AIssistents';
 import PrivacyDashboard from './components/PrivacyDashboard';
 import InnovationLabs from './components/InnovationLabs';
 import StartWithThisPlugin from './plugins/official/StartWithThisPlugin';
+import AgentMarketplace from './components/agents/AgentMarketplace';
 import UserProfileManager from './components/UserProfileManager';
 import EnhancedTaskBoard from './components/EnhancedTaskBoard';
 import VoiceHub from './pages/voice/VoiceHub';
@@ -130,6 +131,10 @@ function AppRoutes() {
             <Route
               path="/jobs"
               element={session ? <JobFinderDashboard /> : <Navigate to="/auth" replace />}
+            />
+            <Route
+              path="/agents"
+              element={session ? <AgentMarketplace /> : <Navigate to="/auth" replace />}
             />
             <Route
               path="/coach"
